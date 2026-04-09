@@ -172,6 +172,22 @@
             "managedBy": "human-architect"
           }
         }
+      },
+      {
+        "identifier": "{E2E5BDA9-CD3A-4006-B989-FB76A8BD097B}",
+        "type": "Component",
+        "name": [
+          {
+            "value": "消息监听",
+            "lang": "en"
+          }
+        ],
+        "documentation": [],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
       }
     ]
   },
@@ -437,6 +453,42 @@
         "name": [
           {
             "value": "获取信息",
+            "lang": "en"
+          }
+        ],
+        "documentation": [],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{3D2B515A-535F-437c-BDD1-DACC73AF7829}",
+        "type": "Flow",
+        "source": "{E2E5BDA9-CD3A-4006-B989-FB76A8BD097B}",
+        "target": "{0EC74870-69FF-4adf-824C-30423EA43122}",
+        "name": [
+          {
+            "value": "触发情报分析",
+            "lang": "en"
+          }
+        ],
+        "documentation": [],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{748280A2-8D08-4468-814D-1ADA6B176F58}",
+        "type": "Flow",
+        "source": "{CE04DEB8-3CB8-4a76-AA08-1EC43619B28E}",
+        "target": "{E2E5BDA9-CD3A-4006-B989-FB76A8BD097B}",
+        "name": [
+          {
+            "value": "当有新安全事件、漏洞录入时，主动PUSH消息",
             "lang": "en"
           }
         ],

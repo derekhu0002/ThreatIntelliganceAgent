@@ -1,6 +1,25 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "github-copilot/gpt-5.4",
+  "model": "DeepSeek_custom_provider/deepseek-chat",
+  "provider": {
+    "DeepSeek_custom_provider": {
+      "models": {
+        "deepseek-chat": {
+          "name": "deepseek-chat",
+          "limit": {
+            "context": 128000,
+            "output": 4096
+          }
+        }
+      },
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "DeepSeek custom provider",
+      "options": {
+        "baseURL": "https://api.deepseek.com/v1",
+        "apiKey": "{env:DEEPSEEK_API_KEY}"
+      }
+    }
+  },
   "default_agent": "TARA_analyst",
   "instructions": [
     "AGENTS.md"
