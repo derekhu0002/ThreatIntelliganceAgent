@@ -20,7 +20,7 @@
       }
     }
   },
-  "default_agent": "TARA_analyst",
+  "default_agent": "ThreatIntelliganceCommander",
   "instructions": [
     "AGENTS.md"
   ],

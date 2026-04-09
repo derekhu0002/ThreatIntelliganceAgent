@@ -1,3 +1,5 @@
 
 .env
 artifacts/runtime/
+__pycache__/
+*.pyc
