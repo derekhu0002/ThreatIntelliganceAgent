@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.repo/threat-intelligence-agent/analysis-result.schema.json",
+  "title": "Threat Intelligence Agent V1 Structured Analysis Result",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "run_id",
+    "generated_at",
+    "event",
+    "key_information_summary",
+    "analysis_conclusion",
+    "evidence_query_basis",
+    "recommended_actions",
+    "collaboration_trace"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "event": {
+      "type": "object",
+      "required": ["event_id", "source", "event_type", "summary"],
+      "properties": {
+        "event_id": { "type": "string" },
+        "source": { "type": "string" },
+        "event_type": { "type": "string" },
+        "summary": { "type": "string" }
+      }
+    },
+    "key_information_summary": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "analysis_conclusion": {
+      "type": "object",
+      "required": ["summary", "confidence"],
+      "properties": {
+        "summary": { "type": "string" },
+        "confidence": { "type": "string" }
+      }
+    },
+    "evidence_query_basis": {
+      "type": "object"
+    },
+    "recommended_actions": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "collaboration_trace": {
+      "type": "object",
+      "required": ["participants", "role_outputs"],
+      "properties": {
+        "participants": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 2
+        },
+        "role_outputs": {
+          "type": "array",
+          "items": { "type": "object" },
+          "minItems": 2
+        }
+      }
+    }
+  }
+}

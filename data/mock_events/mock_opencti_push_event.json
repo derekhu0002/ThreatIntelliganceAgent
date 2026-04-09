@@ -1,0 +1,25 @@
+{
+  "contract_version": "mock-opencti-event.v1",
+  "event_id": "opencti-push-001",
+  "event_type": "opencti.push.indicator",
+  "source": "mock-opencti",
+  "triggered_at": "2026-04-09T12:00:00Z",
+  "summary": "Mock OPENCTI pushed an indicator tied to suspicious outbound traffic for 203.0.113.10.",
+  "severity": "high",
+  "labels": [
+    "apt28",
+    "credential-access",
+    "phishing"
+  ],
+  "entity": {
+    "id": "indicator--55555555-5555-4555-8555-555555555555",
+    "type": "indicator",
+    "name": "Suspicious IP 203.0.113.10"
+  },
+  "observables": [
+    {
+      "type": "ipv4-addr",
+      "value": "203.0.113.10"
+    }
+  ]
+}

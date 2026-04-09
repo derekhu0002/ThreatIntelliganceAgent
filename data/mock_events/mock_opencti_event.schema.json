@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.repo/threat-intelligence-agent/mock-opencti-event.schema.json",
+  "title": "Mock OPENCTI Push Event Contract",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "event_id",
+    "event_type",
+    "source",
+    "triggered_at",
+    "summary",
+    "entity",
+    "observables",
+    "severity"
+  ],
+  "properties": {
+    "contract_version": { "type": "string" },
+    "event_id": { "type": "string" },
+    "event_type": { "type": "string" },
+    "source": { "type": "string" },
+    "triggered_at": { "type": "string" },
+    "summary": { "type": "string" },
+    "severity": { "type": "string" },
+    "labels": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "entity": {
+      "type": "object",
+      "required": ["id", "type", "name"],
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string" },
+        "name": { "type": "string" }
+      }
+    },
+    "observables": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["type", "value"],
+        "properties": {
+          "type": { "type": "string" },
+          "value": { "type": "string" }
+        }
+      }
+    }
+  }
+}
