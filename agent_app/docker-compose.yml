@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  opencode:
+    image: ghcr.io/anomalyco/opencode
+    ports:
+      - "8124:4097"
+    entrypoint: ["/usr/local/bin/opencode"]
+    command: ["serve", "--port", "4097", "--hostname", "0.0.0.0", "--print-logs", "--log-level", "DEBUG"]
+    working_dir: /root/project_tia
+    volumes:
+      - ./opencode_app:/root/project_tia
+    stdin_open: true
+    tty: true

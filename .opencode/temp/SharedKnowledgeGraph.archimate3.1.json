@@ -1,0 +1,456 @@
+﻿{
+  "identifier": "pkg-{5D23922F-F6C4-4eff-9472-8A8A85784A09}",
+  "name": [
+    {
+      "value": "StrategyLayerAndMotivationAspect",
+      "lang": "en"
+    }
+  ],
+  "documentation": [],
+  "metadata": {
+    "schema": "https://www.opengroup.org/xsd/archimate/3.1/",
+    "schemaversion": "3.1"
+  },
+  "elements": {
+    "element": [
+      {
+        "identifier": "{C25C9030-5190-4e60-B8E2-AFF70EEA0235}",
+        "type": "Class",
+        "name": [
+          {
+            "value": "人机协同",
+            "lang": "en"
+          }
+        ],
+        "documentation": [],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{65A76379-9E62-4e2f-9B46-D5B3FBC94965}",
+        "type": "Class",
+        "name": [
+          {
+            "value": "威胁情报分析自动化",
+            "lang": "en"
+          }
+        ],
+        "documentation": [],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{82A5175C-A89A-4678-8A7B-9D3745130D68}",
+        "type": "Class",
+        "name": [
+          {
+            "value": "开发一个多AGNENT协作的威胁情报分析团队",
+            "lang": "en"
+          }
+        ],
+        "documentation": [],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{CE04DEB8-3CB8-4a76-AA08-1EC43619B28E}",
+        "type": "Component",
+        "name": [
+          {
+            "value": "OPENCTI服务",
+            "lang": "en"
+          }
+        ],
+        "documentation": [],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{0253EAD0-A3AD-490e-BCD8-0A23C567A51B}",
+        "type": "Component",
+        "name": [
+          {
+            "value": "数据查询CLI工具",
+            "lang": "en"
+          }
+        ],
+        "documentation": [],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{2FEB332C-8CEE-44f1-9F31-B8446E48586A}",
+        "type": "Class",
+        "name": [
+          {
+            "value": "人类用户",
+            "lang": "en"
+          }
+        ],
+        "documentation": [],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{8E0B9066-9040-4701-848A-F7E6FFF7CF58}",
+        "type": "Class",
+        "name": [
+          {
+            "value": "多AGENT团队协作",
+            "lang": "en"
+          }
+        ],
+        "documentation": [],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{470A24C5-D821-453d-8763-9AF1D1685CC7}",
+        "type": "Class",
+        "name": [
+          {
+            "value": "安全运营AGENT",
+            "lang": "en"
+          }
+        ],
+        "documentation": [],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{75DDBD8E-32C3-450c-ADF1-D73548C1C3D3}",
+        "type": "Class",
+        "name": [
+          {
+            "value": "情报分析AGENT",
+            "lang": "en"
+          }
+        ],
+        "documentation": [],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{0EC74870-69FF-4adf-824C-30423EA43122}",
+        "type": "Class",
+        "name": [
+          {
+            "value": "情报总管AGENT",
+            "lang": "en"
+          }
+        ],
+        "documentation": [],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      }
+    ]
+  },
+  "relationships": {
+    "relationship": [
+      {
+        "identifier": "{FEED3042-7368-4ddf-A785-4DF77BDC51F8}",
+        "type": "Realization",
+        "source": "{C25C9030-5190-4e60-B8E2-AFF70EEA0235}",
+        "target": "{82A5175C-A89A-4678-8A7B-9D3745130D68}",
+        "name": [
+          {
+            "value": "",
+            "lang": "en"
+          }
+        ],
+        "documentation": [],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{33C3C8A2-D592-48fc-9312-2CE3CDFA6054}",
+        "type": "Realization",
+        "source": "{82A5175C-A89A-4678-8A7B-9D3745130D68}",
+        "target": "{65A76379-9E62-4e2f-9B46-D5B3FBC94965}",
+        "name": [
+          {
+            "value": "",
+            "lang": "en"
+          }
+        ],
+        "documentation": [],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{09AE593B-0D7C-4a5c-8232-DAA7A3109727}",
+        "type": "Realization",
+        "source": "{0253EAD0-A3AD-490e-BCD8-0A23C567A51B}",
+        "target": "{CE04DEB8-3CB8-4a76-AA08-1EC43619B28E}",
+        "name": [
+          {
+            "value": "查询OPENCTI中的情报数据",
+            "lang": "en"
+          }
+        ],
+        "documentation": [],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{B5817AFE-20FC-4b86-B9DD-0BC520ACF688}",
+        "type": "Association",
+        "source": "{C25C9030-5190-4e60-B8E2-AFF70EEA0235}",
+        "target": "{2FEB332C-8CEE-44f1-9F31-B8446E48586A}",
+        "name": [
+          {
+            "value": "",
+            "lang": "en"
+          }
+        ],
+        "documentation": [],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{7C427C1A-1FA8-4544-B20D-B92081738538}",
+        "type": "Association",
+        "source": "{C25C9030-5190-4e60-B8E2-AFF70EEA0235}",
+        "target": "{8E0B9066-9040-4701-848A-F7E6FFF7CF58}",
+        "name": [
+          {
+            "value": "",
+            "lang": "en"
+          }
+        ],
+        "documentation": [],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{602ADCD9-0F81-4443-9FB4-50C2FBFA1336}",
+        "type": "Flow",
+        "source": "{2FEB332C-8CEE-44f1-9F31-B8446E48586A}",
+        "target": "{0EC74870-69FF-4adf-824C-30423EA43122}",
+        "name": [
+          {
+            "value": "提出需求",
+            "lang": "en"
+          }
+        ],
+        "documentation": [],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{37A6C7E0-9EBF-4d95-B3E4-EE7ED1C985F8}",
+        "type": "Association",
+        "source": "{8E0B9066-9040-4701-848A-F7E6FFF7CF58}",
+        "target": "{0EC74870-69FF-4adf-824C-30423EA43122}",
+        "name": [
+          {
+            "value": "",
+            "lang": "en"
+          }
+        ],
+        "documentation": [],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{520529E0-3560-4ec2-B917-704A43B347B4}",
+        "type": "Association",
+        "source": "{8E0B9066-9040-4701-848A-F7E6FFF7CF58}",
+        "target": "{470A24C5-D821-453d-8763-9AF1D1685CC7}",
+        "name": [
+          {
+            "value": "",
+            "lang": "en"
+          }
+        ],
+        "documentation": [],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{83F964B1-F9E0-48f5-BD0F-28A287428508}",
+        "type": "Association",
+        "source": "{8E0B9066-9040-4701-848A-F7E6FFF7CF58}",
+        "target": "{75DDBD8E-32C3-450c-ADF1-D73548C1C3D3}",
+        "name": [
+          {
+            "value": "",
+            "lang": "en"
+          }
+        ],
+        "documentation": [],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{9B73CB70-8A9C-4eca-9C8A-686E6665EF56}",
+        "type": "Flow",
+        "source": "{0EC74870-69FF-4adf-824C-30423EA43122}",
+        "target": "{470A24C5-D821-453d-8763-9AF1D1685CC7}",
+        "name": [
+          {
+            "value": "委托安全运营相关任务",
+            "lang": "en"
+          }
+        ],
+        "documentation": [],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{CAFCCFAD-38F7-4e54-8379-995557A26B59}",
+        "type": "Flow",
+        "source": "{470A24C5-D821-453d-8763-9AF1D1685CC7}",
+        "target": "{0EC74870-69FF-4adf-824C-30423EA43122}",
+        "name": [
+          {
+            "value": "分析完成后反馈结果",
+            "lang": "en"
+          }
+        ],
+        "documentation": [],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{10DC9D8B-5BAA-454f-A764-B6AD8BF8C01A}",
+        "type": "Realization",
+        "source": "{470A24C5-D821-453d-8763-9AF1D1685CC7}",
+        "target": "{0253EAD0-A3AD-490e-BCD8-0A23C567A51B}",
+        "name": [
+          {
+            "value": "获取信息",
+            "lang": "en"
+          }
+        ],
+        "documentation": [],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{AA7F9E16-E975-45cc-89A5-6C49DE70ED8B}",
+        "type": "Flow",
+        "source": "{0EC74870-69FF-4adf-824C-30423EA43122}",
+        "target": "{75DDBD8E-32C3-450c-ADF1-D73548C1C3D3}",
+        "name": [
+          {
+            "value": "委托情报分析任务",
+            "lang": "en"
+          }
+        ],
+        "documentation": [],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{830ED15A-5847-41ba-9623-B0769C010C1E}",
+        "type": "Flow",
+        "source": "{75DDBD8E-32C3-450c-ADF1-D73548C1C3D3}",
+        "target": "{0EC74870-69FF-4adf-824C-30423EA43122}",
+        "name": [
+          {
+            "value": "分析完成后反馈结果",
+            "lang": "en"
+          }
+        ],
+        "documentation": [],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{B94BB81D-8F1D-4e76-8031-A5CD504020DF}",
+        "type": "Realization",
+        "source": "{75DDBD8E-32C3-450c-ADF1-D73548C1C3D3}",
+        "target": "{0253EAD0-A3AD-490e-BCD8-0A23C567A51B}",
+        "name": [
+          {
+            "value": "获取信息",
+            "lang": "en"
+          }
+        ],
+        "documentation": [],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      }
+    ]
+  },
+  "propertyDefinitions": {
+    "propertyDefinition": []
+  },
+  "version": ""
+}
