@@ -5,43 +5,39 @@
 from __future__ import annotations
 
 import json
-import shutil
-import subprocess
-import sys
-import tempfile
 from datetime import datetime, timezone
+import os
 from pathlib import Path
 from typing import Any
 
 from services.mock_opencti_adapter import load_and_normalize_event
-from services.result_assembler import assemble_structured_result
+
+from .remote_client import RemoteOpencodeClient, load_default_main_agent
 
 
 class ThreatIntelListener:
     def __init__(
         self,
-        stix_data_path: str | Path | None = None,
-        orchestrator_script_path: str | Path | None = None,
+        remote_server_url: str | None = None,
+        main_agent: str | None = None,
+        remote_client: RemoteOpencodeClient | None = None,
     ) -> None:
         self.repo_root = Path(__file__).resolve().parents[2]
-        self.stix_data_path = Path(stix_data_path or self.repo_root / "data/stix_samples/threat_intel_bundle.json")
-        self.orchestrator_script_path = Path(
-            orchestrator_script_path
-            or self.repo_root / "agent_app/opencode_app/.opencode/tools/threat_intel_orchestrator.js"
-        )
+        self.main_agent = main_agent or load_default_main_agent(self.repo_root)
+        resolved_remote_server_url = remote_server_url or os.environ.get("THREAT_INTEL_REMOTE_SERVER_URL")
+
+        if remote_client is not None:
+            self.remote_client = remote_client
+        elif resolved_remote_server_url:
+            self.remote_client = RemoteOpencodeClient(resolved_remote_server_url)
+        else:
+            raise ValueError("A remote_server_url or THREAT_INTEL_REMOTE_SERVER_URL must be provided.")
 
     def process_event(self, event_path: str | Path, output_path: str | Path | None = None) -> dict[str, Any]:
         normalized_event = load_and_normalize_event(event_path).to_dict()
         run_context = self._create_run_context(normalized_event)
-        evidence_bundle = self._collect_evidence(normalized_event)
-        collaboration_output = self._invoke_orchestrator(run_context, normalized_event, evidence_bundle)
-
-        structured_result = assemble_structured_result(
-            run_context=run_context,
-            normalized_event=normalized_event,
-            evidence_bundle=evidence_bundle,
-            collaboration_output=collaboration_output,
-        )
+        remote_request = self._build_remote_request(run_context, normalized_event)
+        structured_result = self.remote_client.dispatch_analysis(remote_request)
 
         destination = Path(output_path or self.repo_root / f"artifacts/runtime/{normalized_event['event_id']}-analysis.json")
         destination.parent.mkdir(parents=True, exist_ok=True)
@@ -57,76 +53,24 @@ class ThreatIntelListener:
             "source": normalized_event["source"],
         }
 
-    def _collect_evidence(self, normalized_event: dict[str, Any]) -> dict[str, Any]:
-        queries: list[dict[str, Any]] = []
-        relationship_views: list[dict[str, Any]] = []
-        candidate_ids: list[str] = []
-        search_terms = [normalized_event["entity"]["name"], *[obs["value"] for obs in normalized_event["observables"]]]
-
-        for search_term in dict.fromkeys(search_terms):
-            result = self._invoke_stix_cli(["search", "--query", search_term])
-            queries.append(result)
-            for match in result.get("matches", [])[:2]:
-                stix_id = match.get("id")
-                if stix_id and stix_id not in candidate_ids:
-                    candidate_ids.append(stix_id)
-
-        for stix_id in candidate_ids[:3]:
-            relationship_views.append(self._invoke_stix_cli(["neighbors", "--stix-id", stix_id]))
-
-        return {
-            "stix_bundle": str(self.stix_data_path.relative_to(self.repo_root)),
-            "searches": queries,
-            "relationships": relationship_views,
-        }
-
-    def _invoke_stix_cli(self, command_args: list[str]) -> dict[str, Any]:
-        cli_command = [
-            sys.executable,
-            "-m",
-            "tools.stix_cli",
-            "--data",
-            str(self.stix_data_path),
-            *command_args,
-        ]
-        completed = subprocess.run(
-            cli_command,
-            cwd=self.repo_root,
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-        return json.loads(completed.stdout)
-
-    def _invoke_orchestrator(
+    def _build_remote_request(
         self,
         run_context: dict[str, Any],
         normalized_event: dict[str, Any],
-        evidence_bundle: dict[str, Any],
     ) -> dict[str, Any]:
-        node_path = shutil.which("node")
-        if not node_path:
-            raise RuntimeError("Node.js is required to run the local multi-agent orchestrator script.")
-
-        payload = {
+        return {
+            "request_contract_version": "threat-intelligence-agent.remote-request.v1",
+            "main_agent": self.main_agent,
             "run_context": run_context,
             "event": normalized_event,
-            "evidence_bundle": evidence_bundle,
+            "stix_elements": {
+                "entity": normalized_event["entity"],
+                "observables": normalized_event["observables"],
+                "labels": normalized_event.get("labels", []),
+                "severity": normalized_event.get("severity"),
+            },
+            "prompt": (
+                f"Main agent {self.main_agent} must analyze PUSH event {normalized_event['event_id']} "
+                f"using the provided STIX entity and observables, then return a structured result."
+            ),
         }
-
-        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as temp_file:
-            temp_file.write(json.dumps(payload, ensure_ascii=False))
-            temp_path = Path(temp_file.name)
-
-        try:
-            completed = subprocess.run(
-                [node_path, str(self.orchestrator_script_path), str(temp_path)],
-                cwd=self.repo_root,
-                check=True,
-                capture_output=True,
-                text=True,
-            )
-        finally:
-            temp_path.unlink(missing_ok=True)
-
-        return json.loads(completed.stdout)

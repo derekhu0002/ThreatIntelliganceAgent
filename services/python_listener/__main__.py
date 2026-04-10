@@ -20,9 +20,19 @@ def main() -> None:
         default=None,
         help="Optional output path for the structured result artifact.",
     )
+    parser.add_argument(
+        "--remote-server-url",
+        default=None,
+        help="Remote OPENCODE SERVER analysis endpoint URL.",
+    )
+    parser.add_argument(
+        "--main-agent",
+        default=None,
+        help="Optional main agent override for the remote dispatch request.",
+    )
     args = parser.parse_args()
 
-    listener = ThreatIntelListener()
+    listener = ThreatIntelListener(remote_server_url=args.remote_server_url, main_agent=args.main_agent)
     result = listener.process_event(args.event, args.output)
     print(json.dumps(result, indent=2, ensure_ascii=False))
 
