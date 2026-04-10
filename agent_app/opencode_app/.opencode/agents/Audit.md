@@ -1,7 +1,7 @@
 ---
 description: The verifier agent that ensures the "as-built" code reality perfectly matches the "as-designed" architectural intent.
 mode: subagent
-model: github-copilot/gpt-5.4
+model: DeepSeek_custom_provider/deepseek-chat
 temperature: 0.1
 permission:
   skill:

@@ -9,11 +9,9 @@ permission:
   task:
     "*": deny
     "Audit": allow
-    "TARA_analyst": allow
     "STIX_EvidenceSpecialist": allow
   skill:
     "*": deny
-    "orchestrator-main-loop": allow
     "threat-intel-commander-loop": allow
 tools:
   skill: true
