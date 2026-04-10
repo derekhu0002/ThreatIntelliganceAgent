@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 
+from .remote_client import DEFAULT_OPENCODE_BASE_URL
 from .listener import ThreatIntelListener
 
 
@@ -22,8 +23,8 @@ def main() -> None:
     )
     parser.add_argument(
         "--remote-server-url",
-        default=None,
-        help="Remote OPENCODE SERVER analysis endpoint URL.",
+        default=DEFAULT_OPENCODE_BASE_URL,
+        help="Remote OPENCODE SERVER base URL. Defaults to http://127.0.0.1:8124.",
     )
     parser.add_argument(
         "--main-agent",

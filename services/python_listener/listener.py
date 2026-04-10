@@ -12,7 +12,7 @@ from typing import Any
 
 from services.mock_opencti_adapter import load_and_normalize_event
 
-from .remote_client import RemoteOpencodeClient, load_default_main_agent
+from .remote_client import DEFAULT_OPENCODE_BASE_URL, RemoteOpencodeClient, load_default_main_agent
 
 
 class ThreatIntelListener:
@@ -24,14 +24,14 @@ class ThreatIntelListener:
     ) -> None:
         self.repo_root = Path(__file__).resolve().parents[2]
         self.main_agent = main_agent or load_default_main_agent(self.repo_root)
-        resolved_remote_server_url = remote_server_url or os.environ.get("THREAT_INTEL_REMOTE_SERVER_URL")
+        resolved_remote_server_url = (
+            remote_server_url or os.environ.get("THREAT_INTEL_REMOTE_SERVER_URL") or DEFAULT_OPENCODE_BASE_URL
+        )
 
         if remote_client is not None:
             self.remote_client = remote_client
-        elif resolved_remote_server_url:
-            self.remote_client = RemoteOpencodeClient(resolved_remote_server_url)
         else:
-            raise ValueError("A remote_server_url or THREAT_INTEL_REMOTE_SERVER_URL must be provided.")
+            self.remote_client = RemoteOpencodeClient(resolved_remote_server_url)
 
     def process_event(self, event_path: str | Path, output_path: str | Path | None = None) -> dict[str, Any]:
         normalized_event = load_and_normalize_event(event_path).to_dict()
@@ -58,8 +58,8 @@ class ThreatIntelListener:
         run_context: dict[str, Any],
         normalized_event: dict[str, Any],
     ) -> dict[str, Any]:
-        return {
-            "request_contract_version": "threat-intelligence-agent.remote-request.v1",
+        request_context = {
+            "request_contract_version": "threat-intelligence-agent.remote-request.v2",
             "main_agent": self.main_agent,
             "run_context": run_context,
             "event": normalized_event,
@@ -69,8 +69,22 @@ class ThreatIntelListener:
                 "labels": normalized_event.get("labels", []),
                 "severity": normalized_event.get("severity"),
             },
-            "prompt": (
-                f"Main agent {self.main_agent} must analyze PUSH event {normalized_event['event_id']} "
-                f"using the provided STIX entity and observables, then return a structured result."
+        }
+
+        return {
+            **request_context,
+            "prompt_text": (
+                "You are processing a remote threat-intelligence PUSH analysis request via the OPENCODE SERVER.\n"
+                f'Main agent semantic: "{self.main_agent}" is the primary coordinator, owns the final answer, '
+                "and must drive any specialist collaboration.\n"
+                f"PUSH event id: {normalized_event['event_id']}\n"
+                f"PUSH entity: {json.dumps(normalized_event['entity'], ensure_ascii=False)}\n"
+                f"PUSH observables: {json.dumps(normalized_event['observables'], ensure_ascii=False)}\n"
+                f"PUSH labels: {json.dumps(normalized_event.get('labels', []), ensure_ascii=False)}\n"
+                f"PUSH severity: {json.dumps(normalized_event.get('severity'), ensure_ascii=False)}\n"
+                "Return JSON only and make it satisfy the provided json_schema.\n"
+                "REQUEST_CONTEXT_JSON:\n```json\n"
+                f"{json.dumps(request_context, indent=2, ensure_ascii=False)}\n"
+                "```"
             ),
         }

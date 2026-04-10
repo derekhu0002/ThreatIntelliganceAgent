@@ -5,29 +5,19 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
-
-
-def _start_mock_remote_server(*, repo_root: Path, stix_data_path: Path):
-    if str(repo_root) not in sys.path:
-        sys.path.insert(0, str(repo_root))
-
-    from services.remote_opencode_server import start_mock_remote_server
-
-    return start_mock_remote_server(stix_data_path=stix_data_path)
 
 
 def main() -> None:
     repo_root = Path(__file__).resolve().parents[1]
     output_path = repo_root / "artifacts/runtime/validation-result.json"
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    remote_server_url = os.environ.get("THREAT_INTEL_REMOTE_SERVER_URL", "http://127.0.0.1:8124")
 
-    with _start_mock_remote_server(
-        repo_root=repo_root,
-        stix_data_path=repo_root / "data/stix_samples/threat_intel_bundle.json",
-    ) as server:
+    try:
         completed = subprocess.run(
             [
                 sys.executable,
@@ -38,13 +28,23 @@ def main() -> None:
                 "--output",
                 str(output_path),
                 "--remote-server-url",
-                server.endpoint_url,
+                remote_server_url,
             ],
             cwd=repo_root,
             check=True,
             capture_output=True,
             text=True,
         )
+    except subprocess.CalledProcessError as exc:
+        verification_summary = {
+            "status": "failed",
+            "output_path": str(output_path.relative_to(repo_root)),
+            "remote_endpoint": remote_server_url,
+            "return_code": exc.returncode,
+            "stderr": exc.stderr.strip(),
+        }
+        print(json.dumps(verification_summary, indent=2, ensure_ascii=False))
+        raise SystemExit(exc.returncode) from exc
 
     result = json.loads(completed.stdout)
     participants = result["collaboration_trace"]["participants"]
@@ -56,7 +56,7 @@ def main() -> None:
     verification_summary = {
         "status": "passed",
         "output_path": str(output_path.relative_to(repo_root)),
-        "remote_endpoint": server.endpoint_url,
+        "remote_endpoint": remote_server_url,
         "participant_count": len(participants),
         "recommended_action_count": len(result.get("recommended_actions", [])),
     }

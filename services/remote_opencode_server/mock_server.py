@@ -5,7 +5,9 @@
 from __future__ import annotations
 
 import json
+import re
 import threading
+import uuid
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -14,6 +16,31 @@ from typing import Any, Iterator
 
 from services.result_assembler import assemble_structured_result
 from tools.stix_cli.semantic_query import load_bundle, neighbors, search_entities
+
+
+REQUEST_CONTEXT_BLOCK_PATTERN = re.compile(r"REQUEST_CONTEXT_JSON:\s*```json\s*(.*?)\s*```", re.DOTALL)
+
+
+def _extract_request_context_from_message(message_payload: dict[str, Any]) -> dict[str, Any]:
+    parts = message_payload.get("parts")
+    if not isinstance(parts, list) or not parts:
+        raise ValueError("Missing message parts in mock remote request.")
+
+    for part in parts:
+        if not isinstance(part, dict) or part.get("type") != "text":
+            continue
+        text = part.get("text")
+        if not isinstance(text, str):
+            continue
+        match = REQUEST_CONTEXT_BLOCK_PATTERN.search(text)
+        if match is None:
+            continue
+        request_context = json.loads(match.group(1))
+        if not isinstance(request_context, dict):
+            raise ValueError("Parsed request context must be a JSON object.")
+        return request_context
+
+    raise ValueError("Unable to extract REQUEST_CONTEXT_JSON from mock remote message payload.")
 
 
 def _build_evidence_bundle(stix_data_path: Path, normalized_event: dict[str, Any]) -> dict[str, Any]:
@@ -112,6 +139,7 @@ def build_remote_response(request_payload: dict[str, Any], stix_data_path: str |
 
 @dataclass
 class MockRemoteServerHandle:
+    base_url: str
     endpoint_url: str
     captured_requests: list[dict[str, Any]] = field(default_factory=list)
 
@@ -121,19 +149,46 @@ class _MockRemoteServer(ThreadingHTTPServer):
         super().__init__(server_address, request_handler_class)
         self.stix_data_path = stix_data_path
         self.captured_requests: list[dict[str, Any]] = []
+        self.sessions: dict[str, dict[str, Any]] = {}
 
 
 def _build_handler():
     class MockRemoteHandler(BaseHTTPRequestHandler):
         def do_POST(self) -> None:  # noqa: N802
-            if self.path != "/analysis-runs":
+            content_length = int(self.headers.get("Content-Length", "0"))
+            payload = json.loads(self.rfile.read(content_length).decode("utf-8"))
+            self.server.captured_requests.append({"path": self.path, "payload": payload})  # type: ignore[attr-defined]
+
+            if self.path == "/session":
+                session_id = f"mock-session-{uuid.uuid4()}"
+                self.server.sessions[session_id] = payload  # type: ignore[attr-defined]
+                response_payload = {"id": session_id}
+            elif self.path.startswith("/session/") and self.path.endswith("/message"):
+                path_parts = [segment for segment in self.path.split("/") if segment]
+                if len(path_parts) != 3:
+                    self.send_error(404, "Unknown endpoint")
+                    return
+                session_id = path_parts[1]
+                if session_id not in self.server.sessions:  # type: ignore[attr-defined]
+                    self.send_error(404, "Unknown session")
+                    return
+                request_context = _extract_request_context_from_message(payload)
+                response_payload = {
+                    "sessionID": session_id,
+                    "message": {
+                        "role": "assistant",
+                        "content": [
+                            {
+                                "type": "json",
+                                "json": build_remote_response(request_context, self.server.stix_data_path),  # type: ignore[attr-defined]
+                            }
+                        ],
+                    },
+                }
+            else:
                 self.send_error(404, "Unknown endpoint")
                 return
 
-            content_length = int(self.headers.get("Content-Length", "0"))
-            payload = json.loads(self.rfile.read(content_length).decode("utf-8"))
-            self.server.captured_requests.append(payload)  # type: ignore[attr-defined]
-            response_payload = build_remote_response(payload, self.server.stix_data_path)  # type: ignore[attr-defined]
             response_body = json.dumps(response_payload, indent=2, ensure_ascii=False).encode("utf-8")
 
             self.send_response(200)
@@ -153,9 +208,11 @@ def start_mock_remote_server(*, stix_data_path: str | Path) -> Iterator[MockRemo
     server = _MockRemoteServer(("127.0.0.1", 0), _build_handler(), Path(stix_data_path))
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
+    base_url = f"http://127.0.0.1:{server.server_port}"
 
     handle = MockRemoteServerHandle(
-        endpoint_url=f"http://127.0.0.1:{server.server_port}/analysis-runs",
+        base_url=base_url,
+        endpoint_url=base_url,
         captured_requests=server.captured_requests,
     )
 
