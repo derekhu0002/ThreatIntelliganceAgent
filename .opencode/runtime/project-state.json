@@ -57,18 +57,18 @@
     {
       "id": "TASK-006",
       "title": "实现 Python 消息监听服务并建立事件到分析 run context 的触发链路",
-      "status": "in_progress",
+      "status": "done",
       "retryCount": 2,
       "kind": "implementation",
       "owner": "Implementation",
-      "summary": "Implementing real OPENCODE SERVER session/message HTTP integration in the Python listener while preserving the thin listener boundary.",
-      "details": "Implementing real OPENCODE SERVER session/message HTTP integration in the Python listener while preserving the thin listener boundary.",
+      "summary": "Done. Rewired the Python listener to the real OPENCODE SERVER session/message HTTP protocol with default base URL http://127.0.0.1:8124, preserved main-agent selection from opencode.json, embedded PUSH-extracted STIX elements and agent semantics into the message text, and added timeout-aware remote error handling. Verified with pytest and mock/stub protocol coverage; live server validation in this environment timed out during POST /session/{sessionID}/message.",
+      "details": "Done. Rewired the Python listener to the real OPENCODE SERVER session/message HTTP protocol with default base URL http://127.0.0.1:8124, preserved main-agent selection from opencode.json, embedded PUSH-extracted STIX elements and agent semantics into the message text, and added timeout-aware remote error handling. Verified with pytest and mock/stub protocol coverage; live server validation in this environment timed out during POST /session/{sessionID}/message.",
       "softwareUnitId": "SU-002",
       "softwareUnitTitle": "Python Message Listener Service",
       "architectureElementId": "ELM-APP-COMP-PY-LISTENER",
       "createdAt": "2026-04-09T15:34:25.253Z",
-      "updatedAt": "2026-04-10T06:04:40.325Z",
-      "commitId": "fe94c818b4a95b6c3e67516141996b54b143931a"
+      "updatedAt": "2026-04-10T14:01:58.929Z",
+      "commitId": "12b6a2907d4215dc9c9efa822f24327706a81af5"
     },
     {
       "id": "TASK-007",
@@ -89,50 +89,50 @@
     {
       "id": "TASK-008",
       "title": "扩展 opencode agents/skills，落地至少两类角色的协作分析编排",
-      "status": "in_progress",
+      "status": "done",
       "retryCount": 1,
       "kind": "implementation",
       "owner": "Implementation",
-      "summary": "Switching main-agent dispatch from mock remote server protocol to real OPENCODE SERVER session/message protocol.",
-      "details": "Switching main-agent dispatch from mock remote server protocol to real OPENCODE SERVER session/message protocol.",
+      "summary": "Done. Switched orchestrator dispatch from the legacy mock /analysis-runs path to the real OPENCODE SERVER /session and /session/{sessionID}/message protocol, requesting json_schema-constrained structured output and keeping the mock remote server only as a protocol-compatible test stub.",
+      "details": "Done. Switched orchestrator dispatch from the legacy mock /analysis-runs path to the real OPENCODE SERVER /session and /session/{sessionID}/message protocol, requesting json_schema-constrained structured output and keeping the mock remote server only as a protocol-compatible test stub.",
       "softwareUnitId": "SU-004",
       "softwareUnitTitle": "Threat Intelligence Agent Orchestrator",
       "architectureElementId": "ELM-APP-COMP-AGENT-ORCH",
       "createdAt": "2026-04-09T15:34:25.253Z",
-      "updatedAt": "2026-04-10T06:04:40.382Z",
-      "commitId": "fe94c818b4a95b6c3e67516141996b54b143931a"
+      "updatedAt": "2026-04-10T14:01:58.979Z",
+      "commitId": "12b6a2907d4215dc9c9efa822f24327706a81af5"
     },
     {
       "id": "TASK-009",
       "title": "定义并实现结构化威胁情报分析结果 schema 与结果组装模块",
-      "status": "in_progress",
+      "status": "done",
       "retryCount": 2,
       "kind": "implementation",
       "owner": "Implementation",
-      "summary": "Updating structured-result request/response handling to prefer JSON schema-constrained OPENCODE SERVER replies.",
-      "details": "Updating structured-result request/response handling to prefer JSON schema-constrained OPENCODE SERVER replies.",
+      "summary": "Done. Added an explicit JSON schema export for the structured analysis result and updated remote response extraction to prefer schema-valid JSON objects from OPENCODE SERVER message responses before accepting the result.",
+      "details": "Done. Added an explicit JSON schema export for the structured analysis result and updated remote response extraction to prefer schema-valid JSON objects from OPENCODE SERVER message responses before accepting the result.",
       "softwareUnitId": "SU-005",
       "softwareUnitTitle": "Structured Analysis Result Assembler",
       "architectureElementId": "ELM-APP-COMP-RESULT-ASSEMBLER",
       "createdAt": "2026-04-09T15:34:25.253Z",
-      "updatedAt": "2026-04-10T06:04:40.440Z",
-      "commitId": "fe94c818b4a95b6c3e67516141996b54b143931a"
+      "updatedAt": "2026-04-10T14:01:59.026Z",
+      "commitId": "12b6a2907d4215dc9c9efa822f24327706a81af5"
     },
     {
       "id": "TASK-010",
       "title": "补充 STIX 样例数据、mock 事件样例与本地最小闭环验证脚本",
-      "status": "in_progress",
+      "status": "done",
       "retryCount": 2,
       "kind": "implementation",
       "owner": "Implementation",
-      "summary": "Refreshing closed-loop scripts and tests to separate mock/stub unit paths from real-server integration defaults.",
-      "details": "Refreshing closed-loop scripts and tests to separate mock/stub unit paths from real-server integration defaults.",
+      "summary": "Done. Updated the minimal closed-loop script to default to the real server at http://127.0.0.1:8124, support environment override, report validation failures cleanly, and refreshed unit/integration tests so stubs cover protocol wiring while the default script targets the real server.",
+      "details": "Done. Updated the minimal closed-loop script to default to the real server at http://127.0.0.1:8124, support environment override, report validation failures cleanly, and refreshed unit/integration tests so stubs cover protocol wiring while the default script targets the real server.",
       "softwareUnitId": "SU-006",
       "softwareUnitTitle": "Repository Runtime Assets",
       "architectureElementId": "ELM-TECH-ARTIFACT-REPO-ASSETS",
       "createdAt": "2026-04-09T15:34:25.253Z",
-      "updatedAt": "2026-04-10T06:04:40.502Z",
-      "commitId": "fe94c818b4a95b6c3e67516141996b54b143931a"
+      "updatedAt": "2026-04-10T14:01:59.074Z",
+      "commitId": "12b6a2907d4215dc9c9efa822f24327706a81af5"
     }
   ],
   "issues": [
@@ -147,17 +147,17 @@
   "validations": {
     "qa": {
       "status": "passed",
-      "summary": "QA passed for commit fe94c818b4a95b6c3e67516141996b54b143931a against latest architecture correction. Verified listener boundary remains thin: services/python_listener/listener.py only normalizes PUSH events, builds remote request, dispatches via RemoteOpencodeClient, and persists returned structured result. Grep found no listener-side references to tools.stix_cli, .opencode/tools, threat_intel_orchestrator, or subprocess within services/python_listener. Verified remote request includes main_agent and stix_elements entity/observables in tests/test_python_listener.py and listener._build_remote_request. Verified minimal closed-loop script uses remote dispatch model by starting mock remote server and invoking python -m services.python_listener with --remote-server-url. Targeted pytest passed for tests/test_python_listener.py and tests/test_minimal_closed_loop_script.py; full pytest passed 10/10.",
-      "details": "QA passed for commit fe94c818b4a95b6c3e67516141996b54b143931a against latest architecture correction. Verified listener boundary remains thin: services/python_listener/listener.py only normalizes PUSH events, builds remote request, dispatches via RemoteOpencodeClient, and persists returned structured result. Grep found no listener-side references to tools.stix_cli, .opencode/tools, threat_intel_orchestrator, or subprocess within services/python_listener. Verified remote request includes main_agent and stix_elements entity/observables in tests/test_python_listener.py and listener._build_remote_request. Verified minimal closed-loop script uses remote dispatch model by starting mock remote server and invoking python -m services.python_listener with --remote-server-url. Targeted pytest passed for tests/test_python_listener.py and tests/test_minimal_closed_loop_script.py; full pytest passed 10/10.",
-      "commitId": "fe94c818b4a95b6c3e67516141996b54b143931a",
-      "updatedAt": "2026-04-10T05:49:44.622Z"
+      "summary": "QA passed for commit 12b6a2907d4215dc9c9efa822f24327706a81af5. Verified listener wiring uses real OPENCODE SERVER POST /session then POST /session/{sessionID}/message, default base URL http://127.0.0.1:8124, and message payload includes main_agent, STIX elements in prompt/request context, and json_schema format. Verified listener boundary does not directly reference local STIX CLI, .opencode/tools, threat_intel_orchestrator, or subprocess. Targeted pytest with PYTHONPATH=. passed for tests/test_python_listener.py, tests/test_minimal_closed_loop_script.py, and tests/test_result_assembler.py; full pytest passed 13/13. Live environment validation against http://127.0.0.1:8124 showed protocol reachability issues outside code wiring: direct POST /session probe returned HTTP 502 and end-to-end listener/minimal-loop runs timed out on POST /session/{sessionID}/message after session creation. Conclusion: protocol wiring is correct; current runtime environment/server is unhealthy or unreachable for full live completion.",
+      "details": "QA passed for commit 12b6a2907d4215dc9c9efa822f24327706a81af5. Verified listener wiring uses real OPENCODE SERVER POST /session then POST /session/{sessionID}/message, default base URL http://127.0.0.1:8124, and message payload includes main_agent, STIX elements in prompt/request context, and json_schema format. Verified listener boundary does not directly reference local STIX CLI, .opencode/tools, threat_intel_orchestrator, or subprocess. Targeted pytest with PYTHONPATH=. passed for tests/test_python_listener.py, tests/test_minimal_closed_loop_script.py, and tests/test_result_assembler.py; full pytest passed 13/13. Live environment validation against http://127.0.0.1:8124 showed protocol reachability issues outside code wiring: direct POST /session probe returned HTTP 502 and end-to-end listener/minimal-loop runs timed out on POST /session/{sessionID}/message after session creation. Conclusion: protocol wiring is correct; current runtime environment/server is unhealthy or unreachable for full live completion.",
+      "commitId": "12b6a2907d4215dc9c9efa822f24327706a81af5",
+      "updatedAt": "2026-04-10T14:08:56.436Z"
     },
     "audit": {
       "status": "passed",
-      "summary": "Audit passed for commit fe94c818b4a95b6c3e67516141996b54b143931a. Listener is now a thin ingress/dispatch boundary: it normalizes the push event, creates run context, packages STIX elements already present in the payload, selects the main agent, dispatches to a remote OPENCODE SERVER over HTTP, and only persists the returned structured result. Local listener-side STIX CLI invocation, .opencode/tools orchestrator execution, evidence collection, and result assembly code were removed. Remote boundary behavior is implemented in services/remote_opencode_server/mock_server.py, where STIX CLI usage and structured result assembly now reside for validation. Tests and validation script assert listener->remote-server dispatch and remote payload contract.",
-      "details": "Audit passed for commit fe94c818b4a95b6c3e67516141996b54b143931a. Listener is now a thin ingress/dispatch boundary: it normalizes the push event, creates run context, packages STIX elements already present in the payload, selects the main agent, dispatches to a remote OPENCODE SERVER over HTTP, and only persists the returned structured result. Local listener-side STIX CLI invocation, .opencode/tools orchestrator execution, evidence collection, and result assembly code were removed. Remote boundary behavior is implemented in services/remote_opencode_server/mock_server.py, where STIX CLI usage and structured result assembly now reside for validation. Tests and validation script assert listener->remote-server dispatch and remote payload contract.",
-      "commitId": "fe94c818b4a95b6c3e67516141996b54b143931a",
-      "updatedAt": "2026-04-10T05:48:51.506Z"
+      "summary": "Audit passed for commit 12b6a2907d4215dc9c9efa822f24327706a81af5 against latest boundary correction. Listener remains a thin ingress/dispatch boundary: services/python_listener/listener.py normalizes the push event, creates run context, packages push-contained STIX elements, selects the main agent, and dispatches through RemoteOpencodeClient. The real primary path targets http://127.0.0.1:8124 and uses POST /session then POST /session/{sessionID}/message with json_schema-constrained message payloads. Mock remote server remains protocol-compatible test infrastructure only; current repo usage is confined to test validation helpers. STIX CLI usage is retained on the remote/mock-remote side and not in services/python_listener, and .opencode/tools usage remains outside listener-side dispatch code. No new architecture drift identified in the reviewed commit.",
+      "details": "Audit passed for commit 12b6a2907d4215dc9c9efa822f24327706a81af5 against latest boundary correction. Listener remains a thin ingress/dispatch boundary: services/python_listener/listener.py normalizes the push event, creates run context, packages push-contained STIX elements, selects the main agent, and dispatches through RemoteOpencodeClient. The real primary path targets http://127.0.0.1:8124 and uses POST /session then POST /session/{sessionID}/message with json_schema-constrained message payloads. Mock remote server remains protocol-compatible test infrastructure only; current repo usage is confined to test validation helpers. STIX CLI usage is retained on the remote/mock-remote side and not in services/python_listener, and .opencode/tools usage remains outside listener-side dispatch code. No new architecture drift identified in the reviewed commit.",
+      "commitId": "12b6a2907d4215dc9c9efa822f24327706a81af5",
+      "updatedAt": "2026-04-10T14:06:02.442Z"
     }
   },
   "release": {
@@ -170,5 +170,5 @@
     "task": 10,
     "issue": 1
   },
-  "updatedAt": "2026-04-10T06:04:40.503Z"
+  "updatedAt": "2026-04-10T14:08:56.437Z"
 }

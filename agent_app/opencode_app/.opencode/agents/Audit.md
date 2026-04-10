@@ -4,6 +4,8 @@ mode: subagent
 model: DeepSeek_custom_provider/deepseek-chat
 temperature: 0.1
 permission:
+  task:
+    "*": deny
   skill:
     "*": deny
     "audit-compliance-check": allow

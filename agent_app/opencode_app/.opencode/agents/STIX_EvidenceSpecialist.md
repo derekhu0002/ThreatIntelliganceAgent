@@ -6,6 +6,8 @@ temperature: 0.0
 permission:
   edit: deny
   bash: deny
+  task:
+    "*": deny
   skill:
     "*": deny
     "stix-evidence-review": allow

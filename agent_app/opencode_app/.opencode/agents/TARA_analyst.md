@@ -6,6 +6,8 @@ temperature: 0.2
 permission:
   edit: deny
   bash: deny
+  task:
+    "*": deny
   skill:
     "*": deny
     "tara-analysis-task-handler": allow
