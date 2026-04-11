@@ -1,0 +1,109 @@
+{
+  "run_id": "test-run-001",
+  "participants": [
+    "ThreatIntelliganceCommander",
+    "STIX_EvidenceSpecialist",
+    "TARA_analyst"
+  ],
+  "role_outputs": [
+    {
+      "role": "STIX_EvidenceSpecialist",
+      "responsibility": "Correlate the pushed event with local STIX entities and relationships.",
+      "findings": [
+        "Matched entities: APT28, Phishing URL, Cobalt Strike.",
+        "Related peer entities: Cobalt Strike, Mimikatz.",
+        "Observed relationship types: uses, drops.",
+        "Average confidence across matched STIX objects: 83."
+      ],
+      "supporting_evidence_refs": [
+        "indicator--a123",
+        "indicator--b456",
+        "indicator--c789"
+      ],
+      "definition_source": {
+        "path": "agents/STIX_EvidenceSpecialist.md",
+        "preview": "---\ndescription: Specialist who reviews local STIX evidence for the commander.\nmode: subagent\nmodel: DeepSeek_custom_provider/deepseek-chat\ntemperature: 0.0\npermission:\n  edit: deny\n  bash: deny"
+      }
+    },
+    {
+      "role": "TARA_analyst",
+      "responsibility": "Assess likely threat significance, impact, and recommended actions.",
+      "findings": [
+        "Risk verdict: likely-known-threat-activity.",
+        "Assessment confidence: high.",
+        "Delivery and post-compromise tradecraft are consistent with phishing-driven credential access."
+      ],
+      "recommended_actions": [
+        "Block or monitor the indicator and associated IP infrastructure in network controls.",
+        "Hunt for related authentication, email, and outbound-connection telemetry tied to the observable.",
+        "Review users or assets exposed to phishing delivery paths and reset affected credentials if needed.",
+        "Pivot on actor-linked malware and phishing techniques in endpoint and email detections."
+      ],
+      "verdict": "likely-known-threat-activity",
+      "confidence": "high",
+      "definition_source": {
+        "path": "agents/TARA_analyst.md",
+        "preview": "---\ndescription: Tara analyst\nmode: primary\nmodel: DeepSeek_custom_provider/deepseek-chat\ntemperature: 0.2\npermission:\n  edit: deny\n  bash: deny"
+      }
+    },
+    {
+      "role": "ThreatIntelliganceCommander",
+      "responsibility": "Synthesize specialist findings into the final structured threat-intelligence assessment.",
+      "findings": [
+        "Event EVT-20250411-001 from SIEM was correlated with 4 relevant STIX entities.",
+        "Matched entities: APT28, Phishing URL, Cobalt Strike.",
+        "Risk verdict: likely-known-threat-activity."
+      ],
+      "final_assessment": {
+        "summary": "The pushed indicator aligns with known APT28-linked phishing activity and warrants rapid containment plus targeted hunting.",
+        "confidence": "high",
+        "verdict": "likely-known-threat-activity",
+        "recommended_actions": [
+          "Block or monitor the indicator and associated IP infrastructure in network controls.",
+          "Hunt for related authentication, email, and outbound-connection telemetry tied to the observable.",
+          "Review users or assets exposed to phishing delivery paths and reset affected credentials if needed.",
+          "Pivot on actor-linked malware and phishing techniques in endpoint and email detections."
+        ],
+        "supporting_entities": [
+          "APT28",
+          "Phishing URL",
+          "Cobalt Strike",
+          "Mimikatz"
+        ]
+      },
+      "definition_source": {
+        "path": "agents/ThreatIntelliganceCommander.md",
+        "preview": "---\ndescription: The master agent that manages the end-to-end software build lifecycle by orchestrating a team of specialist agents.\nmode: primary\nmodel: DeepSeek_custom_provider/deepseek-chat\ntemperature: 0.0\npermission:\n  edit: deny\n  bash: deny"
+      }
+    }
+  ],
+  "final_assessment": {
+    "summary": "The pushed indicator aligns with known APT28-linked phishing activity and warrants rapid containment plus targeted hunting.",
+    "confidence": "high",
+    "verdict": "likely-known-threat-activity",
+    "recommended_actions": [
+      "Block or monitor the indicator and associated IP infrastructure in network controls.",
+      "Hunt for related authentication, email, and outbound-connection telemetry tied to the observable.",
+      "Review users or assets exposed to phishing delivery paths and reset affected credentials if needed.",
+      "Pivot on actor-linked malware and phishing techniques in endpoint and email detections."
+    ],
+    "supporting_entities": [
+      "APT28",
+      "Phishing URL",
+      "Cobalt Strike",
+      "Mimikatz"
+    ]
+  },
+  "traceability": {
+    "evidence_refs": [
+      "indicator--a123",
+      "indicator--b456",
+      "indicator--c789"
+    ],
+    "definition_sources": [
+      "agents/STIX_EvidenceSpecialist.md",
+      "agents/TARA_analyst.md",
+      "agents/ThreatIntelliganceCommander.md"
+    ]
+  }
+}

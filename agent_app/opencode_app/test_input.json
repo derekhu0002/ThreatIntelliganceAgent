@@ -1,0 +1,28 @@
+{
+  "run_context": {"run_id": "test-run-001"},
+  "event": {
+    "event_id": "EVT-20250411-001",
+    "source": "SIEM",
+    "summary": "Suspicious phishing activity detected from known APT28 infrastructure",
+    "severity": "high"
+  },
+  "evidence_bundle": {
+    "searches": [
+      {
+        "matches": [
+          {"id": "indicator--a123", "name": "APT28", "confidence": 85},
+          {"id": "indicator--b456", "name": "Phishing URL", "confidence": 90},
+          {"id": "indicator--c789", "name": "Cobalt Strike", "confidence": 75}
+        ]
+      }
+    ],
+    "relationships": [
+      {
+        "relationships": [
+          {"peer": {"name": "Cobalt Strike"}, "relationship_type": "uses"},
+          {"peer": {"name": "Mimikatz"}, "relationship_type": "drops"}
+        ]
+      }
+    ]
+  }
+}
