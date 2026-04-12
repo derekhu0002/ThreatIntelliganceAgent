@@ -3,6 +3,9 @@ name: threat-intel-collaboration
 description: Canonical multi-agent threat-intelligence collaboration contract for remote Primary, Analyst, and SecOps roles.
 ---
 
+@RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
+@ArchitectureID: ELM-APP-PROC-THREAT-COLLAB-SKILL
+
 # THREAT INTELLIGENCE COLLABORATION CONTRACT
 
 ## Trigger conditions
