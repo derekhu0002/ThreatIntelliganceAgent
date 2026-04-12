@@ -17,6 +17,58 @@ REQ_TAG = "@Requirement" "ID"
 ARCH_TAG = "@Architecture" "ID"
 
 
+def _run_tool_module(module_path: Path, args: dict, *, agent: str | None = None) -> subprocess.CompletedProcess[str]:
+    script = """
+import { pathToFileURL } from 'node:url';
+
+const modulePath = process.argv[1];
+const args = JSON.parse(process.argv[2]);
+const agent = process.argv[3] || '';
+const directory = process.argv[4];
+const worktree = process.argv[5];
+
+const { default: tool } = await import(pathToFileURL(modulePath).href);
+
+const context = {
+  sessionID: 'test-session',
+  messageID: 'test-message',
+  agent,
+  directory,
+  worktree,
+  abort: new AbortController().signal,
+  metadata() {},
+  async ask() {},
+};
+
+try {
+  const output = await tool.execute(args, context);
+  process.stdout.write(output);
+} catch (error) {
+  process.stderr.write(`${error.message}\n`);
+  process.exit(1);
+}
+"""
+
+    return subprocess.run(
+        [
+            "node",
+            "--input-type=module",
+            "-e",
+            script,
+            str(module_path),
+            json.dumps(args),
+            agent or "",
+            str(WORKSPACE_ROOT),
+            str(REPO_ROOT),
+        ],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        env=os.environ.copy(),
+        check=False,
+    )
+
+
 def _has_trace_tag(text: str, tag: str, value: str) -> bool:
     return f"{tag}: {value}" in text
 
@@ -46,14 +98,7 @@ def test_stix_query_tool_rejects_non_analyst_agents() -> None:
     # @ArchitectureID: ELM-TECH-ARTIFACT-AGENT-DEFS
     tool_path = WORKSPACE_ROOT / "tools/stix_query.js"
 
-    completed = subprocess.run(
-        ["node", str(tool_path), "search", "--query", "APT28"],
-        cwd=REPO_ROOT,
-        capture_output=True,
-        text=True,
-        env={**os.environ, "OPENCODE_AGENT_NAME": "ThreatIntelPrimary"},
-        check=False,
-    )
+    completed = _run_tool_module(tool_path, {"command": "search", "query": "APT28"}, agent="ThreatIntelPrimary")
 
     assert completed.returncode != 0
     assert "restricted to ThreatIntelAnalyst" in completed.stderr
@@ -64,19 +109,52 @@ def test_stix_query_tool_allows_analyst_agents() -> None:
     # @ArchitectureID: ELM-TECH-ARTIFACT-AGENT-DEFS
     tool_path = WORKSPACE_ROOT / "tools/stix_query.js"
 
-    completed = subprocess.run(
-        ["node", str(tool_path), "search", "--query", "APT28"],
-        cwd=REPO_ROOT,
-        capture_output=True,
-        text=True,
-        env={**os.environ, "OPENCODE_AGENT_NAME": "ThreatIntelAnalyst"},
-        check=False,
-    )
+    completed = _run_tool_module(tool_path, {"command": "search", "query": "APT28"}, agent="ThreatIntelAnalyst")
 
     assert completed.returncode == 0, completed.stderr
     payload = json.loads(completed.stdout)
     assert payload["query"] == "APT28"
     assert payload["match_count"] >= 1
+
+
+def test_threat_intel_orchestrator_tool_exports_valid_custom_tool() -> None:
+    # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
+    # @ArchitectureID: ELM-TECH-ARTIFACT-AGENT-DEFS
+    tool_path = WORKSPACE_ROOT / "tools/threat_intel_orchestrator.js"
+    payload = {
+        "run_context": {"run_id": "run-123"},
+        "event": {
+            "event_id": "evt-001",
+            "source": "mail-gateway",
+            "severity": "high",
+            "summary": "Spearphishing message linked to APT28 infrastructure",
+        },
+        "evidence_bundle": {
+            "searches": [
+                {
+                    "matches": [
+                        {"id": "indicator--1", "name": "APT28", "confidence": 85},
+                        {"id": "indicator--2", "name": "Spearphishing Attachment", "confidence": 70},
+                    ]
+                }
+            ],
+            "relationships": [
+                {
+                    "relationships": [
+                        {"relationship_type": "uses", "peer": {"name": "Command and Control IP"}}
+                    ]
+                }
+            ],
+        },
+    }
+
+    completed = _run_tool_module(tool_path, {"inputJson": json.dumps(payload)}, agent="ThreatIntelPrimary")
+
+    assert completed.returncode == 0, completed.stderr
+    result = json.loads(completed.stdout)
+    assert result["participants"] == ["ThreatIntelPrimary", "ThreatIntelAnalyst", "ThreatIntelSecOps"]
+    assert result["final_assessment"]["assembled_by"] == "ThreatIntelPrimary"
+    assert result["traceability"]["role_aliases"]["ThreatIntelAnalyst"] == "STIX_EvidenceSpecialist"
 
 
 @pytest.mark.parametrize(
