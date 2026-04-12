@@ -6,5 +6,6 @@ description: Review local STIX query outputs and extract evidence-bearing findin
 # STIX EVIDENCE REVIEW
 
 - Focus on matched entities, relationship paths, and confidence markers from local STIX query results.
+- Use the native `stix_query` tool only from the analyst role (`ThreatIntelAnalyst` or legacy alias `STIX_EvidenceSpecialist`).
 - Highlight actor, malware, infrastructure, or technique links that materially support analysis.
 - Do not speculate beyond the supplied evidence bundle.

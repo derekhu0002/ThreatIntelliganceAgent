@@ -63,11 +63,23 @@ RESULT_JSON_SCHEMA: dict[str, Any] = {
         "recommended_actions": {"type": "array", "items": {"type": "string"}},
         "collaboration_trace": {
             "type": "object",
-            "required": ["participants", "role_outputs", "traceability"],
+            "required": ["participants", "role_outputs", "traceability", "assembly_contract"],
             "properties": {
                 "participants": {"type": "array", "items": {"type": "string"}, "minItems": 2},
+                "legacy_participants": {"type": "array", "items": {"type": "string"}},
                 "role_outputs": {"type": "array", "items": {"type": "object"}},
                 "traceability": {"type": "object"},
+                "assembly_contract": {
+                    "type": "object",
+                    "required": ["schema", "assembled_by", "assembly_location", "contract_source"],
+                    "properties": {
+                        "schema": {"type": "string", "const": "TASK-009"},
+                        "assembled_by": {"type": "string", "minLength": 1},
+                        "assembly_location": {"type": "string", "const": "remote-primary"},
+                        "contract_source": {"type": "string", "minLength": 1},
+                    },
+                    "additionalProperties": True,
+                },
             },
             "additionalProperties": True,
         },

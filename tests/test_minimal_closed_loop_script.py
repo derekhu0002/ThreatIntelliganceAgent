@@ -29,9 +29,9 @@ def test_run_minimal_closed_loop_emits_verification_summary(monkeypatch, capsys)
             "recommended_actions": ["Block indicator", "Search for related activity"],
             "collaboration_trace": {
                 "participants": [
-                    "ThreatIntelliganceCommander",
-                    "STIX_EvidenceSpecialist",
-                    "TARA_analyst",
+                    "ThreatIntelPrimary",
+                    "ThreatIntelAnalyst",
+                    "ThreatIntelSecOps",
                 ]
             },
         }
@@ -66,7 +66,7 @@ def test_run_minimal_closed_loop_allows_remote_url_override_via_env(monkeypatch,
                 {
                     "analysis_conclusion": {"summary": "Structured result looks valid."},
                     "recommended_actions": ["Block indicator"],
-                    "collaboration_trace": {"participants": ["ThreatIntelliganceCommander", "STIX_EvidenceSpecialist"]},
+                    "collaboration_trace": {"participants": ["ThreatIntelPrimary", "ThreatIntelAnalyst"]},
                 }
             ),
             stderr="",

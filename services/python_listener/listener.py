@@ -12,7 +12,12 @@ from typing import Any
 
 from services.mock_opencti_adapter import load_and_normalize_event
 
-from .remote_client import DEFAULT_OPENCODE_BASE_URL, RemoteOpencodeClient, load_default_main_agent
+from .remote_client import (
+    DEFAULT_OPENCODE_BASE_URL,
+    RemoteOpencodeClient,
+    load_default_main_agent,
+    resolve_main_agent_alias,
+)
 
 
 class ThreatIntelListener:
@@ -23,7 +28,9 @@ class ThreatIntelListener:
         remote_client: RemoteOpencodeClient | None = None,
     ) -> None:
         self.repo_root = Path(__file__).resolve().parents[2]
-        self.main_agent = main_agent or load_default_main_agent(self.repo_root)
+        configured_main_agent = main_agent or load_default_main_agent(self.repo_root)
+        self.main_agent = resolve_main_agent_alias(configured_main_agent, self.repo_root)
+        self.requested_main_agent = configured_main_agent
         resolved_remote_server_url = (
             remote_server_url or os.environ.get("THREAT_INTEL_REMOTE_SERVER_URL") or DEFAULT_OPENCODE_BASE_URL
         )
@@ -61,6 +68,7 @@ class ThreatIntelListener:
         request_context = {
             "request_contract_version": "threat-intelligence-agent.remote-request.v2",
             "main_agent": self.main_agent,
+            "requested_main_agent": self.requested_main_agent,
             "run_context": run_context,
             "event": normalized_event,
             "stix_elements": {
@@ -77,6 +85,7 @@ class ThreatIntelListener:
                 "You are processing a remote threat-intelligence PUSH analysis request via the OPENCODE SERVER.\n"
                 f'Main agent semantic: "{self.main_agent}" is the primary coordinator, owns the final answer, '
                 "and must drive any specialist collaboration.\n"
+                f'Requested main agent alias: "{self.requested_main_agent}".\n'
                 f"PUSH event id: {normalized_event['event_id']}\n"
                 f"PUSH entity: {json.dumps(normalized_event['entity'], ensure_ascii=False)}\n"
                 f"PUSH observables: {json.dumps(normalized_event['observables'], ensure_ascii=False)}\n"

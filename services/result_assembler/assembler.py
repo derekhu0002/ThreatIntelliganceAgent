@@ -16,6 +16,7 @@ def assemble_structured_result(
     evidence_bundle: dict[str, Any],
     collaboration_output: dict[str, Any],
 ) -> dict[str, Any]:
+    # @ArchitectureID: ELM-APP-COMP-RESULT-ASSEMBLER
     evidence_matches = sum(search.get("match_count", 0) for search in evidence_bundle.get("searches", []))
     relationship_count = len(evidence_bundle.get("relationships", []))
     final_assessment = collaboration_output.get("final_assessment", {})
@@ -50,8 +51,16 @@ def assemble_structured_result(
         "recommended_actions": final_assessment.get("recommended_actions", []),
         "collaboration_trace": {
             "participants": collaboration_output.get("participants", []),
+            "legacy_participants": collaboration_output.get("legacy_participants", []),
             "role_outputs": collaboration_output.get("role_outputs", []),
             "traceability": collaboration_output.get("traceability", {}),
+            "assembly_contract": {
+                "schema": "TASK-009",
+                "assembled_by": final_assessment.get("assembled_by")
+                or collaboration_output.get("traceability", {}).get("assembled_by"),
+                "assembly_location": "remote-primary",
+                "contract_source": "services/result_assembler",
+            },
         },
     }
 

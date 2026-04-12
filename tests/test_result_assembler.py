@@ -29,14 +29,16 @@ def test_assemble_structured_result_populates_required_fields_and_summary_counts
             "relationships": [{"relationship_count": 2}],
         },
         collaboration_output={
-            "participants": ["ThreatIntelliganceCommander", "STIX_EvidenceSpecialist"],
-            "role_outputs": [{"role": "STIX_EvidenceSpecialist", "summary": "APT28-linked evidence found."}],
-            "traceability": {"event_id": "opencti-push-001"},
+            "participants": ["ThreatIntelPrimary", "ThreatIntelAnalyst"],
+            "legacy_participants": ["ThreatIntelliganceCommander", "STIX_EvidenceSpecialist"],
+            "role_outputs": [{"role": "ThreatIntelAnalyst", "summary": "APT28-linked evidence found."}],
+            "traceability": {"event_id": "opencti-push-001", "assembled_by": "ThreatIntelPrimary"},
             "final_assessment": {
                 "summary": "Evidence supports a phishing-related threat finding.",
                 "confidence": "high",
                 "verdict": "confirmed-threat",
                 "supporting_entities": ["indicator--555"],
+                "assembled_by": "ThreatIntelPrimary",
                 "recommended_actions": ["Block the indicator"],
             },
         },
@@ -47,6 +49,12 @@ def test_assemble_structured_result_populates_required_fields_and_summary_counts
     assert result["analysis_conclusion"]["supporting_entities"] == ["indicator--555"]
     assert result["recommended_actions"] == ["Block the indicator"]
     assert "3 object matches and 1 related relationship views" in result["key_information_summary"][1]
+    assert result["collaboration_trace"]["assembly_contract"] == {
+        "schema": "TASK-009",
+        "assembled_by": "ThreatIntelPrimary",
+        "assembly_location": "remote-primary",
+        "contract_source": "services/result_assembler",
+    }
 
 
 def test_validate_structured_result_requires_multiple_participants() -> None:
@@ -61,6 +69,16 @@ def test_validate_structured_result_requires_multiple_participants() -> None:
                 "analysis_conclusion": {},
                 "evidence_query_basis": {},
                 "recommended_actions": [],
-                "collaboration_trace": {"participants": ["ThreatIntelliganceCommander"]},
+                "collaboration_trace": {
+                    "participants": ["ThreatIntelPrimary"],
+                    "role_outputs": [],
+                    "traceability": {},
+                    "assembly_contract": {
+                        "schema": "TASK-009",
+                        "assembled_by": "ThreatIntelPrimary",
+                        "assembly_location": "remote-primary",
+                        "contract_source": "services/result_assembler",
+                    },
+                },
             }
         )

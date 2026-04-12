@@ -4,6 +4,14 @@
 const fs = require("fs");
 const path = require("path");
 
+const CANONICAL_ROLE_MAP = {
+  ThreatIntelliganceCommander: "ThreatIntelPrimary",
+  STIX_EvidenceSpecialist: "ThreatIntelAnalyst",
+  TARA_analyst: "ThreatIntelSecOps"
+};
+
+const LEGACY_ROLE_MAP = Object.fromEntries(Object.entries(CANONICAL_ROLE_MAP).map(([legacy, canonical]) => [canonical, legacy]));
+
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
 }
@@ -14,6 +22,18 @@ function readAgentDefinition(relativePath) {
     path: relativePath,
     preview: fs.readFileSync(absolutePath, "utf8").split("\n").slice(0, 8).join("\n")
   };
+}
+
+function canonicalRoleName(name) {
+  return CANONICAL_ROLE_MAP[name] || name;
+}
+
+function legacyRoleName(name) {
+  return LEGACY_ROLE_MAP[name] || name;
+}
+
+function roleDefinitionPath(name) {
+  return `agents/${name}.md`;
 }
 
 function flattenMatches(bundle) {
@@ -32,7 +52,8 @@ function evidenceSpecialist(input) {
     : null;
 
   return {
-    role: "STIX_EvidenceSpecialist",
+    role: canonicalRoleName("STIX_EvidenceSpecialist"),
+    legacy_role: "STIX_EvidenceSpecialist",
     responsibility: "Correlate the pushed event with local STIX entities and relationships.",
     findings: [
       `Matched entities: ${namedMatches.join(", ") || "none"}.`,
@@ -41,7 +62,8 @@ function evidenceSpecialist(input) {
       averageConfidence !== null ? `Average confidence across matched STIX objects: ${averageConfidence}.` : "No explicit confidence score was present in matched STIX objects."
     ],
     supporting_evidence_refs: matches.slice(0, 4).map((match) => match.id),
-    definition_source: readAgentDefinition("agents/STIX_EvidenceSpecialist.md")
+    definition_source: readAgentDefinition(roleDefinitionPath(canonicalRoleName("STIX_EvidenceSpecialist"))),
+    compatibility_definition_source: readAgentDefinition(roleDefinitionPath("STIX_EvidenceSpecialist"))
   };
 }
 
@@ -63,7 +85,8 @@ function taraAnalyst(input, evidenceOutput) {
   }
 
   return {
-    role: "TARA_analyst",
+    role: canonicalRoleName("TARA_analyst"),
+    legacy_role: "TARA_analyst",
     responsibility: "Assess likely threat significance, impact, and recommended actions.",
     findings: [
       `Risk verdict: ${verdict}.`,
@@ -73,7 +96,8 @@ function taraAnalyst(input, evidenceOutput) {
     recommended_actions: recommendations,
     verdict,
     confidence,
-    definition_source: readAgentDefinition("agents/TARA_analyst.md")
+    definition_source: readAgentDefinition(roleDefinitionPath(canonicalRoleName("TARA_analyst"))),
+    compatibility_definition_source: readAgentDefinition(roleDefinitionPath("TARA_analyst"))
   };
 }
 
@@ -85,8 +109,9 @@ function commander(input, evidenceOutput, riskOutput) {
     ])
   ];
   return {
-    role: "ThreatIntelliganceCommander",
-    responsibility: "Synthesize specialist findings into the final structured threat-intelligence assessment.",
+    role: canonicalRoleName("ThreatIntelliganceCommander"),
+    legacy_role: "ThreatIntelliganceCommander",
+    responsibility: "Synthesize specialist findings into the final structured threat-intelligence assessment and assemble the remote TASK-009 result contract.",
     findings: [
       `Event ${input.event.event_id} from ${input.event.source} was correlated with ${supportingEntities.length} relevant STIX entities.`,
       evidenceOutput.findings[0],
@@ -99,9 +124,11 @@ function commander(input, evidenceOutput, riskOutput) {
       confidence: riskOutput.confidence,
       verdict: riskOutput.verdict,
       recommended_actions: riskOutput.recommended_actions,
-      supporting_entities: supportingEntities
+      supporting_entities: supportingEntities,
+      assembled_by: canonicalRoleName("ThreatIntelliganceCommander")
     },
-    definition_source: readAgentDefinition("agents/ThreatIntelliganceCommander.md")
+    definition_source: readAgentDefinition(roleDefinitionPath(canonicalRoleName("ThreatIntelliganceCommander"))),
+    compatibility_definition_source: readAgentDefinition(roleDefinitionPath("ThreatIntelliganceCommander"))
   };
 }
 
@@ -118,7 +145,12 @@ function main() {
 
   const output = {
     run_id: input.run_context.run_id,
-    participants: ["ThreatIntelliganceCommander", "STIX_EvidenceSpecialist", "TARA_analyst"],
+    participants: [
+      canonicalRoleName("ThreatIntelliganceCommander"),
+      canonicalRoleName("STIX_EvidenceSpecialist"),
+      canonicalRoleName("TARA_analyst")
+    ],
+    legacy_participants: ["ThreatIntelliganceCommander", "STIX_EvidenceSpecialist", "TARA_analyst"],
     role_outputs: [evidenceOutput, riskOutput, commanderOutput],
     final_assessment: commanderOutput.final_assessment,
     traceability: {
@@ -127,7 +159,18 @@ function main() {
         evidenceOutput.definition_source.path,
         riskOutput.definition_source.path,
         commanderOutput.definition_source.path
-      ]
+      ],
+      compatibility_definition_sources: [
+        evidenceOutput.compatibility_definition_source.path,
+        riskOutput.compatibility_definition_source.path,
+        commanderOutput.compatibility_definition_source.path
+      ],
+      role_aliases: {
+        ThreatIntelPrimary: legacyRoleName("ThreatIntelPrimary"),
+        ThreatIntelAnalyst: legacyRoleName("ThreatIntelAnalyst"),
+        ThreatIntelSecOps: legacyRoleName("ThreatIntelSecOps")
+      },
+      assembled_by: canonicalRoleName("ThreatIntelliganceCommander")
     }
   };
 

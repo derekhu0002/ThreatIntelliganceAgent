@@ -5,7 +5,12 @@ import pytest
 
 from services.remote_opencode_server import start_mock_remote_server
 from services.python_listener.listener import ThreatIntelListener
-from services.python_listener.remote_client import RemoteDispatchError, RemoteOpencodeClient
+from services.python_listener.remote_client import (
+    RemoteDispatchError,
+    RemoteOpencodeClient,
+    load_default_main_agent,
+    resolve_main_agent_alias,
+)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -31,12 +36,13 @@ def test_listener_process_event_dispatches_remote_request_and_persists_remote_re
     assert message_request["path"].startswith("/session/")
     assert message_request["path"].endswith("/message")
     dispatched_payload = message_request["payload"]
-    assert dispatched_payload["agent"] == "ThreatIntelliganceCommander"
+    assert dispatched_payload["agent"] == "ThreatIntelPrimary"
     assert dispatched_payload["format"]["type"] == "json_schema"
     assert dispatched_payload["format"]["schema"]["properties"]["schema_version"]["const"] == "threat-intelligence-agent.v1"
     assert len(dispatched_payload["parts"]) == 1
     prompt_text = dispatched_payload["parts"][0]["text"]
-    assert 'Main agent semantic: "ThreatIntelliganceCommander"' in prompt_text
+    assert 'Main agent semantic: "ThreatIntelPrimary"' in prompt_text
+    assert 'Requested main agent alias: "ThreatIntelPrimary"' in prompt_text
     assert '"id": "indicator--55555555-5555-4555-8555-555555555555"' in prompt_text
     assert '"value": "203.0.113.10"' in prompt_text
     assert '"event_id": "opencti-push-001"' in prompt_text
@@ -44,6 +50,18 @@ def test_listener_process_event_dispatches_remote_request_and_persists_remote_re
     assert result["event"]["event_id"] == "opencti-push-001"
     assert result["analysis_conclusion"]["verdict"] == "confirmed-threat"
     assert len(result["collaboration_trace"]["participants"]) == 3
+    assert result["collaboration_trace"]["participants"] == [
+        "ThreatIntelPrimary",
+        "ThreatIntelAnalyst",
+        "ThreatIntelSecOps",
+    ]
+    assert result["collaboration_trace"]["legacy_participants"] == [
+        "ThreatIntelPrimary",
+        "STIX_EvidenceSpecialist",
+        "TARA_analyst",
+    ]
+    assert result["collaboration_trace"]["assembly_contract"]["schema"] == "TASK-009"
+    assert result["collaboration_trace"]["assembly_contract"]["assembled_by"] == "ThreatIntelPrimary"
     assert result["evidence_query_basis"]["searches"][0]["match_count"] >= 1
     assert result["evidence_query_basis"]["relationships"][0]["relationship_count"] >= 1
     assert not hasattr(listener, "_collect_evidence")
@@ -84,3 +102,10 @@ def test_remote_client_wraps_timeout_as_remote_dispatch_error() -> None:
 
     with pytest.raises(RemoteDispatchError, match="timed out after 1.5s"):
         client._post_json("http://127.0.0.1:8124/session", {}, action="create remote session")
+
+
+def test_default_main_agent_is_canonical_and_legacy_aliases_resolve() -> None:
+    default_agent = load_default_main_agent(REPO_ROOT)
+    assert default_agent == "ThreatIntelPrimary"
+    assert resolve_main_agent_alias("ThreatIntelliganceCommander", REPO_ROOT) == "ThreatIntelPrimary"
+    assert resolve_main_agent_alias("ThreatIntelPrimary", REPO_ROOT) == "ThreatIntelPrimary"

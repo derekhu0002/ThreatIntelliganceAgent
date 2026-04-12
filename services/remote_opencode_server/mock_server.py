@@ -18,6 +18,17 @@ from services.result_assembler import assemble_structured_result
 from tools.stix_cli.semantic_query import load_bundle, neighbors, search_entities
 
 
+CANONICAL_ROLE_ALIASES = {
+    "ThreatIntelliganceCommander": "ThreatIntelPrimary",
+    "STIX_EvidenceSpecialist": "ThreatIntelAnalyst",
+    "TARA_analyst": "ThreatIntelSecOps",
+}
+
+
+def _canonical_role_name(role_name: str) -> str:
+    return CANONICAL_ROLE_ALIASES.get(role_name, role_name)
+
+
 REQUEST_CONTEXT_BLOCK_PATTERN = re.compile(r"REQUEST_CONTEXT_JSON:\s*```json\s*(.*?)\s*```", re.DOTALL)
 
 
@@ -84,23 +95,29 @@ def _build_collaboration_output(
     mentions_apt28 = "apt28" in evidence_text.casefold()
     verdict = "confirmed-threat" if mentions_apt28 else "needs-review"
     confidence = "high" if mentions_apt28 else "medium"
+    canonical_main_agent = _canonical_role_name(main_agent)
 
     return {
-        "participants": [main_agent, "STIX_EvidenceSpecialist", "TARA_analyst"],
+        "participants": [canonical_main_agent, "ThreatIntelAnalyst", "ThreatIntelSecOps"],
+        "legacy_participants": [main_agent, "STIX_EvidenceSpecialist", "TARA_analyst"],
         "role_outputs": [
             {
-                "role": "STIX_EvidenceSpecialist",
+                "role": "ThreatIntelAnalyst",
+                "legacy_role": "STIX_EvidenceSpecialist",
                 "summary": f"Remote evidence review matched {len(matches)} STIX objects and {len(relationships)} relationships.",
             },
             {
-                "role": "TARA_analyst",
+                "role": "ThreatIntelSecOps",
+                "legacy_role": "TARA_analyst",
                 "summary": "Risk review converted remote evidence into containment and hunting recommendations.",
             },
         ],
         "traceability": {
             "event_id": normalized_event["event_id"],
-            "main_agent": main_agent,
+            "main_agent": canonical_main_agent,
+            "requested_main_agent": main_agent,
             "supporting_evidence_refs": supporting_ids,
+            "assembled_by": canonical_main_agent,
         },
         "final_assessment": {
             "summary": (
@@ -111,6 +128,7 @@ def _build_collaboration_output(
             "confidence": confidence,
             "verdict": verdict,
             "supporting_entities": supporting_ids,
+            "assembled_by": canonical_main_agent,
             "recommended_actions": [
                 "Block or monitor the observable in network controls.",
                 "Hunt for related email, endpoint, and outbound connection activity.",

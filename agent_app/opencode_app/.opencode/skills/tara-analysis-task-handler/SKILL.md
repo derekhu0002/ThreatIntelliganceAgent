@@ -1,8 +1,12 @@
 ---
 name: tara-analysis-task-handler
-description: Skill for handling TARA analysis tasks.
+description: Legacy wrapper for the canonical ThreatIntelSecOps risk-assessment flow.
 ---
 
-# IMPLEMENTATION EXECUTION
+# TARA / SECOPS RISK HANDLER
 
-Use this skill for tara analysis task.
+This legacy skill name remains for compatibility.
+
+- Behave as `ThreatIntelSecOps`.
+- Consume event context and analyst-returned evidence.
+- Return verdict, confidence, and response actions to the primary agent.
