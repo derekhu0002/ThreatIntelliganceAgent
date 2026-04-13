@@ -1,26 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "model": "DeepSeek_custom_provider/deepseek-chat",
-  "workspace": {
-    "root": "agent_app/opencode_app/.opencode",
-    "execution_plane": "agent_app/opencode_app/.opencode",
-    "control_plane_root": ".opencode",
-    "remote_result_contract": {
-      "schema": "TASK-009",
-      "owner": "ThreatIntelPrimary",
-      "assembly_location": "remote-primary"
-    }
-  },
-  "agent_roles": {
-    "primary": "ThreatIntelPrimary",
-    "analyst": "ThreatIntelAnalyst",
-    "secops": "ThreatIntelSecOps"
-  },
-  "agent_aliases": {
-    "ThreatIntelliganceCommander": "ThreatIntelPrimary",
-    "STIX_EvidenceSpecialist": "ThreatIntelAnalyst",
-    "TARA_analyst": "ThreatIntelSecOps"
-  },
   "provider": {
     "DeepSeek_custom_provider": {
       "models": {
