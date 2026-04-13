@@ -8,7 +8,7 @@
   ],
   "documentation": [
     {
-      "value": "Architecture correction accepted for Threat Intelligence Agent V1. Brownfield rework is required because the implemented Python listener currently performs local STIX evidence querying and local opencode orchestration, which violates the corrected boundary. The corrected design constrains the listener to push ingestion, prompt packaging from STIX elements already present in the push payload, remote OPENCODE SERVER invocation, and explicit main-agent selection. STIX CLI and .opencode/tools remain agent-usable tools on the remote server side only. Existing software units are retained where possible but re-scoped: Python listener becomes a thin transport boundary, agent orchestration remains under the opencode workspace but only as remote-server execution, structured result assembly moves out of the listener path to the remote server/agent response contract, and validation assets must be updated to verify listener-to-remote-server interaction rather than local subprocess coupling."
+      "value": "Audit rework determination for REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001 at commit ca1551bb2ab6531147d00c9860c41c95697410a8: no architecture boundary expansion or model-layer correction is required. Rework is limited to implementation traceability compliance for existing software units SU-OPC-002 and SU-OPC-003 by adding explicit RequirementID/ArchitectureID evidence in canonical agent descriptor artifacts, the threat-intel collaboration skill artifact, and audit-verifiable automated tests so verifiedIntentIds is no longer empty."
     }
   ],
   "metadata": {
@@ -563,7 +563,7 @@
         ],
         "documentation": [
           {
-            "value": "An application component is a modular software unit that encapsulates automated behavior and related data. In this architecture, Python Message Listener Service receives mock OPENCTI push events, validates and normalizes them, creates an analysis run context, and invokes downstream orchestration for a single V1 analysis execution."
+            "value": "An application component is a modular software unit that encapsulates automated behavior and related data. In this architecture, Python Message Listener Service remains a thin ingress boundary that receives and normalizes push events, packages remote request context, selects the main agent, and dispatches the request to the remote OpenCode runtime without performing STIX querying, agent orchestration, or TASK-009 result assembly."
           }
         ],
         "extensions": {
@@ -583,7 +583,7 @@
         ],
         "documentation": [
           {
-            "value": "An application component is a modular software unit that encapsulates automated behavior and related data. In this architecture, STIX 2.1 Semantic Query CLI provides the command-line semantic query boundary over local STIX 2.1 sample data so analysis agents can retrieve entities, relationships, and contextual evidence during V1 runs."
+            "value": "An application component is a modular software unit that encapsulates automated behavior and related data. In this architecture, STIX 2.1 Semantic Query CLI remains the underlying domain query capability in tools/stix_cli/ and is consumed through the remote STIX Query Native Tool Adapter rather than directly by the listener."
           }
         ],
         "extensions": {
@@ -603,7 +603,7 @@
         ],
         "documentation": [
           {
-            "value": "An application component is a modular software unit that encapsulates automated behavior and related data. In this architecture, Threat Intelligence Agent Orchestrator coordinates the commander role, delegates work to at least two specialized analysis participants, gathers their outputs, and enforces the V1 collaboration sequence."
+            "value": "An application component is a modular software unit that encapsulates automated behavior and related data. In this architecture, Threat Intelligence Agent Orchestrator is the remote OpenCode orchestration boundary rooted in agent_app/opencode_app/.opencode/ that hosts the multi-agent team, enforces delegation policy, and keeps the Primary agent as the sole final-response owner."
           }
         ],
         "extensions": {
@@ -623,7 +623,7 @@
         ],
         "documentation": [
           {
-            "value": "An application component is a modular software unit that encapsulates automated behavior and related data. In this architecture, Structured Analysis Result Assembler converts run context, query evidence, and multi-agent outputs into a traceable structured analysis artifact with stable fields for human verification."
+            "value": "An application component is a modular software unit that encapsulates automated behavior and related data. In this architecture, Structured Analysis Result Assembler remains the authoritative TASK-009 schema and validation contract, while the remote Primary agent uses that contract to assemble the final structured result before returning it to the listener."
           }
         ],
         "extensions": {
@@ -734,38 +734,278 @@
         }
       },
       {
-        "identifier": "PROJECT-CURRENT",
-        "type": "WorkPackage",
+        "identifier": "REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001",
+        "type": "Requirement",
         "name": [
           {
-            "value": "实现 Threat Intelligence Agent V1 的最小可运行闭环：基于 Mock OPENCTI PUSH 事件，由 Python 消息监听服务触发分析，结合 STIX 2.1 语义查询 CLI 与多 Agent 协作，产出"
+            "value": "OpenCode 威胁情报 Multi-Agent 架构演进"
           }
         ],
         "documentation": [
           {
-            "value": "Architecture correction accepted for Threat Intelligence Agent V1. Brownfield rework is required because the implemented Python listener currently performs local STIX evidence querying and local opencode orchestration, which violates the corrected boundary. The corrected design constrains the listener to push ingestion, prompt packaging from STIX elements already present in the push payload, remote OPENCODE SERVER invocation, and explicit main-agent selection. STIX CLI and .opencode/tools remain agent-usable tools on the remote server side only. Existing software units are retained where possible but re-scoped: Python listener becomes a thin transport boundary, agent orchestration remains under the opencode workspace but only as remote-server execution, structured result assembly moves out of the listener path to the remote server/agent response contract, and validation assets must be updated to verify listener-to-remote-server interaction rather than local subprocess coupling."
+            "value": "A requirement is a statement of need that must be realized by the architecture. In this architecture, OpenCode 威胁情报 Multi-Agent 架构演进要求在既有远端闭环上收敛三角色团队、仅授权情报分析 Agent 使用 STIX 原生 Tool、补充协作 Skill，并由 Primary 按 TASK-009 结构化 Schema 返回结果。"
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "layer": "strategy"
+          }
+        }
+      },
+      {
+        "identifier": "ELM-APP-COLLAB-THREAT-MA-TEAM",
+        "type": "ApplicationCollaboration",
+        "name": [
+          {
+            "value": "OpenCode Threat Intelligence Multi-Agent Team"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "An application collaboration is an aggregate of application components that work together to perform automated behavior. In this architecture, OpenCode Threat Intelligence Multi-Agent Team represents the remote OpenCode workspace collaboration boundary composed of the Primary、情报分析、安全运营三角色 agents for one threat-intelligence run."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "layer": "application"
+          }
+        }
+      },
+      {
+        "identifier": "ELM-APP-COMP-TI-PRIMARY-AGENT",
+        "type": "ApplicationComponent",
+        "name": [
+          {
+            "value": "Threat Intelligence Primary Agent"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "An application component is a modular software unit that encapsulates automated behavior and related data. In this architecture, Threat Intelligence Primary Agent is the sole primary coordinator that receives the remote analysis request, triggers delegated collaboration, and assembles the final TASK-009 structured result before returning it to the listener."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "layer": "application"
+          }
+        }
+      },
+      {
+        "identifier": "ELM-APP-COMP-TI-ANALYST-AGENT",
+        "type": "ApplicationComponent",
+        "name": [
+          {
+            "value": "Threat Intelligence Analyst Agent"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "An application component is a modular software unit that encapsulates automated behavior and related data. In this architecture, Threat Intelligence Analyst Agent is the evidence-focused sub-agent that performs STIX-grounded analysis and is the only application component authorized to invoke the STIX Query Native Tool Adapter."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "layer": "application"
+          }
+        }
+      },
+      {
+        "identifier": "ELM-APP-COMP-TI-SECOPS-AGENT",
+        "type": "ApplicationComponent",
+        "name": [
+          {
+            "value": "Security Operations Agent"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "An application component is a modular software unit that encapsulates automated behavior and related data. In this architecture, Security Operations Agent is the operations-focused sub-agent that converts evidence-backed findings into detection, containment, and follow-up actions for the Primary agent."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "layer": "application"
+          }
+        }
+      },
+      {
+        "identifier": "ELM-APP-COMP-STIX-NATIVE-TOOL",
+        "type": "ApplicationComponent",
+        "name": [
+          {
+            "value": "STIX Query Native Tool Adapter"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "An application component is a modular software unit that encapsulates automated behavior and related data. In this architecture, STIX Query Native Tool Adapter exposes the STIX 2.1 semantic query capability as an OpenCode native tool within the remote workspace and must not be invoked by the listener or by unauthorized agents."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "layer": "application"
+          }
+        }
+      },
+      {
+        "identifier": "ELM-APP-PROC-THREAT-COLLAB-SKILL",
+        "type": "ApplicationProcess",
+        "name": [
+          {
+            "value": "Threat Intel Collaboration Skill Flow"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "An application process is a sequence of automated behaviors that achieves a defined application outcome. In this architecture, Threat Intel Collaboration Skill Flow defines the trigger condition, delegation order, sub-agent return structure, and completion condition for the three-role threat-intelligence collaboration executed by the Primary agent."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "layer": "application"
+          }
+        }
+      },
+      {
+        "identifier": "ELM-TECH-NODE-OPENCODE-RUNTIME",
+        "type": "Node",
+        "name": [
+          {
+            "value": "Remote OpenCode Server Runtime"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "A node is a computational resource that hosts and executes software. In this architecture, Remote OpenCode Server Runtime is the OpenCode execution node that hosts the remote workspace agents, skills, and native tools used after the Python listener dispatches a session/message request."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "layer": "technology"
+          }
+        }
+      },
+      {
+        "identifier": "ELM-TECH-ARTIFACT-OPENCODE-WORKSPACE",
+        "type": "Artifact",
+        "name": [
+          {
+            "value": "OpenCode Workspace Configuration Artifact"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "An artifact is a deployable or physical piece of information used by technology and applications. In this architecture, OpenCode Workspace Configuration Artifact is the canonical remote workspace configuration rooted at agent_app/opencode_app/.opencode/, including opencode.json and workspace-level instructions."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "layer": "technology"
+          }
+        }
+      },
+      {
+        "identifier": "ELM-TECH-ARTIFACT-AGENT-DEFS",
+        "type": "Artifact",
+        "name": [
+          {
+            "value": "Threat Intel Agent Definition Artifacts"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "An artifact is a deployable or physical piece of information used by technology and applications. In this architecture, Threat Intel Agent Definition Artifacts are the agent descriptor files under agent_app/opencode_app/.opencode/agents/ that realize the canonical Primary、情报分析、安全运营角色 and their compatibility mappings."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "layer": "technology"
+          }
+        }
+      },
+      {
+        "identifier": "ELM-TECH-ARTIFACT-SKILL-DEFS",
+        "type": "Artifact",
+        "name": [
+          {
+            "value": "Threat Intel Skill Definition Artifacts"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "An artifact is a deployable or physical piece of information used by technology and applications. In this architecture, Threat Intel Skill Definition Artifacts are the skill files under agent_app/opencode_app/.opencode/skills/ that encode collaboration trigger conditions, delegation order, return contracts, and end conditions."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "layer": "technology"
+          }
+        }
+      },
+      {
+        "identifier": "ELM-TECH-ARTIFACT-TOOL-DEFS",
+        "type": "Artifact",
+        "name": [
+          {
+            "value": "Threat Intel Native Tool Definition Artifacts"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "An artifact is a deployable or physical piece of information used by technology and applications. In this architecture, Threat Intel Native Tool Definition Artifacts are the tool files under agent_app/opencode_app/.opencode/tools/ that realize the OpenCode-native STIX query entrypoint and its agent-scoped authorization boundary."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "layer": "technology"
+          }
+        }
+      },
+      {
+        "identifier": "PROJECT-CURRENT",
+        "type": "WorkPackage",
+        "name": [
+          {
+            "value": "修复 OpenCode 自定义工具写法，使 .opencode/tools/ 下工具符合官方 custom tools 规范。"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "修复 OpenCode 自定义工具写法，使 .opencode/tools/ 下工具符合官方 custom tools 规范。"
           }
         ],
         "extensions": {
           "ai4pb": {
             "managedBy": "opencode-runtime",
             "kind": "Project",
-            "rawRequirement": "实现 Threat Intelligence Agent V1 的最小可运行闭环：基于 Mock OPENCTI PUSH 事件，由 Python 消息监听服务触发分析，结合 STIX 2.1 语义查询 CLI 与多 Agent 协作，产出",
+            "rawRequirement": "修复 OpenCode 自定义工具写法，使 .opencode/tools/ 下工具符合官方 custom tools 规范。",
             "status": "InProgress"
           }
         }
       },
       {
-        "identifier": "TASK-003",
+        "identifier": "TASK-018",
         "type": "WorkPackage",
         "name": [
           {
-            "value": "实现 Threat Intelligence Agent V1 的最小可运行闭环：基于 Mock OPENCTI PUSH 事件，由 Python 消息监听服务触发分析，结合 STIX 2"
+            "value": "修复 OpenCode 自定义工具写法，使"
           }
         ],
         "documentation": [
           {
-            "value": "SystemArchitect must refine this planning item into concrete software-unit-scoped implementation tasks."
+            "value": "Completed fast-track OpenCode custom tools compliance update; converted stix_query and threat_intel_orchestrator to official tool() modules and added validation coverage."
           }
         ],
         "extensions": {
@@ -773,273 +1013,15 @@
             "managedBy": "opencode-runtime",
             "kind": "Task",
             "taskKind": "planning",
-            "status": "ToDo",
+            "status": "Done",
             "retryCount": 0,
             "assignee": "SystemArchitect",
-            "summary": "Created by decompose_goal as planning input for software-unit decomposition.",
-            "commitId": "",
+            "summary": "Completed fast-track OpenCode custom tools compliance update; converted stix_query and threat_intel_orchestrator to official tool() modules and added validation coverage.",
+            "commitId": "222b1ff",
             "softwareUnitId": "",
             "softwareUnitTitle": "",
             "architectureElementId": "",
-            "updatedAt": "2026-04-09T15:20:56.664Z"
-          }
-        }
-      },
-      {
-        "identifier": "TASK-004",
-        "type": "WorkPackage",
-        "name": [
-          {
-            "value": "语义查询 CLI 与多 Agent 协作，产出可验证的结构化威胁情报分析结果。"
-          }
-        ],
-        "documentation": [
-          {
-            "value": "SystemArchitect must refine this planning item into concrete software-unit-scoped implementation tasks."
-          }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "Task",
-            "taskKind": "planning",
-            "status": "ToDo",
-            "retryCount": 0,
-            "assignee": "SystemArchitect",
-            "summary": "Created by decompose_goal as planning input for software-unit decomposition.",
-            "commitId": "",
-            "softwareUnitId": "",
-            "softwareUnitTitle": "",
-            "architectureElementId": "",
-            "updatedAt": "2026-04-09T15:20:56.664Z"
-          }
-        }
-      },
-      {
-        "identifier": "TASK-005",
-        "type": "WorkPackage",
-        "name": [
-          {
-            "value": "建立 Mock OPENCTI 事件适配模块与样例事件契约"
-          }
-        ],
-        "documentation": [
-          {
-            "value": "Done. Added pytest coverage for mock event schema expectations, normalization trimming/filtering behavior, and invalid observable contract rejection."
-          }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "Task",
-            "taskKind": "implementation",
-            "status": "Done",
-            "retryCount": 1,
-            "assignee": "Implementation",
-            "summary": "Done. Added pytest coverage for mock event schema expectations, normalization trimming/filtering behavior, and invalid observable contract rejection.",
-            "commitId": "0ec3caa9756a667c37fc9fe31dc4dc895d59c44e",
-            "softwareUnitId": "SU-001",
-            "softwareUnitTitle": "Mock OPENCTI Event Adapter",
-            "architectureElementId": "ELM-APP-COMP-MOCK-OPENCTI-ADAPTER",
-            "updatedAt": "2026-04-09T16:10:48.986Z"
-          }
-        }
-      },
-      {
-        "identifier": "TASK-006",
-        "type": "WorkPackage",
-        "name": [
-          {
-            "value": "实现 Python 消息监听服务并建立事件到分析 run context 的触发链路"
-          }
-        ],
-        "documentation": [
-          {
-            "value": "Done. Rewired the Python listener to the real OPENCODE SERVER session/message HTTP protocol with default base URL http://127.0.0.1:8124, preserved main-agent selection from opencode.json, embedded PUSH-extracted STIX elements and agent semantics into the message text, and added timeout-aware remote error handling. Verified with pytest and mock/stub protocol coverage; live server validation in this environment timed out during POST /session/{sessionID}/message."
-          }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "Task",
-            "taskKind": "implementation",
-            "status": "Done",
-            "retryCount": 2,
-            "assignee": "Implementation",
-            "summary": "Done. Rewired the Python listener to the real OPENCODE SERVER session/message HTTP protocol with default base URL http://127.0.0.1:8124, preserved main-agent selection from opencode.json, embedded PUSH-extracted STIX elements and agent semantics into the message text, and added timeout-aware remote error handling. Verified with pytest and mock/stub protocol coverage; live server validation in this environment timed out during POST /session/{sessionID}/message.",
-            "commitId": "12b6a2907d4215dc9c9efa822f24327706a81af5",
-            "softwareUnitId": "SU-002",
-            "softwareUnitTitle": "Python Message Listener Service",
-            "architectureElementId": "ELM-APP-COMP-PY-LISTENER",
-            "updatedAt": "2026-04-10T14:01:58.929Z"
-          }
-        }
-      },
-      {
-        "identifier": "TASK-007",
-        "type": "WorkPackage",
-        "name": [
-          {
-            "value": "实现基于本地 STIX 2.1 样例数据的语义查询 CLI"
-          }
-        ],
-        "documentation": [
-          {
-            "value": "Done. Retained STIX CLI as agent-side tooling by moving semantic evidence lookup usage out of the listener and into the remote server/mock remote execution boundary used for validation."
-          }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "Task",
-            "taskKind": "implementation",
-            "status": "Done",
-            "retryCount": 2,
-            "assignee": "Implementation",
-            "summary": "Done. Retained STIX CLI as agent-side tooling by moving semantic evidence lookup usage out of the listener and into the remote server/mock remote execution boundary used for validation.",
-            "commitId": "fe94c818b4a95b6c3e67516141996b54b143931a",
-            "softwareUnitId": "SU-003",
-            "softwareUnitTitle": "STIX 2.1 Semantic Query CLI",
-            "architectureElementId": "ELM-APP-COMP-STIX-CLI",
-            "updatedAt": "2026-04-10T05:45:17.279Z"
-          }
-        }
-      },
-      {
-        "identifier": "TASK-008",
-        "type": "WorkPackage",
-        "name": [
-          {
-            "value": "扩展 opencode agents/skills，落地至少两类角色的协作分析编排"
-          }
-        ],
-        "documentation": [
-          {
-            "value": "Done. Switched orchestrator dispatch from the legacy mock /analysis-runs path to the real OPENCODE SERVER /session and /session/{sessionID}/message protocol, requesting json_schema-constrained structured output and keeping the mock remote server only as a protocol-compatible test stub."
-          }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "Task",
-            "taskKind": "implementation",
-            "status": "Done",
-            "retryCount": 1,
-            "assignee": "Implementation",
-            "summary": "Done. Switched orchestrator dispatch from the legacy mock /analysis-runs path to the real OPENCODE SERVER /session and /session/{sessionID}/message protocol, requesting json_schema-constrained structured output and keeping the mock remote server only as a protocol-compatible test stub.",
-            "commitId": "12b6a2907d4215dc9c9efa822f24327706a81af5",
-            "softwareUnitId": "SU-004",
-            "softwareUnitTitle": "Threat Intelligence Agent Orchestrator",
-            "architectureElementId": "ELM-APP-COMP-AGENT-ORCH",
-            "updatedAt": "2026-04-10T14:01:58.979Z"
-          }
-        }
-      },
-      {
-        "identifier": "TASK-009",
-        "type": "WorkPackage",
-        "name": [
-          {
-            "value": "定义并实现结构化威胁情报分析结果 schema 与结果组装模块"
-          }
-        ],
-        "documentation": [
-          {
-            "value": "Done. Added an explicit JSON schema export for the structured analysis result and updated remote response extraction to prefer schema-valid JSON objects from OPENCODE SERVER message responses before accepting the result."
-          }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "Task",
-            "taskKind": "implementation",
-            "status": "Done",
-            "retryCount": 2,
-            "assignee": "Implementation",
-            "summary": "Done. Added an explicit JSON schema export for the structured analysis result and updated remote response extraction to prefer schema-valid JSON objects from OPENCODE SERVER message responses before accepting the result.",
-            "commitId": "12b6a2907d4215dc9c9efa822f24327706a81af5",
-            "softwareUnitId": "SU-005",
-            "softwareUnitTitle": "Structured Analysis Result Assembler",
-            "architectureElementId": "ELM-APP-COMP-RESULT-ASSEMBLER",
-            "updatedAt": "2026-04-10T14:01:59.026Z"
-          }
-        }
-      },
-      {
-        "identifier": "TASK-010",
-        "type": "WorkPackage",
-        "name": [
-          {
-            "value": "补充 STIX 样例数据、mock 事件样例与本地最小闭环验证脚本"
-          }
-        ],
-        "documentation": [
-          {
-            "value": "Done. Updated the minimal closed-loop script to default to the real server at http://127.0.0.1:8124, support environment override, report validation failures cleanly, and refreshed unit/integration tests so stubs cover protocol wiring while the default script targets the real server."
-          }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "Task",
-            "taskKind": "implementation",
-            "status": "Done",
-            "retryCount": 2,
-            "assignee": "Implementation",
-            "summary": "Done. Updated the minimal closed-loop script to default to the real server at http://127.0.0.1:8124, support environment override, report validation failures cleanly, and refreshed unit/integration tests so stubs cover protocol wiring while the default script targets the real server.",
-            "commitId": "12b6a2907d4215dc9c9efa822f24327706a81af5",
-            "softwareUnitId": "SU-006",
-            "softwareUnitTitle": "Repository Runtime Assets",
-            "architectureElementId": "ELM-TECH-ARTIFACT-REPO-ASSETS",
-            "updatedAt": "2026-04-10T14:01:59.074Z"
-          }
-        }
-      },
-      {
-        "identifier": "ISSUE-001",
-        "type": "BusinessObject",
-        "name": [
-          {
-            "value": "Listener directly executes local STIX CLI and local opencode orchestrator"
-          }
-        ],
-        "documentation": [
-          {
-            "value": "Authoritative architecture correction states that listener responsibilities are limited to push receipt, prompt packaging from push-contained STIX elements, remote OPENCODE SERVER invocation, and main-agent selection. Current implementation in services/python_listener/listener.py directly invokes local tools.stix_cli and local .opencode/tools/threat_intel_orchestrator.js, so brownfield rework is required."
-          }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "Issue",
-            "issueType": "ArchGap",
-            "status": "Open",
-            "reporter": "OpenCode",
-            "category": "ArchitectureGap"
-          }
-        }
-      },
-      {
-        "identifier": "RELEASE-LOG",
-        "type": "Artifact",
-        "name": [
-          {
-            "value": "SprintReleaseLog"
-          }
-        ],
-        "documentation": [
-          {
-            "value": "Threat Intelligence Agent V1 发布完成。lane=full-model，final commit=0ec3caa9756a667c37fc9fe31dc4dc895d59c44e，QA/Audit 均通过。交付范围覆盖 TASK-005~TASK-010，形成从 Mock OPENCTI PUSH 事件、Python listener、STIX 2.1 语义查询 CLI、多 Agent 协作分析到结构化结果输出的最小可运行闭环。发布日志路径：artifacts/SprintReleaseLog.md。"
-          }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "ReleaseLog",
-            "version": "",
-            "content": "Threat Intelligence Agent V1 发布完成。lane=full-model，final commit=0ec3caa9756a667c37fc9fe31dc4dc895d59c44e，QA/Audit 均通过。交付范围覆盖 TASK-005~TASK-010，形成从 Mock OPENCTI PUSH 事件、Python listener、STIX 2.1 语义查询 CLI、多 Agent 协作分析到结构化结果输出的最小可运行闭环。发布日志路径：artifacts/SprintReleaseLog.md。",
-            "timestamp": "2026-04-09T16:49:39.060Z",
-            "path": "SprintReleaseLog.md"
+            "updatedAt": "2026-04-12T13:25:37.828Z"
           }
         }
       }
@@ -1895,279 +1877,399 @@
         ]
       },
       {
-        "identifier": "REL-PROJECT-TASK-003",
+        "identifier": "REL-REQ-REALIZES-THREAT-MA-TEAM",
+        "type": "Realization",
+        "name": [
+          {
+            "value": "Multi-agent team realizes requirement"
+          }
+        ],
+        "source": "ELM-APP-COLLAB-THREAT-MA-TEAM",
+        "target": "REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001",
+        "documentation": [
+          {
+            "value": "A realization relationship indicates that the source implements or fulfills the target. In this architecture, OpenCode Threat Intelligence Multi-Agent Team fulfills the requirement to provide the approved three-role remote collaboration boundary."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-LISTENER-FLOWS-THREAT-MA-TEAM",
+        "type": "Flow",
+        "name": [
+          {
+            "value": "Listener dispatches to remote multi-agent team"
+          }
+        ],
+        "source": "ELM-APP-COMP-PY-LISTENER",
+        "target": "ELM-APP-COLLAB-THREAT-MA-TEAM",
+        "documentation": [
+          {
+            "value": "A flow relationship transfers information or triggers between elements. In this architecture, Python Message Listener Service sends the normalized remote request into the remote OpenCode Threat Intelligence Multi-Agent Team without performing local analysis orchestration."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-THREAT-MA-TEAM-AGG-PRIMARY",
         "type": "Aggregation",
         "name": [
           {
-            "value": "Project aggregates TASK-003"
+            "value": "Team aggregates primary agent"
           }
         ],
-        "source": "PROJECT-CURRENT",
-        "target": "TASK-003",
+        "source": "ELM-APP-COLLAB-THREAT-MA-TEAM",
+        "target": "ELM-APP-COMP-TI-PRIMARY-AGENT",
         "documentation": [
           {
-            "value": "Runtime task relationship managed by OpenCode runtime."
+            "value": "An aggregation relationship indicates that the source groups the target as a coherent whole. In this architecture, OpenCode Threat Intelligence Multi-Agent Team includes Threat Intelligence Primary Agent as the sole primary coordination role."
           }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "ProjectTaskLink"
-          }
-        }
+        ]
       },
       {
-        "identifier": "REL-PROJECT-TASK-004",
+        "identifier": "REL-THREAT-MA-TEAM-AGG-ANALYST",
         "type": "Aggregation",
         "name": [
           {
-            "value": "Project aggregates TASK-004"
+            "value": "Team aggregates analyst agent"
           }
         ],
-        "source": "PROJECT-CURRENT",
-        "target": "TASK-004",
+        "source": "ELM-APP-COLLAB-THREAT-MA-TEAM",
+        "target": "ELM-APP-COMP-TI-ANALYST-AGENT",
         "documentation": [
           {
-            "value": "Runtime task relationship managed by OpenCode runtime."
+            "value": "An aggregation relationship indicates that the source groups the target as a coherent whole. In this architecture, OpenCode Threat Intelligence Multi-Agent Team includes Threat Intelligence Analyst Agent as the STIX-evidence analysis role."
           }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "ProjectTaskLink"
-          }
-        }
+        ]
       },
       {
-        "identifier": "REL-PROJECT-TASK-005",
+        "identifier": "REL-THREAT-MA-TEAM-AGG-SECOPS",
         "type": "Aggregation",
         "name": [
           {
-            "value": "Project aggregates TASK-005"
+            "value": "Team aggregates secops agent"
           }
         ],
-        "source": "PROJECT-CURRENT",
-        "target": "TASK-005",
+        "source": "ELM-APP-COLLAB-THREAT-MA-TEAM",
+        "target": "ELM-APP-COMP-TI-SECOPS-AGENT",
         "documentation": [
           {
-            "value": "Runtime task relationship managed by OpenCode runtime."
+            "value": "An aggregation relationship indicates that the source groups the target as a coherent whole. In this architecture, OpenCode Threat Intelligence Multi-Agent Team includes Security Operations Agent as the operations recommendation role."
           }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "ProjectTaskLink"
-          }
-        }
+        ]
       },
       {
-        "identifier": "REL-TASK-005-ARCH",
-        "type": "Association",
+        "identifier": "REL-PRIMARY-ASSIGNED-COLLAB-SKILL",
+        "type": "Assignment",
         "name": [
           {
-            "value": "TASK-005 traces to ELM-APP-COMP-MOCK-OPENCTI-ADAPTER"
+            "value": "Primary executes collaboration skill"
           }
         ],
-        "source": "TASK-005",
-        "target": "ELM-APP-COMP-MOCK-OPENCTI-ADAPTER",
+        "source": "ELM-APP-COMP-TI-PRIMARY-AGENT",
+        "target": "ELM-APP-PROC-THREAT-COLLAB-SKILL",
         "documentation": [
           {
-            "value": "Runtime task traceability relationship managed by OpenCode runtime."
+            "value": "An assignment relationship indicates that the source is responsible for performing the target behavior. In this architecture, Threat Intelligence Primary Agent executes Threat Intel Collaboration Skill Flow to drive delegation and final convergence."
           }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "TaskArchitectureTrace"
-          }
-        }
+        ]
       },
       {
-        "identifier": "REL-PROJECT-TASK-006",
-        "type": "Aggregation",
+        "identifier": "REL-COLLAB-SKILL-TRIGGERS-ANALYST",
+        "type": "Triggering",
         "name": [
           {
-            "value": "Project aggregates TASK-006"
+            "value": "Skill triggers analyst agent"
           }
         ],
-        "source": "PROJECT-CURRENT",
-        "target": "TASK-006",
+        "source": "ELM-APP-PROC-THREAT-COLLAB-SKILL",
+        "target": "ELM-APP-COMP-TI-ANALYST-AGENT",
         "documentation": [
           {
-            "value": "Runtime task relationship managed by OpenCode runtime."
+            "value": "A triggering relationship indicates that the source behavior causes or precedes the target. In this architecture, Threat Intel Collaboration Skill Flow first delegates evidence-oriented work to Threat Intelligence Analyst Agent when the event requires STIX-grounded investigation."
           }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "ProjectTaskLink"
-          }
-        }
+        ]
       },
       {
-        "identifier": "REL-TASK-006-ARCH",
-        "type": "Association",
+        "identifier": "REL-ANALYST-TRIGGERS-SECOPS",
+        "type": "Triggering",
         "name": [
           {
-            "value": "TASK-006 traces to ELM-APP-COMP-PY-LISTENER"
+            "value": "Analyst triggers secops agent"
           }
         ],
-        "source": "TASK-006",
-        "target": "ELM-APP-COMP-PY-LISTENER",
+        "source": "ELM-APP-COMP-TI-ANALYST-AGENT",
+        "target": "ELM-APP-COMP-TI-SECOPS-AGENT",
         "documentation": [
           {
-            "value": "Runtime task traceability relationship managed by OpenCode runtime."
+            "value": "A triggering relationship indicates that the source behavior causes or precedes the target. In this architecture, Threat Intelligence Analyst Agent hands off evidence-grounded findings to Security Operations Agent for operations framing after the STIX evidence review completes."
           }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "TaskArchitectureTrace"
-          }
-        }
+        ]
       },
       {
-        "identifier": "REL-PROJECT-TASK-007",
-        "type": "Aggregation",
+        "identifier": "REL-SECOPS-FLOWS-PRIMARY",
+        "type": "Flow",
         "name": [
           {
-            "value": "Project aggregates TASK-007"
+            "value": "SecOps returns findings to primary"
           }
         ],
-        "source": "PROJECT-CURRENT",
-        "target": "TASK-007",
+        "source": "ELM-APP-COMP-TI-SECOPS-AGENT",
+        "target": "ELM-APP-COMP-TI-PRIMARY-AGENT",
         "documentation": [
           {
-            "value": "Runtime task relationship managed by OpenCode runtime."
+            "value": "A flow relationship transfers information from source to target. In this architecture, Security Operations Agent returns structured response recommendations and operational interpretation back to Threat Intelligence Primary Agent for final answer assembly."
           }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "ProjectTaskLink"
-          }
-        }
+        ]
       },
       {
-        "identifier": "REL-TASK-007-ARCH",
-        "type": "Association",
+        "identifier": "REL-ANALYST-ACCESSES-STIX-NATIVE-TOOL",
+        "type": "Access",
         "name": [
           {
-            "value": "TASK-007 traces to ELM-APP-COMP-STIX-CLI"
+            "value": "Analyst accesses STIX native tool"
           }
         ],
-        "source": "TASK-007",
-        "target": "ELM-APP-COMP-STIX-CLI",
+        "source": "ELM-APP-COMP-TI-ANALYST-AGENT",
+        "target": "ELM-APP-COMP-STIX-NATIVE-TOOL",
         "documentation": [
           {
-            "value": "Runtime task traceability relationship managed by OpenCode runtime."
+            "value": "An access relationship indicates that the source reads or uses the target. In this architecture, Threat Intelligence Analyst Agent is the only application component authorized to use the STIX Query Native Tool Adapter for evidence retrieval."
           }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "TaskArchitectureTrace"
-          }
-        }
+        ]
       },
       {
-        "identifier": "REL-PROJECT-TASK-008",
-        "type": "Aggregation",
+        "identifier": "REL-STIX-NATIVE-TOOL-USES-STIX-CLI",
+        "type": "Serving",
         "name": [
           {
-            "value": "Project aggregates TASK-008"
+            "value": "CLI serves native tool adapter"
           }
         ],
-        "source": "PROJECT-CURRENT",
-        "target": "TASK-008",
+        "source": "ELM-APP-COMP-STIX-CLI",
+        "target": "ELM-APP-COMP-STIX-NATIVE-TOOL",
         "documentation": [
           {
-            "value": "Runtime task relationship managed by OpenCode runtime."
+            "value": "A serving relationship indicates that the source provides behavior used by the target. In this architecture, STIX 2.1 Semantic Query CLI provides the domain query capability wrapped by the STIX Query Native Tool Adapter."
           }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "ProjectTaskLink"
-          }
-        }
+        ]
       },
       {
-        "identifier": "REL-TASK-008-ARCH",
-        "type": "Association",
+        "identifier": "REL-PRIMARY-ACCESSES-RESULT-CONTRACT",
+        "type": "Access",
         "name": [
           {
-            "value": "TASK-008 traces to ELM-APP-COMP-AGENT-ORCH"
+            "value": "Primary accesses TASK-009 result contract"
           }
         ],
-        "source": "TASK-008",
-        "target": "ELM-APP-COMP-AGENT-ORCH",
-        "documentation": [
-          {
-            "value": "Runtime task traceability relationship managed by OpenCode runtime."
-          }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "TaskArchitectureTrace"
-          }
-        }
-      },
-      {
-        "identifier": "REL-PROJECT-TASK-009",
-        "type": "Aggregation",
-        "name": [
-          {
-            "value": "Project aggregates TASK-009"
-          }
-        ],
-        "source": "PROJECT-CURRENT",
-        "target": "TASK-009",
-        "documentation": [
-          {
-            "value": "Runtime task relationship managed by OpenCode runtime."
-          }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "ProjectTaskLink"
-          }
-        }
-      },
-      {
-        "identifier": "REL-TASK-009-ARCH",
-        "type": "Association",
-        "name": [
-          {
-            "value": "TASK-009 traces to ELM-APP-COMP-RESULT-ASSEMBLER"
-          }
-        ],
-        "source": "TASK-009",
+        "source": "ELM-APP-COMP-TI-PRIMARY-AGENT",
         "target": "ELM-APP-COMP-RESULT-ASSEMBLER",
         "documentation": [
           {
-            "value": "Runtime task traceability relationship managed by OpenCode runtime."
+            "value": "An access relationship indicates that the source reads or uses the target. In this architecture, Threat Intelligence Primary Agent uses the Structured Analysis Result Assembler contract to assemble and return the final TASK-009 schema-compliant response."
           }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "TaskArchitectureTrace"
-          }
-        }
+        ]
       },
       {
-        "identifier": "REL-PROJECT-TASK-010",
+        "identifier": "REL-PRIMARY-WRITES-ANALYSIS-RESULT",
+        "type": "Access",
+        "name": [
+          {
+            "value": "Primary writes structured analysis result"
+          }
+        ],
+        "source": "ELM-APP-COMP-TI-PRIMARY-AGENT",
+        "target": "ELM-DATA-ANALYSIS-RESULT",
+        "documentation": [
+          {
+            "value": "An access relationship indicates that the source reads or writes the target data. In this architecture, Threat Intelligence Primary Agent writes the Structured Threat Analysis Result as the final remote response artifact for listener consumption."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-ORCH-AGG-THREAT-MA-TEAM",
         "type": "Aggregation",
         "name": [
           {
-            "value": "Project aggregates TASK-010"
+            "value": "Orchestrator aggregates multi-agent team"
+          }
+        ],
+        "source": "ELM-APP-COMP-AGENT-ORCH",
+        "target": "ELM-APP-COLLAB-THREAT-MA-TEAM",
+        "documentation": [
+          {
+            "value": "An aggregation relationship indicates that the source groups the target as a coherent whole. In this architecture, Threat Intelligence Agent Orchestrator contains the OpenCode Threat Intelligence Multi-Agent Team as its concrete collaboration boundary within the remote workspace."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-TECH-OPENCODE-RUNTIME-SERVES-TEAM",
+        "type": "Serving",
+        "name": [
+          {
+            "value": "Remote runtime serves multi-agent team"
+          }
+        ],
+        "source": "ELM-TECH-NODE-OPENCODE-RUNTIME",
+        "target": "ELM-APP-COLLAB-THREAT-MA-TEAM",
+        "documentation": [
+          {
+            "value": "A serving relationship indicates that the source provides hosting or support behavior used by the target. In this architecture, Remote OpenCode Server Runtime hosts and serves the OpenCode Threat Intelligence Multi-Agent Team during remote execution."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-TECH-WORKSPACE-REALIZES-ORCH",
+        "type": "Realization",
+        "name": [
+          {
+            "value": "Workspace artifact realizes orchestrator boundary"
+          }
+        ],
+        "source": "ELM-TECH-ARTIFACT-OPENCODE-WORKSPACE",
+        "target": "ELM-APP-COMP-AGENT-ORCH",
+        "documentation": [
+          {
+            "value": "A realization relationship indicates that the source makes the target concrete. In this architecture, OpenCode Workspace Configuration Artifact concretely realizes the remote orchestration boundary rooted at agent_app/opencode_app/.opencode/."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-TECH-AGENT-DEFS-REALIZE-PRIMARY",
+        "type": "Realization",
+        "name": [
+          {
+            "value": "Agent artifacts realize primary agent"
+          }
+        ],
+        "source": "ELM-TECH-ARTIFACT-AGENT-DEFS",
+        "target": "ELM-APP-COMP-TI-PRIMARY-AGENT",
+        "documentation": [
+          {
+            "value": "A realization relationship indicates that the source makes the target concrete. In this architecture, Threat Intel Agent Definition Artifacts realize the Threat Intelligence Primary Agent descriptor and behavior boundary."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-TECH-AGENT-DEFS-REALIZE-ANALYST",
+        "type": "Realization",
+        "name": [
+          {
+            "value": "Agent artifacts realize analyst agent"
+          }
+        ],
+        "source": "ELM-TECH-ARTIFACT-AGENT-DEFS",
+        "target": "ELM-APP-COMP-TI-ANALYST-AGENT",
+        "documentation": [
+          {
+            "value": "A realization relationship indicates that the source makes the target concrete. In this architecture, Threat Intel Agent Definition Artifacts realize the Threat Intelligence Analyst Agent descriptor and permission boundary."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-TECH-AGENT-DEFS-REALIZE-SECOPS",
+        "type": "Realization",
+        "name": [
+          {
+            "value": "Agent artifacts realize secops agent"
+          }
+        ],
+        "source": "ELM-TECH-ARTIFACT-AGENT-DEFS",
+        "target": "ELM-APP-COMP-TI-SECOPS-AGENT",
+        "documentation": [
+          {
+            "value": "A realization relationship indicates that the source makes the target concrete. In this architecture, Threat Intel Agent Definition Artifacts realize the Security Operations Agent descriptor and its delegated role boundary."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-TECH-SKILL-DEFS-REALIZE-COLLAB-SKILL",
+        "type": "Realization",
+        "name": [
+          {
+            "value": "Skill artifacts realize collaboration flow"
+          }
+        ],
+        "source": "ELM-TECH-ARTIFACT-SKILL-DEFS",
+        "target": "ELM-APP-PROC-THREAT-COLLAB-SKILL",
+        "documentation": [
+          {
+            "value": "A realization relationship indicates that the source makes the target concrete. In this architecture, Threat Intel Skill Definition Artifacts encode the collaboration trigger condition, delegation order, return structure, and completion condition defined by Threat Intel Collaboration Skill Flow."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-TECH-TOOL-DEFS-REALIZE-STIX-NATIVE-TOOL",
+        "type": "Realization",
+        "name": [
+          {
+            "value": "Tool artifacts realize STIX native tool"
+          }
+        ],
+        "source": "ELM-TECH-ARTIFACT-TOOL-DEFS",
+        "target": "ELM-APP-COMP-STIX-NATIVE-TOOL",
+        "documentation": [
+          {
+            "value": "A realization relationship indicates that the source makes the target concrete. In this architecture, Threat Intel Native Tool Definition Artifacts realize the STIX Query Native Tool Adapter exposed inside the remote OpenCode workspace."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-TECH-WORKSPACE-REALIZES-TEAM",
+        "type": "Realization",
+        "name": [
+          {
+            "value": "Workspace artifact realizes multi-agent team"
+          }
+        ],
+        "source": "ELM-TECH-ARTIFACT-OPENCODE-WORKSPACE",
+        "target": "ELM-APP-COLLAB-THREAT-MA-TEAM",
+        "documentation": [
+          {
+            "value": "A realization relationship indicates that the source makes the target concrete. In this architecture, OpenCode Workspace Configuration Artifact provides the concrete configuration envelope for the OpenCode Threat Intelligence Multi-Agent Team."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-TECH-REPO-ASSETS-AGG-WORKSPACE",
+        "type": "Aggregation",
+        "name": [
+          {
+            "value": "Repo assets aggregate workspace artifact"
+          }
+        ],
+        "source": "ELM-TECH-ARTIFACT-REPO-ASSETS",
+        "target": "ELM-TECH-ARTIFACT-OPENCODE-WORKSPACE",
+        "documentation": [
+          {
+            "value": "An aggregation relationship indicates that the source groups the target as part of a larger whole. In this architecture, Repository Runtime Assets include the OpenCode Workspace Configuration Artifact as one checked-in deployable repository asset."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-TECH-LOCAL-DEV-SERVES-REMOTE-RUNTIME",
+        "type": "Serving",
+        "name": [
+          {
+            "value": "Local container runtime hosts remote OpenCode runtime"
+          }
+        ],
+        "source": "ELM-TECH-NODE-LOCAL-DEV",
+        "target": "ELM-TECH-NODE-OPENCODE-RUNTIME",
+        "documentation": [
+          {
+            "value": "A serving relationship indicates that the source provides hosting or support behavior used by the target. In this architecture, Local Containerized Development Runtime hosts the containerized Remote OpenCode Server Runtime defined by docker-compose for local validation and deployment-like execution."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-PROJECT-TASK-018",
+        "type": "Aggregation",
+        "name": [
+          {
+            "value": "Project aggregates TASK-018"
           }
         ],
         "source": "PROJECT-CURRENT",
-        "target": "TASK-010",
+        "target": "TASK-018",
         "documentation": [
           {
             "value": "Runtime task relationship managed by OpenCode runtime."
@@ -2177,28 +2279,6 @@
           "ai4pb": {
             "managedBy": "opencode-runtime",
             "kind": "ProjectTaskLink"
-          }
-        }
-      },
-      {
-        "identifier": "REL-TASK-010-ARCH",
-        "type": "Association",
-        "name": [
-          {
-            "value": "TASK-010 traces to ELM-TECH-ARTIFACT-REPO-ASSETS"
-          }
-        ],
-        "source": "TASK-010",
-        "target": "ELM-TECH-ARTIFACT-REPO-ASSETS",
-        "documentation": [
-          {
-            "value": "Runtime task traceability relationship managed by OpenCode runtime."
-          }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "TaskArchitectureTrace"
           }
         }
       }
@@ -2210,43 +2290,28 @@
       "counters": {
         "ELM": 1
       },
-      "designSummary": "Architecture correction accepted for Threat Intelligence Agent V1. Brownfield rework is required because the implemented Python listener currently performs local STIX evidence querying and local opencode orchestration, which violates the corrected boundary. The corrected design constrains the listener to push ingestion, prompt packaging from STIX elements already present in the push payload, remote OPENCODE SERVER invocation, and explicit main-agent selection. STIX CLI and .opencode/tools remain agent-usable tools on the remote server side only. Existing software units are retained where possible but re-scoped: Python listener becomes a thin transport boundary, agent orchestration remains under the opencode workspace but only as remote-server execution, structured result assembly moves out of the listener path to the remote server/agent response contract, and validation assets must be updated to verify listener-to-remote-server interaction rather than local subprocess coupling.",
-      "designDecisions": [
-        "Decision: Extend existing agent_app/opencode_app only for agent orchestration concerns. Rationale: the repository already contains opencode server configuration, agent definitions, and skills, making it the correct ownership boundary for multi-agent collaboration; it is not an appropriate host for Python listener runtime logic or STIX CLI implementation.",
-        "Decision: Introduce a new Python Message Listener Service software unit. Rationale: the approved requirement explicitly calls for a Python background listener, and no existing repository module provides a suitable long-running Python service boundary.",
-        "Decision: Introduce a dedicated STIX 2.1 Semantic Query CLI and local STIX sample knowledge base. Rationale: V1 acceptance requires actual semantic query execution and evidence integration, which cannot be satisfied by prompts alone or by the current configuration-only repository state.",
-        "Decision: Introduce a Structured Analysis Result Assembler as a separate responsibility. Rationale: structured, verifiable, traceable output is a hard requirement and must not remain implicit inside agent free-text responses.",
-        "Decision: Model local docker-compose and checked-in runtime assets as the V1 technology baseline. Rationale: the previous intention model lacked technology-layer support; implementation and audit require an explicit runtime hosting and artifact contract.",
-        "Decision: This is an architecture-level correction, not an implementation-only defect. Rationale: the user changed the responsibility boundary between Python listener, remote OPENCODE SERVER, and agent tools; the current code violates the intended distribution of control and tool ownership.",
-        "Decision: Python Message Listener Service must not call local tools.stix_cli or agent_app/opencode_app/.opencode/tools/threat_intel_orchestrator.js. Rationale: listener responsibility is limited to receiving push events, extracting STIX element information already present in the push, packaging prompt input, invoking the remote OPENCODE SERVER, and selecting the main agent.",
-        "Decision: STIX 2.1 Semantic Query CLI is retained as an agent-available tool, not a listener dependency. Rationale: semantic evidence lookup belongs to remote agent execution context; listener-side direct CLI invocation creates boundary leakage and duplicates server responsibilities.",
-        "Decision: Structured result assembly must be produced on the remote OPENCODE SERVER side or by its primary agent contract, not assembled inside the Python listener. Rationale: once the listener becomes a thin transport boundary, analysis synthesis and evidence-backed result shaping remain part of the remote analysis responsibility."
-      ],
+      "designSummary": "",
+      "designDecisions": [],
       "runtime": {
-        "activeGoal": "实现 Threat Intelligence Agent V1 的最小可运行闭环：基于 Mock OPENCTI PUSH 事件，由 Python 消息监听服务触发分析，结合 STIX 2.1 语义查询 CLI 与多 Agent 协作，产出",
+        "activeGoal": "修复 OpenCode 自定义工具写法，使 .opencode/tools/ 下工具符合官方 custom tools 规范。",
         "validations": {
           "qa": {
-            "status": "passed",
-            "summary": "QA passed for commit 12b6a2907d4215dc9c9efa822f24327706a81af5. Verified listener wiring uses real OPENCODE SERVER POST /session then POST /session/{sessionID}/message, default base URL http://127.0.0.1:8124, and message payload includes main_agent, STIX elements in prompt/request context, and json_schema format. Verified listener boundary does not directly reference local STIX CLI, .opencode/tools, threat_intel_orchestrator, or subprocess. Targeted pytest with PYTHONPATH=. passed for tests/test_python_listener.py, tests/test_minimal_closed_loop_script.py, and tests/test_result_assembler.py; full pytest passed 13/13. Live environment validation against http://127.0.0.1:8124 showed protocol reachability issues outside code wiring: direct POST /session probe returned HTTP 502 and end-to-end listener/minimal-loop runs timed out on POST /session/{sessionID}/message after session creation. Conclusion: protocol wiring is correct; current runtime environment/server is unhealthy or unreachable for full live completion.",
-            "details": "QA passed for commit 12b6a2907d4215dc9c9efa822f24327706a81af5. Verified listener wiring uses real OPENCODE SERVER POST /session then POST /session/{sessionID}/message, default base URL http://127.0.0.1:8124, and message payload includes main_agent, STIX elements in prompt/request context, and json_schema format. Verified listener boundary does not directly reference local STIX CLI, .opencode/tools, threat_intel_orchestrator, or subprocess. Targeted pytest with PYTHONPATH=. passed for tests/test_python_listener.py, tests/test_minimal_closed_loop_script.py, and tests/test_result_assembler.py; full pytest passed 13/13. Live environment validation against http://127.0.0.1:8124 showed protocol reachability issues outside code wiring: direct POST /session probe returned HTTP 502 and end-to-end listener/minimal-loop runs timed out on POST /session/{sessionID}/message after session creation. Conclusion: protocol wiring is correct; current runtime environment/server is unhealthy or unreachable for full live completion.",
-            "commitId": "12b6a2907d4215dc9c9efa822f24327706a81af5",
-            "updatedAt": "2026-04-10T14:08:56.436Z"
+            "status": "not_run",
+            "summary": "QA not run for the current goal.",
+            "updatedAt": "2026-04-12T13:12:19.486Z"
           },
           "audit": {
-            "status": "passed",
-            "summary": "Audit passed for commit 12b6a2907d4215dc9c9efa822f24327706a81af5 against latest boundary correction. Listener remains a thin ingress/dispatch boundary: services/python_listener/listener.py normalizes the push event, creates run context, packages push-contained STIX elements, selects the main agent, and dispatches through RemoteOpencodeClient. The real primary path targets http://127.0.0.1:8124 and uses POST /session then POST /session/{sessionID}/message with json_schema-constrained message payloads. Mock remote server remains protocol-compatible test infrastructure only; current repo usage is confined to test validation helpers. STIX CLI usage is retained on the remote/mock-remote side and not in services/python_listener, and .opencode/tools usage remains outside listener-side dispatch code. No new architecture drift identified in the reviewed commit.",
-            "details": "Audit passed for commit 12b6a2907d4215dc9c9efa822f24327706a81af5 against latest boundary correction. Listener remains a thin ingress/dispatch boundary: services/python_listener/listener.py normalizes the push event, creates run context, packages push-contained STIX elements, selects the main agent, and dispatches through RemoteOpencodeClient. The real primary path targets http://127.0.0.1:8124 and uses POST /session then POST /session/{sessionID}/message with json_schema-constrained message payloads. Mock remote server remains protocol-compatible test infrastructure only; current repo usage is confined to test validation helpers. STIX CLI usage is retained on the remote/mock-remote side and not in services/python_listener, and .opencode/tools usage remains outside listener-side dispatch code. No new architecture drift identified in the reviewed commit.",
-            "commitId": "12b6a2907d4215dc9c9efa822f24327706a81af5",
-            "updatedAt": "2026-04-10T14:06:02.442Z"
+            "status": "not_run",
+            "summary": "Audit not run for the current goal.",
+            "updatedAt": "2026-04-12T13:12:19.486Z"
           }
         },
         "release": {
-          "status": "completed",
-          "summary": "Threat Intelligence Agent V1 发布完成。lane=full-model，final commit=0ec3caa9756a667c37fc9fe31dc4dc895d59c44e，QA/Audit 均通过。交付范围覆盖 TASK-005~TASK-010，形成从 Mock OPENCTI PUSH 事件、Python listener、STIX 2.1 语义查询 CLI、多 Agent 协作分析到结构化结果输出的最小可运行闭环。发布日志路径：artifacts/SprintReleaseLog.md。",
-          "releaseLogPath": "SprintReleaseLog.md",
-          "updatedAt": "2026-04-09T16:49:39.060Z"
+          "status": "not_started",
+          "summary": "Release not prepared for the current goal.",
+          "updatedAt": "2026-04-12T13:12:19.486Z"
         },
-        "updatedAt": "2026-04-10T14:06:02.443Z"
+        "updatedAt": "2026-04-12T13:13:24.538Z"
       }
     }
   },
