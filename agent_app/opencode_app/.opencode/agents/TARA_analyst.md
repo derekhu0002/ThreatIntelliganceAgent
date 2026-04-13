@@ -1,6 +1,6 @@
 ---
 description: Legacy compatibility alias for ThreatIntelSecOps.
-mode: subagent
+mode: primary
 model: DeepSeek_custom_provider/deepseek-chat
 temperature: 0.2
 permission:
