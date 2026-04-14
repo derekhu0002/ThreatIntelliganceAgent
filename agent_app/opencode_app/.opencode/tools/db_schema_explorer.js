@@ -182,6 +182,6 @@ export default tool({
       context,
       repoRoot,
     );
-    return parseValidatedCliOutput(stdout);
+    return JSON.stringify(parseValidatedCliOutput(stdout), null, 2);
   },
 });

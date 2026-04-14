@@ -278,6 +278,6 @@ export default tool({
     });
 
     const stdout = await runCliCommand(pythonCandidates, cliArgs, context, repoRoot);
-    return parseValidatedCliOutput(stdout, args.command);
+    return JSON.stringify(parseValidatedCliOutput(stdout, args.command), null, 2);
   },
 });
