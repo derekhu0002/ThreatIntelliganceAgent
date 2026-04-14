@@ -1,4 +1,4 @@
-{
+﻿{
   "identifier": "ai4pb-shared-knowledge-graph",
   "version": "1.0.0",
   "name": [
@@ -590,6 +590,111 @@
             "kind": "Project",
             "rawRequirement": "",
             "status": "InProgress"
+          }
+        }
+      },
+      {
+        "identifier": "{04A5D9B4-EAB5-46d4-84A2-D07D71CFDDAD}",
+        "type": "BusinessActor",
+        "name": [
+          {
+            "value": "STIX_EvidenceSpecialist",
+            "lang": "en"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "---\r\ndescription: Legacy compatibility alias for ThreatIntelAnalyst.\r\nmode: subagent\r\nmodel: DeepSeek_custom_provider/deepseek-chat\r\ntemperature: 0.0\r\npermission:\r\n  edit: deny\r\n  bash: deny\r\n  task:\r\n    \"*\": deny\r\n  skill:\r\n    \"*\": deny\r\n    \"threat-in",
+            "lang": "en"
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{BE8B012C-7123-431b-A57C-50C3A0089C17}",
+        "type": "BusinessActor",
+        "name": [
+          {
+            "value": "TARA_analyst",
+            "lang": "en"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "---\r\ndescription: Legacy compatibility alias for ThreatIntelSecOps.\r\nmode: primary\r\nmodel: DeepSeek_custom_provider/deepseek-chat\r\ntemperature: 0.2\r\npermission:\r\n  edit: deny\r\n  bash: deny\r\n  task:\r\n    \"*\": deny\r\n  skill:\r\n    \"*\": deny\r\n    \"threat-inte",
+            "lang": "en"
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{C1DDED53-54EB-4c5a-9412-3B9C3682F8D5}",
+        "type": "BusinessActor",
+        "name": [
+          {
+            "value": "ThreatIntelPrimary",
+            "lang": "en"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "---\r\ndescription: Canonical remote primary agent for threat-intelligence analysis orchestration and TASK-009 result assembly.\r\nmode: primary\r\nmodel: DeepSeek_custom_provider/deepseek-chat\r\ntemperature: 0.0\r\npermission:\r\n  edit: deny\r\n  bash: deny\r\n  task:",
+            "lang": "en"
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{40B6C3EA-5C48-4c19-9241-F72B5F1A7AFE}",
+        "type": "BusinessActor",
+        "name": [
+          {
+            "value": "ThreatIntelSecOps",
+            "lang": "en"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "---\r\ndescription: Canonical security-operations sub-agent for operational impact and response recommendations.\r\nmode: subagent\r\nmodel: DeepSeek_custom_provider/deepseek-chat\r\ntemperature: 0.1\r\npermission:\r\n  edit: deny\r\n  bash: deny\r\n  task:\r\n    \"*\": den",
+            "lang": "en"
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{A398FF01-8A64-4d67-BDBE-9C4C79C667BF}",
+        "type": "BusinessActor",
+        "name": [
+          {
+            "value": "ThreatIntelliganceCommander",
+            "lang": "en"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "---\r\ndescription: Legacy compatibility alias for ThreatIntelPrimary.\r\nmode: primary\r\nmodel: DeepSeek_custom_provider/deepseek-chat\r\ntemperature: 0.0\r\npermission:\r\n  edit: deny\r\n  bash: deny\r\n  task:\r\n    \"*\": deny\r\n    \"Audit\": allow\r\n    \"ThreatIntelAnal",
+            "lang": "en"
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
           }
         }
       }
