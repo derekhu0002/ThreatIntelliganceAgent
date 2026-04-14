@@ -86,7 +86,7 @@ def test_remote_client_raises_when_message_response_has_no_structured_result() -
     with pytest.raises(RemoteDispatchError, match="did not include a valid structured analysis result"):
         client.dispatch_analysis(
             {
-                "main_agent": "ThreatIntelliganceCommander",
+                "main_agent": "ThreatIntelligenceCommander",
                 "prompt_text": "Return JSON only",
             }
         )
@@ -114,7 +114,7 @@ def test_default_main_agent_is_canonical_and_legacy_aliases_resolve() -> None:
     # @ArchitectureID: ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS
     default_agent = load_default_main_agent(REPO_ROOT)
     assert default_agent == "ThreatIntelPrimary"
-    assert resolve_main_agent_alias("ThreatIntelliganceCommander", REPO_ROOT) == "ThreatIntelPrimary"
+    assert resolve_main_agent_alias("ThreatIntelligenceCommander", REPO_ROOT) == "ThreatIntelPrimary"
     assert resolve_main_agent_alias("ThreatIntelPrimary", REPO_ROOT) == "ThreatIntelPrimary"
 
 
@@ -127,4 +127,4 @@ def test_legacy_alias_resolution_has_deterministic_fallback_without_workspace_al
         lambda repo_root: {"default_agent": "ThreatIntelPrimary"},
     )
 
-    assert resolve_main_agent_alias("ThreatIntelliganceCommander", REPO_ROOT) == "ThreatIntelPrimary"
+    assert resolve_main_agent_alias("ThreatIntelligenceCommander", REPO_ROOT) == "ThreatIntelPrimary"

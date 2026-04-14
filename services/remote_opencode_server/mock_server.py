@@ -19,7 +19,7 @@ from tools.stix_cli.semantic_query import load_bundle, neighbors, search_entitie
 
 
 CANONICAL_ROLE_ALIASES = {
-    "ThreatIntelliganceCommander": "ThreatIntelPrimary",
+    "ThreatIntelligenceCommander": "ThreatIntelPrimary",
     "STIX_EvidenceSpecialist": "ThreatIntelAnalyst",
     "TARA_analyst": "ThreatIntelSecOps",
 }

@@ -114,7 +114,7 @@ def test_assemble_structured_result_populates_required_fields_and_summary_counts
         },
         collaboration_output={
             "participants": ["ThreatIntelPrimary", "ThreatIntelAnalyst"],
-            "legacy_participants": ["ThreatIntelliganceCommander", "STIX_EvidenceSpecialist"],
+            "legacy_participants": ["ThreatIntelligenceCommander", "STIX_EvidenceSpecialist"],
             "role_outputs": [{"role": "ThreatIntelAnalyst", "summary": "APT28-linked evidence found."}],
             "traceability": {"event_id": "opencti-push-001", "assembled_by": "ThreatIntelPrimary"},
             "final_assessment": {

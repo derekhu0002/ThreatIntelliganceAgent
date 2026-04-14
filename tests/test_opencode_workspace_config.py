@@ -1,6 +1,7 @@
 import json
 import os
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -73,6 +74,23 @@ def _has_trace_tag(text: str, tag: str, value: str) -> bool:
     return f"{tag}: {value}" in text
 
 
+def _write_fake_python_executable(tmp_path: Path, stdout_text: str) -> Path:
+    tools_dir = tmp_path / "tools"
+    tools_dir.mkdir()
+    (tools_dir / "__init__.py").write_text("", encoding="utf-8")
+    (tools_dir / "stix_cli.py").write_text(
+        "import sys\n"
+        f"sys.stdout.write({stdout_text!r})\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "sitecustomize.py").write_text(
+        "import sys\n"
+        f"sys.path.insert(0, {str(tmp_path)!r})\n",
+        encoding="utf-8",
+    )
+    return tmp_path
+
+
 def test_opencode_workspace_config_declares_canonical_roles_and_aliases() -> None:
     # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
     # @ArchitectureID: ELM-TECH-ARTIFACT-OPENCODE-WORKSPACE
@@ -87,7 +105,7 @@ def test_opencode_workspace_config_declares_canonical_roles_and_aliases() -> Non
         "secops": "ThreatIntelSecOps",
     }
     assert config["agent_aliases"] == {
-        "ThreatIntelliganceCommander": "ThreatIntelPrimary",
+        "ThreatIntelligenceCommander": "ThreatIntelPrimary",
         "STIX_EvidenceSpecialist": "ThreatIntelAnalyst",
         "TARA_analyst": "ThreatIntelSecOps",
     }
@@ -117,18 +135,20 @@ def test_stix_query_tool_allows_analyst_agents() -> None:
     assert payload["match_count"] >= 1
 
 
-def test_stix_query_tool_rejects_invalid_json_stdout(tmp_path: Path) -> None:
+def test_stix_query_tool_rejects_invalid_json_stdout(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
     # @ArchitectureID: ELM-001
     # @ArchitectureID: ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT
+    if os.name == "nt":
+        pytest.skip("Windows cannot reliably shadow python -m tools.stix_cli for invalid-stdout injection in this harness.")
+
     tool_path = WORKSPACE_ROOT / "tools/stix_query.js"
-    fake_python = tmp_path / "fake-python"
-    fake_python.write_text("#!/usr/bin/env sh\nprintf 'not-json'\n", encoding="utf-8")
-    fake_python.chmod(0o755)
+    fake_python_path = _write_fake_python_executable(tmp_path, "not-json")
+    monkeypatch.setenv("PYTHONPATH", f"{fake_python_path}{os.pathsep}{os.environ.get('PYTHONPATH', '')}")
 
     completed = _run_tool_module(
         tool_path,
-        {"command": "search", "query": "APT28", "pythonBin": str(fake_python)},
+        {"command": "search", "query": "APT28", "pythonBin": sys.executable},
         agent="ThreatIntelAnalyst",
     )
 
@@ -136,21 +156,23 @@ def test_stix_query_tool_rejects_invalid_json_stdout(tmp_path: Path) -> None:
     assert "invalid JSON" in completed.stderr
 
 
-def test_stix_query_tool_rejects_invalid_search_payload_shape(tmp_path: Path) -> None:
+def test_stix_query_tool_rejects_invalid_search_payload_shape(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
     # @ArchitectureID: ELM-001
     # @ArchitectureID: ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT
+    if os.name == "nt":
+        pytest.skip("Windows cannot reliably shadow python -m tools.stix_cli for invalid-payload injection in this harness.")
+
     tool_path = WORKSPACE_ROOT / "tools/stix_query.js"
-    fake_python = tmp_path / "fake-python"
-    fake_python.write_text(
-        "#!/usr/bin/env sh\nprintf '%s' '{\"query\":\"APT28\",\"match_count\":\"one\",\"matches\":[]}'\n",
-        encoding="utf-8",
+    fake_python_path = _write_fake_python_executable(
+        tmp_path,
+        '{"query":"APT28","match_count":"one","matches":[]}',
     )
-    fake_python.chmod(0o755)
+    monkeypatch.setenv("PYTHONPATH", f"{fake_python_path}{os.pathsep}{os.environ.get('PYTHONPATH', '')}")
 
     completed = _run_tool_module(
         tool_path,
-        {"command": "search", "query": "APT28", "pythonBin": str(fake_python)},
+        {"command": "search", "query": "APT28", "pythonBin": sys.executable},
         agent="ThreatIntelAnalyst",
     )
 

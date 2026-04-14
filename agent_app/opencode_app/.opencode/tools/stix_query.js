@@ -102,10 +102,12 @@ function buildCliArgs(args, repoRoot) {
 
 async function runCommand(command, commandArgs, context, cwd) {
   return await new Promise((resolve, reject) => {
+    const useShell = process.platform === "win32" && /\.(cmd|bat)$/i.test(command);
     const child = spawn(command, commandArgs, {
       cwd,
       env: process.env,
       signal: context.abort,
+      shell: useShell,
       stdio: ["ignore", "pipe", "pipe"],
     });
 

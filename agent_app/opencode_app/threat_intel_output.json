@@ -1,7 +1,7 @@
 {
   "run_id": "test-run-001",
   "participants": [
-    "ThreatIntelliganceCommander",
+    "ThreatIntelligenceCommander",
     "STIX_EvidenceSpecialist",
     "TARA_analyst"
   ],
@@ -43,11 +43,11 @@
       "confidence": "high",
       "definition_source": {
         "path": "agents/TARA_analyst.md",
-        "preview": "---\ndescription: Tara analyst\nmode: primary\nmodel: DeepSeek_custom_provider/deepseek-chat\ntemperature: 0.2\npermission:\n  edit: deny\n  bash: deny"
+        "preview": "---\ndescription: Tara analyst\nmode: primary\nmodel: DeepSeek_custom_provider/deepseek-chat\ntemperature: 0.1\npermission:\n  edit: deny\n  bash: deny"
       }
     },
     {
-      "role": "ThreatIntelliganceCommander",
+      "role": "ThreatIntelligenceCommander",
       "responsibility": "Synthesize specialist findings into the final structured threat-intelligence assessment.",
       "findings": [
         "Event EVT-20250411-001 from SIEM was correlated with 4 relevant STIX entities.",
@@ -72,7 +72,7 @@
         ]
       },
       "definition_source": {
-        "path": "agents/ThreatIntelliganceCommander.md",
+        "path": "agents/ThreatIntelligenceCommander.md",
         "preview": "---\ndescription: The master agent that manages the end-to-end software build lifecycle by orchestrating a team of specialist agents.\nmode: primary\nmodel: DeepSeek_custom_provider/deepseek-chat\ntemperature: 0.0\npermission:\n  edit: deny\n  bash: deny"
       }
     }
@@ -103,7 +103,7 @@
     "definition_sources": [
       "agents/STIX_EvidenceSpecialist.md",
       "agents/TARA_analyst.md",
-      "agents/ThreatIntelliganceCommander.md"
+      "agents/ThreatIntelligenceCommander.md"
     ]
   }
 }

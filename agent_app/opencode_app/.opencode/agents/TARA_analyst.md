@@ -2,7 +2,7 @@
 description: Legacy compatibility alias for ThreatIntelSecOps.
 mode: primary
 model: DeepSeek_custom_provider/deepseek-chat
-temperature: 0.2
+temperature: 0.1
 permission:
   edit: deny
   bash: deny

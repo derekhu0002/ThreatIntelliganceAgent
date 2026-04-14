@@ -1,4 +1,5 @@
 // @ArchitectureID: ELM-APP-COMP-AGENT-ORCH
+// MOCK STUB FOR TESTING ONLY - production should delegate to LLM-driven agents.
 
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
@@ -10,7 +11,7 @@ const FILE_DIR = path.dirname(fileURLToPath(import.meta.url));
 const FALLBACK_WORKSPACE_ROOT = path.resolve(FILE_DIR, "..");
 
 const CANONICAL_ROLE_MAP = {
-  ThreatIntelliganceCommander: "ThreatIntelPrimary",
+  ThreatIntelligenceCommander: "ThreatIntelPrimary",
   STIX_EvidenceSpecialist: "ThreatIntelAnalyst",
   TARA_analyst: "ThreatIntelSecOps",
 };
@@ -84,6 +85,7 @@ function evidenceSpecialist(input, workspaceRoot) {
   };
 }
 
+// MOCK STUB FOR TESTING ONLY - production should delegate to LLM-driven agents.
 function taraAnalyst(input, evidenceOutput, workspaceRoot) {
   const evidenceText = evidenceOutput.findings.join(" ");
   const mentionsActor = /APT28/i.test(evidenceText);
@@ -120,6 +122,7 @@ function taraAnalyst(input, evidenceOutput, workspaceRoot) {
   };
 }
 
+// MOCK STUB FOR TESTING ONLY - production should delegate to LLM-driven agents.
 function commander(input, evidenceOutput, riskOutput, workspaceRoot) {
   const supportingEntities = [
     ...new Set([
@@ -131,8 +134,8 @@ function commander(input, evidenceOutput, riskOutput, workspaceRoot) {
   ];
 
   return {
-    role: canonicalRoleName("ThreatIntelliganceCommander"),
-    legacy_role: "ThreatIntelliganceCommander",
+    role: canonicalRoleName("ThreatIntelligenceCommander"),
+    legacy_role: "ThreatIntelligenceCommander",
     responsibility:
       "Synthesize specialist findings into the final structured threat-intelligence assessment and assemble the remote TASK-009 result contract.",
     findings: [
@@ -148,13 +151,13 @@ function commander(input, evidenceOutput, riskOutput, workspaceRoot) {
       verdict: riskOutput.verdict,
       recommended_actions: riskOutput.recommended_actions,
       supporting_entities: supportingEntities,
-      assembled_by: canonicalRoleName("ThreatIntelliganceCommander"),
+      assembled_by: canonicalRoleName("ThreatIntelligenceCommander"),
     },
     definition_source: readAgentDefinition(
       workspaceRoot,
-      roleDefinitionPath(canonicalRoleName("ThreatIntelliganceCommander")),
+      roleDefinitionPath(canonicalRoleName("ThreatIntelligenceCommander")),
     ),
-    compatibility_definition_source: readAgentDefinition(workspaceRoot, roleDefinitionPath("ThreatIntelliganceCommander")),
+    compatibility_definition_source: readAgentDefinition(workspaceRoot, roleDefinitionPath("ThreatIntelligenceCommander")),
   };
 }
 
@@ -191,11 +194,11 @@ export default tool({
     const output = {
       run_id: input.run_context.run_id,
       participants: [
-        canonicalRoleName("ThreatIntelliganceCommander"),
+        canonicalRoleName("ThreatIntelligenceCommander"),
         canonicalRoleName("STIX_EvidenceSpecialist"),
         canonicalRoleName("TARA_analyst"),
       ],
-      legacy_participants: ["ThreatIntelliganceCommander", "STIX_EvidenceSpecialist", "TARA_analyst"],
+      legacy_participants: ["ThreatIntelligenceCommander", "STIX_EvidenceSpecialist", "TARA_analyst"],
       role_outputs: [evidenceOutput, riskOutput, commanderOutput],
       final_assessment: commanderOutput.final_assessment,
       traceability: {
@@ -215,7 +218,7 @@ export default tool({
           ThreatIntelAnalyst: legacyRoleName("ThreatIntelAnalyst"),
           ThreatIntelSecOps: legacyRoleName("ThreatIntelSecOps"),
         },
-        assembled_by: canonicalRoleName("ThreatIntelliganceCommander"),
+        assembled_by: canonicalRoleName("ThreatIntelligenceCommander"),
       },
     };
 

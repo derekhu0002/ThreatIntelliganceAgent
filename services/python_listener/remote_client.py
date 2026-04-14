@@ -21,7 +21,7 @@ class RemoteDispatchError(RuntimeError):
 
 DEFAULT_OPENCODE_BASE_URL = "http://127.0.0.1:8124"
 DEFAULT_AGENT_ALIASES = {
-    "ThreatIntelliganceCommander": "ThreatIntelPrimary",
+    "ThreatIntelligenceCommander": "ThreatIntelPrimary",
     "STIX_EvidenceSpecialist": "ThreatIntelAnalyst",
     "TARA_analyst": "ThreatIntelSecOps",
 }
