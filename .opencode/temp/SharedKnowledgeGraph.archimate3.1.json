@@ -1,4 +1,4 @@
-﻿{
+{
   "identifier": "ai4pb-shared-knowledge-graph",
   "version": "1.0.0",
   "name": [
@@ -8,7 +8,7 @@
   ],
   "documentation": [
     {
-      "value": "Schema-compliant shared knowledge graph maintained by OpenCode tools."
+      "value": "Schema-driven contract architecture approved for ELM-001. The brownfield design formalizes agent_app/opencode_app/.opencode/schema/ as aggregate DataObject ELM-DATA-STIX-ARGO-SCHEMA, links existing event/result validation functions to that DataObject, introduces a shared schema contract catalog software unit for cross-cutting schema resolution and schema-derived Pydantic v2 models, and extends existing mock adapter, result assembler, python listener boundary, and JS STIX native tool modules to enforce strict typed parsing and assembly without raw dict/stdout passthrough."
     }
   ],
   "metadata": {
@@ -18,29 +18,41 @@
   "extensions": {
     "ai4pb": {
       "managedBy": "opencode",
-      "counters": {},
-      "designSummary": "",
-      "designDecisions": [],
+      "counters": {
+        "ELM": 1
+      },
+      "designSummary": "Schema-driven contract architecture approved for ELM-001. The brownfield design formalizes agent_app/opencode_app/.opencode/schema/ as aggregate DataObject ELM-DATA-STIX-ARGO-SCHEMA, links existing event/result validation functions to that DataObject, introduces a shared schema contract catalog software unit for cross-cutting schema resolution and schema-derived Pydantic v2 models, and extends existing mock adapter, result assembler, python listener boundary, and JS STIX native tool modules to enforce strict typed parsing and assembly without raw dict/stdout passthrough.",
+      "designDecisions": [
+        "ADR: Model agent_app/opencode_app/.opencode/schema/ as a single aggregate ArchiMate DataObject ELM-DATA-STIX-ARGO-SCHEMA instead of many graph nodes because the requirement treats the directory as the single contract source shared by validation, model generation, and JS boundary enforcement.",
+        "ADR: Reuse existing brownfield ownership boundaries in services/mock_opencti_adapter, services/result_assembler, services/python_listener, and agent_app/opencode_app/.opencode/tools/stix_query.js; introduce only one new software unit services/stix_contracts for shared schema-derived contract typing because no current module cleanly owns cross-cutting event/result schema resolution.",
+        "ADR: Default Python contract model framework is Pydantic v2. Dataclass event entities and bare dict result boundaries are deprecated as final contract types; strict validation failures must surface at Python and JS boundaries rather than being silently coerced.",
+        "ADR: The JS native tool boundary must parse stdout as JSON and validate command-specific payload structure before returning. Raw stdout passthrough is prohibited even when the upstream CLI exits successfully."
+      ],
       "runtime": {
-        "activeGoal": "",
+        "activeGoal": "Formalize agent_app/opencode_app/.opencode/schema as DataObject ELM-DATA-STIX-ARGO-SCHEMA; link ELM-FUNC-VALIDATE-EVENT-",
         "validations": {
           "qa": {
-            "status": "not_run",
-            "summary": "No validation has been recorded yet.",
-            "updatedAt": "1970-01-01T00:00:00.000Z"
+            "status": "passed",
+            "summary": "QA passed for commit c19e656119b7f55575a21cf8092c0e8b8a9f5b91. Local-only validation executed because live_environment_ready=false; 跳过了真实环境验证. Affected-area regression suite passed: PYTHONPATH=. pytest tests/test_mock_opencti_adapter.py tests/test_result_assembler.py tests/test_python_listener.py tests/test_stix_cli.py tests/test_stix_contracts.py tests/test_opencode_workspace_config.py -> 29 passed. Focused rework tests passed for listener alias/config compatibility and stix_query.js strict JSON/payload validation. Traceable automated tests now cover ELM-001, ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS, ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT, and ELM-DATA-STIX-ARGO-SCHEMA in tests/test_python_listener.py, tests/test_stix_contracts.py, and tests/test_opencode_workspace_config.py. Remaining note: Pydantic warns that AssemblyContract.schema shadows BaseModel.schema, but this did not cause test failures.",
+            "details": "QA passed for commit c19e656119b7f55575a21cf8092c0e8b8a9f5b91. Local-only validation executed because live_environment_ready=false; 跳过了真实环境验证. Affected-area regression suite passed: PYTHONPATH=. pytest tests/test_mock_opencti_adapter.py tests/test_result_assembler.py tests/test_python_listener.py tests/test_stix_cli.py tests/test_stix_contracts.py tests/test_opencode_workspace_config.py -> 29 passed. Focused rework tests passed for listener alias/config compatibility and stix_query.js strict JSON/payload validation. Traceable automated tests now cover ELM-001, ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS, ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT, and ELM-DATA-STIX-ARGO-SCHEMA in tests/test_python_listener.py, tests/test_stix_contracts.py, and tests/test_opencode_workspace_config.py. Remaining note: Pydantic warns that AssemblyContract.schema shadows BaseModel.schema, but this did not cause test failures.",
+            "commitId": "c19e656119b7f55575a21cf8092c0e8b8a9f5b91",
+            "updatedAt": "2026-04-14T03:59:26.873Z"
           },
           "audit": {
-            "status": "not_run",
-            "summary": "No validation has been recorded yet.",
-            "updatedAt": "1970-01-01T00:00:00.000Z"
+            "status": "passed",
+            "summary": "Audit passed for commit c19e656119b7f55575a21cf8092c0e8b8a9f5b91. Rework closes the prior IntentNotVerified gaps: reality scanner verifiedIntentIds now include ELM-001, ELM-DATA-STIX-ARGO-SCHEMA, ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS, and ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT. Tagged automated tests verify schema catalog/DataObject intent, Python shared Pydantic contract boundaries, and stix_query.js strict stdout JSON validation behavior. Targeted tagged tests pass.",
+            "details": "Audit passed for commit c19e656119b7f55575a21cf8092c0e8b8a9f5b91. Rework closes the prior IntentNotVerified gaps: reality scanner verifiedIntentIds now include ELM-001, ELM-DATA-STIX-ARGO-SCHEMA, ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS, and ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT. Tagged automated tests verify schema catalog/DataObject intent, Python shared Pydantic contract boundaries, and stix_query.js strict stdout JSON validation behavior. Targeted tagged tests pass.",
+            "commitId": "c19e656119b7f55575a21cf8092c0e8b8a9f5b91",
+            "updatedAt": "2026-04-14T03:59:02.497Z"
           }
         },
         "release": {
-          "status": "not_started",
-          "summary": "Release has not been prepared yet.",
-          "updatedAt": "2026-04-13T23:31:39.906Z"
+          "status": "completed",
+          "summary": "Completed sprint release finalization for the full-model batch after successful QA and Audit. Release scope commit: c19e656119b7f55575a21cf8092c0e8b8a9f5b91. Completed runtime tasks in scope: TASK-006, TASK-008, TASK-009, TASK-010. Release log written to /mnt/d/projects/ThreatIntelliganceAgent/SprintRleaseLog.md. Intent traceability matrix generated for the release commit and all matrix rows are marked ✅ Yes, so 100% of intended sprint scope in matrix scope was verified by tests without verification gaps.",
+          "releaseLogPath": "SprintRleaseLog.md",
+          "updatedAt": "2026-04-14T04:02:05.491Z"
         },
-        "updatedAt": "2026-04-13T23:40:43.575Z"
+        "updatedAt": "2026-04-14T03:59:26.873Z"
       }
     }
   },
@@ -572,28 +584,6 @@
         ]
       },
       {
-        "identifier": "PROJECT-CURRENT",
-        "type": "WorkPackage",
-        "name": [
-          {
-            "value": "Current Project Goal"
-          }
-        ],
-        "documentation": [
-          {
-            "value": "Current OpenCode project goal."
-          }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "Project",
-            "rawRequirement": "",
-            "status": "InProgress"
-          }
-        }
-      },
-      {
         "identifier": "{04A5D9B4-EAB5-46d4-84A2-D07D71CFDDAD}",
         "type": "BusinessActor",
         "name": [
@@ -695,6 +685,632 @@
         "extensions": {
           "ai4pb": {
             "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "ELM-001",
+        "type": "Requirement",
+        "name": [
+          {
+            "value": "Formal Requirement"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "# Formal Requirement Draft\n\n## Goal\n将 `agent_app/opencode_app/.opencode/schema/` 正式定义为架构级 DataObject，标识为 `ELM-DATA-STIX-ARGO-SCHEMA`，并将现有事件契约校验、结果契约校验、Python 实体建模与 `stix_query.js` 的解析/组装统一收敛到该 Schema 作为单一类型与契约来源。\n\n## Scope\n1. 在架构知识图谱中新增 DataObject：`ELM-DATA-STIX-ARGO-SCHEMA`。  \n2. 将图谱中已有函数：\n   - `ELM-FUNC-VALIDATE-EVENT-CONTRACT`\n   - `ELM-FUNC-VALIDATE-RESULT-CONTRACT`\n   明确关联到 `ELM-DATA-STIX-ARGO-SCHEMA`。  \n3. Python 侧基于该 Schema 严格生成并使用实体类，作为事件契约与结果契约的运行时和开发时类型边界。  \n4. `agent_app/opencode_app/.opencode/tools/stix_query.js` 必须对 Python CLI 输出执行结构化解析，并在返回前完成严格类型校验，不得再以未校验原始 stdout 作为最终结果边界。  \n5. 涉及现有实现影响面包括但不限于：\n   - `services/mock_opencti_adapter/adapter.py`\n   - `services/result_assembler/schema.py`\n   - `services/result_assembler/assembler.py`\n   - `agent_app/opencode_app/.opencode/tools/stix_query.js`\n\n## Backward Compatibility & Resolved Conflicts\n- 未从图谱中检索到已存在的 Requirement / Constraint / BusinessProcess 与本需求发生显式冲突。  \n- 已识别的现实差异与解决方式：\n  - 现有 Python 事件归一化主要使用 dataclass：本需求统一改为**以 Schema 派生的强类型实体模型为准**。\n  - 现有结果组装以 `dict` 为主并仅做轻量校验：本需求要求结果对象也收敛为**Schema 驱动的强类型模型**。\n  - 现有 `stix_query.js` 透传原始 stdout：本需求要求 JS 边界执行**JSON 解析 + 严格类型校验 + 失败即报错**。\n- 为便于架构推进，当前草案采用以下默认决策（待你审批确认）：\n  - Python 实体框架：**Pydantic v2**\n  - DataObject 范围：**整个 `schema/` 目录作为聚合 DataObject**\n  - JS 类型边界：**必须在 JS 返回前完成严格结构化校验**\n\n## User Stories / Usage Scenarios\n1. 作为架构师，我希望 STIX Schema 在图谱中被正式建模为 DataObject，以便事件契约、结果契约与实现代码共享同一来源。  \n2. 作为 Python 开发者，我希望事件和结果实体类严格由 Schema 派生，以避免手写 `dict`/字段漂移导致的契约偏差。  \n3. 作为工具调用方，我希望 `stix_query.js` 返回的不是未验证字符串，而是严格符合 Schema 的结构化对象，从而提升跨语言边界可靠性。  \n4. 作为维护者，我希望当 Schema 发生变化时，校验函数、Python 实体类和 JS 工具边界都能同步受影响并暴露不兼容问题，而不是静默漂移。\n\n## Acceptance Criteria (Mandatory)\n1. **DataObject 建模**\n   - Given 现有目录 `agent_app/opencode_app/.opencode/schema/`\n   - When 本需求完成架构建模\n   - Then 图谱中必须存在 DataObject `ELM-DATA-STIX-ARGO-SCHEMA`\n   - And 其内容明确表示该对象代表该目录下 STIX JSON Schema 的聚合契约来源。\n\n2. **函数关联**\n   - Given 图谱中已有 `ELM-FUNC-VALIDATE-EVENT-CONTRACT` 与 `ELM-FUNC-VALIDATE-RESULT-CONTRACT`\n   - When 本需求完成\n   - Then 这两个函数必须显式关联到 `ELM-DATA-STIX-ARGO-SCHEMA`\n   - And 关联语义应表达“基于/依赖该 Schema 执行契约验证”。\n\n3. **Python 强类型实体**\n   - Given Python 侧存在事件归一化与结果组装逻辑\n   - When Python 实现读取或构造事件/结果对象\n   - Then 必须使用由 Schema 严格派生的 Python 实体类\n   - And 默认实现框架为 Pydantic v2\n   - And 不得以裸 `dict[str, Any]` 作为最终契约边界对象。\n\n4. **Schema 一致性**\n   - Given Schema 定义了字段约束、嵌套对象和数组结构\n   - When Python 实体类被实例化、反序列化或序列化\n   - Then 字段必填性、类型、嵌套结构和约束必须与 Schema 保持一致\n   - And 不一致时必须在边界处抛出明确校验错误。\n\n5. **JS 严格类型安全**\n   - Given `agent_app/opencode_app/.opencode/tools/stix_query.js` 通过 `python3 -m tools.stix_cli` 获取结果\n   - When JS 侧接收到 CLI stdout\n   - Then 必须先解析为结构化 JSON 对象\n   - And 必须在 JS 返回调用方前完成严格类型校验\n   - And 校验失败时不得返回部分结果或原始字符串。\n\n6. **解析与组装统一**\n   - Given `stix_query.js` 存在查询参数构建、CLI 调用、stdout 处理与结果返回流程\n   - When 本需求实施\n   - Then 所有解析与组装步骤都必须运行在可验证的结构化类型模型之上\n   - And 不得在关键边界保留未受控的松散对象拼装。\n\n7. **Brownfield 兼容约束**\n   - Given 仓库为 brownfield\n   - When 引入新的 Schema 驱动类型体系\n   - Then 必须保留现有业务语义与工具入口行为\n   - And 任何不兼容变更都必须通过显式校验失败暴露，而不是静默兼容。\n\n## Constraints & Non-functional Requirements\n- 不允许手工维护一套与 Schema 脱节的平行 Python 契约定义。  \n- Python 类型系统必须支持严格字段校验、明确错误报告和可预测序列化。  \n- JS 工具边界必须具备跨语言调用后的运行时类型安全，而不仅依赖 TypeScript/静态假设。  \n- 该需求属于架构影响型需求，应作为后续代码改造、测试补齐和图谱追踪的统一依据。  \n- 不要求在本阶段直接产出代码，但后续实现必须遵循本需求定义。\n\n## Open Questions / Assumptions\n- 当前草案假设你接受以下默认方案：\n  1. Python 使用 **Pydantic v2**\n  2. `ELM-DATA-STIX-ARGO-SCHEMA` 表示 **整个目录的聚合 DataObject**\n  3. `stix_query.js` 在 JS 边界执行 **严格结构化校验**\n- 若你希望改为 dataclasses、拆分子 Schema 追踪，或仅在 Python 侧校验，需要在审批前指出。"
+          }
+        ]
+      },
+      {
+        "identifier": "ELM-DATA-STIX-ARGO-SCHEMA",
+        "type": "DataObject",
+        "name": [
+          {
+            "value": "STIX Argo Schema Catalog"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "A DataObject is a passive structure element that represents data suitable for automated processing. In this architecture, ELM-DATA-STIX-ARGO-SCHEMA represents the aggregate contract source rooted at agent_app/opencode_app/.opencode/schema/, covering the repository-local STIX JSON Schema set used to govern event validation, result validation, schema-derived Python entities, and strict cross-language parsing boundaries."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "layer": "application",
+            "aspect": "passive-structure"
+          }
+        }
+      },
+      {
+        "identifier": "ELM-APP-COMP-STIX-CONTRACT-CATALOG",
+        "type": "ApplicationComponent",
+        "name": [
+          {
+            "value": "STIX Contract Schema Catalog"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "An ApplicationComponent is an active structure element that encapsulates automated behavior and data needed to fulfill an application responsibility. In this architecture, STIX Contract Schema Catalog owns schema resolution, canonical contract selection, and shared schema-derived model publication for event and result boundaries that consume agent_app/opencode_app/.opencode/schema/."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "layer": "application",
+            "aspect": "active-structure"
+          }
+        }
+      },
+      {
+        "identifier": "ELM-APP-COMP-STIX-NATIVE-TOOL",
+        "type": "ApplicationComponent",
+        "name": [
+          {
+            "value": "STIX Native Query Tool Boundary"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "An ApplicationComponent is an active structure element that encapsulates automated behavior and boundary responsibilities. In this architecture, STIX Native Query Tool Boundary owns the JavaScript runtime edge at agent_app/opencode_app/.opencode/tools/stix_query.js, including CLI invocation, stdout parsing, and validated structured return semantics for STIX query calls."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "layer": "application",
+            "aspect": "active-structure"
+          }
+        }
+      },
+      {
+        "identifier": "ELM-FUNC-REGISTER-STIX-SCHEMA-DATAOBJECT",
+        "type": "ApplicationFunction",
+        "name": [
+          {
+            "value": "Register STIX Schema DataObject"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "- [Input]: Approved requirement ELM-001, the repository directory agent_app/opencode_app/.opencode/schema/, and current architecture graph state.\n- [Processing]: Define the aggregate schema directory as the single passive contract source, document its architectural scope, and persist graph metadata that makes downstream validation and model-generation dependencies explicit.\n- [Output]: Persisted DataObject ELM-DATA-STIX-ARGO-SCHEMA with traceable architectural documentation.\n- [Acceptance Criteria]: The graph contains ELM-DATA-STIX-ARGO-SCHEMA; its description explicitly references the schema directory as the authoritative aggregate contract source; the element is connected to other architecture elements and is not left isolated."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "layer": "application",
+            "aspect": "behavior"
+          }
+        }
+      },
+      {
+        "identifier": "ELM-FUNC-LINK-CONTRACT-VALIDATORS-TO-STIX-SCHEMA",
+        "type": "ApplicationFunction",
+        "name": [
+          {
+            "value": "Link Contract Validators to STIX Schema"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "- [Input]: Existing ApplicationFunctions ELM-FUNC-VALIDATE-EVENT-CONTRACT and ELM-FUNC-VALIDATE-RESULT-CONTRACT plus DataObject ELM-DATA-STIX-ARGO-SCHEMA.\n- [Processing]: Persist explicit dependency relationships showing that event and result contract validation behavior executes against the canonical schema source rather than detached local assumptions.\n- [Output]: Graph relationships that connect both validation functions to ELM-DATA-STIX-ARGO-SCHEMA with dependency semantics.\n- [Acceptance Criteria]: Both existing validator functions are explicitly linked to ELM-DATA-STIX-ARGO-SCHEMA; the relationship meaning expresses schema-based validation dependency or access; downstream traceability can discover the shared contract source from either validator."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "layer": "application",
+            "aspect": "behavior"
+          }
+        }
+      },
+      {
+        "identifier": "ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS",
+        "type": "ApplicationFunction",
+        "name": [
+          {
+            "value": "Generate Schema-Derived Python Contracts"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "- [Input]: Canonical schema files under agent_app/opencode_app/.opencode/schema/, Python runtime requirements, and event/result contract consumption points in the adapter and assembler modules.\n- [Processing]: Resolve the canonical schema source, derive strict Pydantic v2 entities for event and result contracts, and publish reusable parsing and serialization interfaces without maintaining detached handwritten final contract models.\n- [Output]: Shared Python contract models and schema access APIs that can be imported by event and result boundaries.\n- [Acceptance Criteria]: Pydantic v2 is the final Python contract boundary; required fields, nested objects, arrays, and invalid values fail explicitly during validation; consumers import shared schema-derived models rather than duplicating final contract definitions."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "layer": "application",
+            "aspect": "behavior"
+          }
+        }
+      },
+      {
+        "identifier": "ELM-FUNC-INTEGRATE-STRICT-PYTHON-CONTRACT-BOUNDARIES",
+        "type": "ApplicationFunction",
+        "name": [
+          {
+            "value": "Integrate Strict Python Contract Boundaries"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "An ApplicationFunction is a behavior element that groups automated application behavior based on required application resources and competencies. In this architecture, Integrate Strict Python Contract Boundaries coordinates the migration of inbound event parsing, result assembly, and remote-result acceptance onto shared schema-derived models.\n- [Input]: Raw mock OPENCTI event payloads, run_context, evidence_bundle, collaboration_output, and shared schema-derived Python contract models.\n- [Processing]: Refactor event normalization and structured result assembly so inbound parsing, intermediate assembly, remote-result extraction, and final serialization all operate on validated schema-derived models instead of dataclass or loose-dict final boundaries.\n- [Output]: Validated event and result boundary objects with deterministic serialization and explicit validation failures on contract mismatch.\n- [Acceptance Criteria]: services/mock_opencti_adapter no longer uses dataclass entities as the final event contract boundary; services/result_assembler no longer returns unchecked dicts as the final result contract boundary; schema mismatch fails explicitly before boundary output is returned; remote result extraction accepts only structurally valid result payloads."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "layer": "application",
+            "aspect": "behavior"
+          }
+        }
+      },
+      {
+        "identifier": "ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT",
+        "type": "ApplicationFunction",
+        "name": [
+          {
+            "value": "Validate STIX Query CLI Output"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "An ApplicationFunction is a behavior element that groups automated application behavior based on required application resources and competencies. In this architecture, Validate STIX Query CLI Output governs the JavaScript boundary behavior that parses python CLI output and rejects invalid payloads before any STIX query result is returned to callers.\n- [Input]: stdout from python3 -m tools.stix_cli for the search and neighbors commands, plus the schema-derived contract expectations used by the STIX query boundary.\n- [Processing]: Parse stdout as JSON, validate command-specific payload structure and nested STIX object shapes before returning, and reject malformed, partial, or untyped boundary responses.\n- [Output]: Strictly validated structured JavaScript objects returned from stix_query.js, or explicit errors when parsing or validation fails.\n- [Acceptance Criteria]: stix_query.js never returns raw stdout; JSON parse failure or payload shape mismatch throws an error; the returned object matches the command-specific structured contract rather than an unchecked string or loose blob."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "layer": "application",
+            "aspect": "behavior"
+          }
+        }
+      },
+      {
+        "identifier": "PROJECT-CURRENT",
+        "type": "WorkPackage",
+        "name": [
+          {
+            "value": "Formalize agent_app/opencode_app/.opencode/schema as DataObject ELM-DATA-STIX-ARGO-SCHEMA; link ELM-FUNC-VALIDATE-EVENT-"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "Schema-driven contract architecture approved for ELM-001. The brownfield design formalizes agent_app/opencode_app/.opencode/schema/ as aggregate DataObject ELM-DATA-STIX-ARGO-SCHEMA, links existing event/result validation functions to that DataObject, introduces a shared schema contract catalog software unit for cross-cutting schema resolution and schema-derived Pydantic v2 models, and extends existing mock adapter, result assembler, python listener boundary, and JS STIX native tool modules to enforce strict typed parsing and assembly without raw dict/stdout passthrough."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "Project",
+            "rawRequirement": "Formalize agent_app/opencode_app/.opencode/schema as DataObject ELM-DATA-STIX-ARGO-SCHEMA; link ELM-FUNC-VALIDATE-EVENT-",
+            "status": "InProgress"
+          }
+        }
+      },
+      {
+        "identifier": "TASK-001",
+        "type": "WorkPackage",
+        "name": [
+          {
+            "value": "Formalize agent_app/opencode_app/"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "SystemArchitect must refine this planning item into concrete software-unit-scoped implementation tasks."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "Task",
+            "taskKind": "planning",
+            "status": "ToDo",
+            "retryCount": 0,
+            "assignee": "SystemArchitect",
+            "summary": "Created by decompose_goal as planning input for software-unit decomposition.",
+            "commitId": "",
+            "softwareUnitId": "",
+            "softwareUnitTitle": "",
+            "architectureElementId": "",
+            "updatedAt": "2026-04-14T03:49:58.323Z"
+          }
+        }
+      },
+      {
+        "identifier": "TASK-002",
+        "type": "WorkPackage",
+        "name": [
+          {
+            "value": "opencode/schema as DataObject ELM-DATA-STIX-ARGO-SCHEMA"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "SystemArchitect must refine this planning item into concrete software-unit-scoped implementation tasks."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "Task",
+            "taskKind": "planning",
+            "status": "ToDo",
+            "retryCount": 0,
+            "assignee": "SystemArchitect",
+            "summary": "Created by decompose_goal as planning input for software-unit decomposition.",
+            "commitId": "",
+            "softwareUnitId": "",
+            "softwareUnitTitle": "",
+            "architectureElementId": "",
+            "updatedAt": "2026-04-14T03:49:58.379Z"
+          }
+        }
+      },
+      {
+        "identifier": "TASK-003",
+        "type": "WorkPackage",
+        "name": [
+          {
+            "value": "link ELM-FUNC-VALIDATE-EVENT-CONTRACT and ELM-FUNC-VALIDATE-RESULT-CONTRACT to it"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "SystemArchitect must refine this planning item into concrete software-unit-scoped implementation tasks."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "Task",
+            "taskKind": "planning",
+            "status": "ToDo",
+            "retryCount": 0,
+            "assignee": "SystemArchitect",
+            "summary": "Created by decompose_goal as planning input for software-unit decomposition.",
+            "commitId": "",
+            "softwareUnitId": "",
+            "softwareUnitTitle": "",
+            "architectureElementId": "",
+            "updatedAt": "2026-04-14T03:49:58.443Z"
+          }
+        }
+      },
+      {
+        "identifier": "TASK-004",
+        "type": "WorkPackage",
+        "name": [
+          {
+            "value": "generate strict Python schema-derived entities (prefer Pydantic v2) for event/result contracts"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "SystemArchitect must refine this planning item into concrete software-unit-scoped implementation tasks."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "Task",
+            "taskKind": "planning",
+            "status": "ToDo",
+            "retryCount": 0,
+            "assignee": "SystemArchitect",
+            "summary": "Created by decompose_goal as planning input for software-unit decomposition.",
+            "commitId": "",
+            "softwareUnitId": "",
+            "softwareUnitTitle": "",
+            "architectureElementId": "",
+            "updatedAt": "2026-04-14T03:49:58.524Z"
+          }
+        }
+      },
+      {
+        "identifier": "TASK-005",
+        "type": "WorkPackage",
+        "name": [
+          {
+            "value": "enforce strict typed parsing/assembly in agent_app/opencode_app/"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "SystemArchitect must refine this planning item into concrete software-unit-scoped implementation tasks."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "Task",
+            "taskKind": "planning",
+            "status": "ToDo",
+            "retryCount": 0,
+            "assignee": "SystemArchitect",
+            "summary": "Created by decompose_goal as planning input for software-unit decomposition.",
+            "commitId": "",
+            "softwareUnitId": "",
+            "softwareUnitTitle": "",
+            "architectureElementId": "",
+            "updatedAt": "2026-04-14T03:49:58.585Z"
+          }
+        }
+      },
+      {
+        "identifier": "TASK-006",
+        "type": "WorkPackage",
+        "name": [
+          {
+            "value": "Formalize schema directory as architecture DataObject"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "Completed as the consolidated architecture persistence task for registering the approved schema directory DataObject intent. TASK-007 is redundant because the DataObject registration and persistence outcome are already covered here."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "Task",
+            "taskKind": "implementation",
+            "status": "Done",
+            "retryCount": 0,
+            "assignee": "SystemArchitect",
+            "summary": "Completed as the consolidated architecture persistence task for registering the approved schema directory DataObject intent. TASK-007 is redundant because the DataObject registration and persistence outcome are already covered here.",
+            "commitId": "",
+            "softwareUnitId": "ELM-APP-COMP-STIX-CONTRACT-CATALOG",
+            "softwareUnitTitle": "STIX Contract Schema Catalog",
+            "architectureElementId": "ELM-FUNC-REGISTER-STIX-SCHEMA-DATAOBJECT",
+            "updatedAt": "2026-04-14T03:30:07.301Z"
+          }
+        }
+      },
+      {
+        "identifier": "TASK-007",
+        "type": "WorkPackage",
+        "name": [
+          {
+            "value": "Persist opencode/schema as DataObject ELM-DATA-STIX-ARGO-SCHEMA"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "Cancelled as a redundant duplicate of TASK-006. The architecture graph already contains DataObject ELM-DATA-STIX-ARGO-SCHEMA, so separate runtime tracking for this duplicate registration task is unnecessary."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "Task",
+            "taskKind": "implementation",
+            "status": "ToDo",
+            "retryCount": 0,
+            "assignee": "SystemArchitect",
+            "summary": "Cancelled as a redundant duplicate of TASK-006. The architecture graph already contains DataObject ELM-DATA-STIX-ARGO-SCHEMA, so separate runtime tracking for this duplicate registration task is unnecessary.",
+            "commitId": "",
+            "softwareUnitId": "ELM-APP-COMP-STIX-CONTRACT-CATALOG",
+            "softwareUnitTitle": "STIX Contract Schema Catalog",
+            "architectureElementId": "ELM-FUNC-REGISTER-STIX-SCHEMA-DATAOBJECT",
+            "updatedAt": "2026-04-14T03:30:20.533Z"
+          }
+        }
+      },
+      {
+        "identifier": "TASK-008",
+        "type": "WorkPackage",
+        "name": [
+          {
+            "value": "Link ELM-FUNC-VALIDATE-EVENT-CONTRACT and ELM-FUNC-VALIDATE-RESULT-CONTRACT to ELM-DATA-STIX-ARGO-SCHEMA"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "Completed. Validator-to-schema dependency persistence is already present in the architecture graph through REL-VALIDATE-EVENT-ACCESS-STIX-SCHEMA and REL-VALIDATE-RESULT-ACCESS-STIX-SCHEMA, so the runtime task now reflects the achieved state."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "Task",
+            "taskKind": "implementation",
+            "status": "Done",
+            "retryCount": 0,
+            "assignee": "SystemArchitect",
+            "summary": "Completed. Validator-to-schema dependency persistence is already present in the architecture graph through REL-VALIDATE-EVENT-ACCESS-STIX-SCHEMA and REL-VALIDATE-RESULT-ACCESS-STIX-SCHEMA, so the runtime task now reflects the achieved state.",
+            "commitId": "",
+            "softwareUnitId": "ELM-APP-COMP-STIX-CONTRACT-CATALOG",
+            "softwareUnitTitle": "STIX Contract Schema Catalog",
+            "architectureElementId": "ELM-FUNC-LINK-CONTRACT-VALIDATORS-TO-STIX-SCHEMA",
+            "updatedAt": "2026-04-14T03:30:33.483Z"
+          }
+        }
+      },
+      {
+        "identifier": "TASK-009",
+        "type": "WorkPackage",
+        "name": [
+          {
+            "value": "Generate and integrate strict Python schema-derived entities for event/result contracts"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "Reworked QA/audit bounce-back by restoring workspace alias/config compatibility, adding AGENTS.md/workspace metadata, and adding tagged Python-side verification for schema-derived contract and canonical schema catalog intent."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "Task",
+            "taskKind": "implementation",
+            "status": "Done",
+            "retryCount": 2,
+            "assignee": "Implementation",
+            "summary": "Reworked QA/audit bounce-back by restoring workspace alias/config compatibility, adding AGENTS.md/workspace metadata, and adding tagged Python-side verification for schema-derived contract and canonical schema catalog intent.",
+            "commitId": "c19e656119b7f55575a21cf8092c0e8b8a9f5b91",
+            "softwareUnitId": "ELM-APP-COMP-STIX-CONTRACT-CATALOG",
+            "softwareUnitTitle": "STIX Contract Schema Catalog",
+            "architectureElementId": "ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS",
+            "updatedAt": "2026-04-14T03:56:02.359Z"
+          }
+        }
+      },
+      {
+        "identifier": "TASK-010",
+        "type": "WorkPackage",
+        "name": [
+          {
+            "value": "Enforce strict typed parsing and assembly in stix_query.js"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "Reworked QA/audit bounce-back by adding tagged stix_query validation tests for invalid JSON, invalid payload shape, valid neighbors output, and schema-catalog traceability without weakening strict boundary validation."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "Task",
+            "taskKind": "implementation",
+            "status": "Done",
+            "retryCount": 2,
+            "assignee": "Implementation",
+            "summary": "Reworked QA/audit bounce-back by adding tagged stix_query validation tests for invalid JSON, invalid payload shape, valid neighbors output, and schema-catalog traceability without weakening strict boundary validation.",
+            "commitId": "c19e656119b7f55575a21cf8092c0e8b8a9f5b91",
+            "softwareUnitId": "ELM-APP-COMP-STIX-NATIVE-TOOL",
+            "softwareUnitTitle": "STIX Native Query Tool Boundary",
+            "architectureElementId": "ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT",
+            "updatedAt": "2026-04-14T03:56:02.409Z"
+          }
+        }
+      },
+      {
+        "identifier": "TASK-011",
+        "type": "WorkPackage",
+        "name": [
+          {
+            "value": "Complete schema-derived Python contract integration and brownfield workspace compatibility"
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "Task",
+            "taskKind": "implementation",
+            "status": "ToDo",
+            "retryCount": 0,
+            "assignee": "Implementation",
+            "summary": "Preserve the shared Pydantic contract work but finish the brownfield-compatible integration seam by restoring canonical alias/workspace metadata and adding traceable automated verification for the Python-side intent.",
+            "commitId": "",
+            "softwareUnitId": "ELM-APP-COMP-STIX-CONTRACT-CATALOG",
+            "softwareUnitTitle": "STIX Contract Schema Catalog",
+            "architectureElementId": "ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS",
+            "updatedAt": "2026-04-14T03:49:58.159Z"
+          }
+        }
+      },
+      {
+        "identifier": "TASK-012",
+        "type": "WorkPackage",
+        "name": [
+          {
+            "value": "Complete traceable strict validation coverage for stix_query.js boundary"
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "Task",
+            "taskKind": "implementation",
+            "status": "ToDo",
+            "retryCount": 0,
+            "assignee": "Implementation",
+            "summary": "Preserve the shipped JSON/Zod validation behavior in stix_query.js and close the audit gap by adding traceable automated verification for the intended JS boundary and schema dependency intent.",
+            "commitId": "",
+            "softwareUnitId": "ELM-APP-COMP-STIX-NATIVE-TOOL",
+            "softwareUnitTitle": "STIX Native Query Tool Boundary",
+            "architectureElementId": "ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT",
+            "updatedAt": "2026-04-14T03:49:58.219Z"
+          }
+        }
+      },
+      {
+        "identifier": "ISSUE-001",
+        "type": "BusinessObject",
+        "name": [
+          {
+            "value": "IntentNotVerified for commit 64af873 TASK-009/TASK-010"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "IntentNotVerified: commit 64af873e4c7736b8dd855c8a5824df74eb9e194a lacks tagged automated verification for ELM-001, ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS, and ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT. Reality scanner verifiedIntentIds only include ELM-APP-PROC-THREAT-COLLAB-SKILL, ELM-TECH-ARTIFACT-AGENT-DEFS, ELM-TECH-ARTIFACT-OPENCODE-WORKSPACE, and REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001. QA must add tagged automated tests before release can continue."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "Issue",
+            "issueType": "ArchGap",
+            "status": "Open",
+            "reporter": "OpenCode",
+            "category": "ArchitectureGap"
+          }
+        }
+      },
+      {
+        "identifier": "ISSUE-002",
+        "type": "BusinessObject",
+        "name": [
+          {
+            "value": "Remote client alias resolution not backed by workspace config"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "Validation of commit 64af873e4c7736b8dd855c8a5824df74eb9e194a found a regression in the affected listener boundary. services/python_listener/remote_client.py resolves canonical main-agent aliases from agent_app/opencode_app/.opencode/opencode.json, but that file does not define agent_aliases. As a result resolve_main_agent_alias('ThreatIntelliganceCommander', repo_root) returns the legacy alias instead of ThreatIntelPrimary and tests/test_python_listener.py::test_default_main_agent_is_canonical_and_legacy_aliases_resolve fails. Local-only QA ran because live_environment_ready=false; 跳过了真实环境验证."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "Issue",
+            "issueType": "BugReport",
+            "status": "Open",
+            "reporter": "OpenCode",
+            "category": "BugReport"
+          }
+        }
+      },
+      {
+        "identifier": "RELEASE-LOG",
+        "type": "Artifact",
+        "name": [
+          {
+            "value": "SprintReleaseLog"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "Completed sprint release finalization for the full-model batch after successful QA and Audit. Release scope commit: c19e656119b7f55575a21cf8092c0e8b8a9f5b91. Completed runtime tasks in scope: TASK-006, TASK-008, TASK-009, TASK-010. Release log written to /mnt/d/projects/ThreatIntelliganceAgent/SprintRleaseLog.md. Intent traceability matrix generated for the release commit and all matrix rows are marked ✅ Yes, so 100% of intended sprint scope in matrix scope was verified by tests without verification gaps."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "ReleaseLog",
+            "version": "1.0.0",
+            "content": "Completed sprint release finalization for the full-model batch after successful QA and Audit. Release scope commit: c19e656119b7f55575a21cf8092c0e8b8a9f5b91. Completed runtime tasks in scope: TASK-006, TASK-008, TASK-009, TASK-010. Release log written to /mnt/d/projects/ThreatIntelliganceAgent/SprintRleaseLog.md. Intent traceability matrix generated for the release commit and all matrix rows are marked ✅ Yes, so 100% of intended sprint scope in matrix scope was verified by tests without verification gaps.",
+            "timestamp": "2026-04-14T04:02:05.491Z",
+            "path": "SprintRleaseLog.md"
           }
         }
       }
@@ -1365,6 +1981,552 @@
             "value": "The Remote Threat Intel Workspace realizes the configured remote orchestration portion of the remote threat analysis service."
           }
         ]
+      },
+      {
+        "identifier": "REL-STIX-CONTRACT-CATALOG-ACCESS-SCHEMA",
+        "type": "Access",
+        "name": [
+          {
+            "value": "Schema catalog accesses STIX schema dataobject"
+          }
+        ],
+        "source": "ELM-APP-COMP-STIX-CONTRACT-CATALOG",
+        "target": "ELM-DATA-STIX-ARGO-SCHEMA",
+        "documentation": [
+          {
+            "value": "An Access relationship models that behavior or active structure reads or writes passive structure elements. In this architecture, STIX Contract Schema Catalog reads and interprets ELM-DATA-STIX-ARGO-SCHEMA as the canonical source for event and result contract resolution."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-VALIDATE-EVENT-ACCESS-STIX-SCHEMA",
+        "type": "Access",
+        "name": [
+          {
+            "value": "Event validation accesses STIX schema"
+          }
+        ],
+        "source": "ELM-FUNC-VALIDATE-EVENT-CONTRACT",
+        "target": "ELM-DATA-STIX-ARGO-SCHEMA",
+        "documentation": [
+          {
+            "value": "An Access relationship models that behavior uses passive structure during execution. In this architecture, Validate Event Contract depends on ELM-DATA-STIX-ARGO-SCHEMA as the canonical contract source for inbound event validation semantics."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-VALIDATE-RESULT-ACCESS-STIX-SCHEMA",
+        "type": "Access",
+        "name": [
+          {
+            "value": "Result validation accesses STIX schema"
+          }
+        ],
+        "source": "ELM-FUNC-VALIDATE-RESULT-CONTRACT",
+        "target": "ELM-DATA-STIX-ARGO-SCHEMA",
+        "documentation": [
+          {
+            "value": "An Access relationship models that behavior uses passive structure during execution. In this architecture, Validate Result Contract depends on ELM-DATA-STIX-ARGO-SCHEMA as the canonical contract source for outbound result validation semantics."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-STIX-CONTRACT-CATALOG-ASSIGN-GENERATE-PY-CONTRACTS",
+        "type": "Assignment",
+        "name": [
+          {
+            "value": "Schema catalog generates Python contracts"
+          }
+        ],
+        "source": "ELM-APP-COMP-STIX-CONTRACT-CATALOG",
+        "target": "ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS",
+        "documentation": [
+          {
+            "value": "An Assignment relationship models that an active structure element is responsible for performing behavior. In this architecture, STIX Contract Schema Catalog is responsible for the Generate Schema-Derived Python Contracts function."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-MOCK-ADAPTER-ASSIGN-INTEGRATE-STRICT-CONTRACTS",
+        "type": "Assignment",
+        "name": [
+          {
+            "value": "Mock adapter integrates strict Python contracts"
+          }
+        ],
+        "source": "ELM-APP-COMP-MOCK-OPENCTI-ADAPTER",
+        "target": "ELM-FUNC-INTEGRATE-STRICT-PYTHON-CONTRACT-BOUNDARIES",
+        "documentation": [
+          {
+            "value": "An Assignment relationship models that an active structure element performs behavior. In this architecture, Mock OPENCTI Event Adapter owns the inbound portion of the Integrate Strict Python Contract Boundaries function."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-STIX-NATIVE-TOOL-ASSIGN-VALIDATE-CLI-OUTPUT",
+        "type": "Assignment",
+        "name": [
+          {
+            "value": "STIX native tool validates CLI output"
+          }
+        ],
+        "source": "ELM-APP-COMP-STIX-NATIVE-TOOL",
+        "target": "ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT",
+        "documentation": [
+          {
+            "value": "An Assignment relationship models that an active structure element performs behavior. In this architecture, STIX Native Query Tool Boundary is responsible for the Validate STIX Query CLI Output function."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-STIX-CONTRACT-CATALOG-ASSIGN-REGISTER-SCHEMA-DATAOBJECT",
+        "type": "Assignment",
+        "name": [
+          {
+            "value": "Schema catalog registers schema dataobject"
+          }
+        ],
+        "source": "ELM-APP-COMP-STIX-CONTRACT-CATALOG",
+        "target": "ELM-FUNC-REGISTER-STIX-SCHEMA-DATAOBJECT",
+        "documentation": [
+          {
+            "value": "An Assignment relationship models that an active structure element is responsible for performing behavior. In this architecture, STIX Contract Schema Catalog is responsible for the Register STIX Schema DataObject function."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-STIX-CONTRACT-CATALOG-ASSIGN-LINK-VALIDATORS",
+        "type": "Assignment",
+        "name": [
+          {
+            "value": "Schema catalog links validators to schema"
+          }
+        ],
+        "source": "ELM-APP-COMP-STIX-CONTRACT-CATALOG",
+        "target": "ELM-FUNC-LINK-CONTRACT-VALIDATORS-TO-STIX-SCHEMA",
+        "documentation": [
+          {
+            "value": "An Assignment relationship models that an active structure element is responsible for performing behavior. In this architecture, STIX Contract Schema Catalog is responsible for the Link Contract Validators to STIX Schema function."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-PROJECT-TASK-001",
+        "type": "Aggregation",
+        "name": [
+          {
+            "value": "Project aggregates TASK-001"
+          }
+        ],
+        "source": "PROJECT-CURRENT",
+        "target": "TASK-001",
+        "documentation": [
+          {
+            "value": "Runtime task relationship managed by OpenCode runtime."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "ProjectTaskLink"
+          }
+        }
+      },
+      {
+        "identifier": "REL-PROJECT-TASK-002",
+        "type": "Aggregation",
+        "name": [
+          {
+            "value": "Project aggregates TASK-002"
+          }
+        ],
+        "source": "PROJECT-CURRENT",
+        "target": "TASK-002",
+        "documentation": [
+          {
+            "value": "Runtime task relationship managed by OpenCode runtime."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "ProjectTaskLink"
+          }
+        }
+      },
+      {
+        "identifier": "REL-PROJECT-TASK-003",
+        "type": "Aggregation",
+        "name": [
+          {
+            "value": "Project aggregates TASK-003"
+          }
+        ],
+        "source": "PROJECT-CURRENT",
+        "target": "TASK-003",
+        "documentation": [
+          {
+            "value": "Runtime task relationship managed by OpenCode runtime."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "ProjectTaskLink"
+          }
+        }
+      },
+      {
+        "identifier": "REL-PROJECT-TASK-004",
+        "type": "Aggregation",
+        "name": [
+          {
+            "value": "Project aggregates TASK-004"
+          }
+        ],
+        "source": "PROJECT-CURRENT",
+        "target": "TASK-004",
+        "documentation": [
+          {
+            "value": "Runtime task relationship managed by OpenCode runtime."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "ProjectTaskLink"
+          }
+        }
+      },
+      {
+        "identifier": "REL-PROJECT-TASK-005",
+        "type": "Aggregation",
+        "name": [
+          {
+            "value": "Project aggregates TASK-005"
+          }
+        ],
+        "source": "PROJECT-CURRENT",
+        "target": "TASK-005",
+        "documentation": [
+          {
+            "value": "Runtime task relationship managed by OpenCode runtime."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "ProjectTaskLink"
+          }
+        }
+      },
+      {
+        "identifier": "REL-PROJECT-TASK-006",
+        "type": "Aggregation",
+        "name": [
+          {
+            "value": "Project aggregates TASK-006"
+          }
+        ],
+        "source": "PROJECT-CURRENT",
+        "target": "TASK-006",
+        "documentation": [
+          {
+            "value": "Runtime task relationship managed by OpenCode runtime."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "ProjectTaskLink"
+          }
+        }
+      },
+      {
+        "identifier": "REL-TASK-006-ARCH",
+        "type": "Association",
+        "name": [
+          {
+            "value": "TASK-006 traces to ELM-FUNC-REGISTER-STIX-SCHEMA-DATAOBJECT"
+          }
+        ],
+        "source": "TASK-006",
+        "target": "ELM-FUNC-REGISTER-STIX-SCHEMA-DATAOBJECT",
+        "documentation": [
+          {
+            "value": "Runtime task traceability relationship managed by OpenCode runtime."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "TaskArchitectureTrace"
+          }
+        }
+      },
+      {
+        "identifier": "REL-PROJECT-TASK-007",
+        "type": "Aggregation",
+        "name": [
+          {
+            "value": "Project aggregates TASK-007"
+          }
+        ],
+        "source": "PROJECT-CURRENT",
+        "target": "TASK-007",
+        "documentation": [
+          {
+            "value": "Runtime task relationship managed by OpenCode runtime."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "ProjectTaskLink"
+          }
+        }
+      },
+      {
+        "identifier": "REL-TASK-007-ARCH",
+        "type": "Association",
+        "name": [
+          {
+            "value": "TASK-007 traces to ELM-FUNC-REGISTER-STIX-SCHEMA-DATAOBJECT"
+          }
+        ],
+        "source": "TASK-007",
+        "target": "ELM-FUNC-REGISTER-STIX-SCHEMA-DATAOBJECT",
+        "documentation": [
+          {
+            "value": "Runtime task traceability relationship managed by OpenCode runtime."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "TaskArchitectureTrace"
+          }
+        }
+      },
+      {
+        "identifier": "REL-PROJECT-TASK-008",
+        "type": "Aggregation",
+        "name": [
+          {
+            "value": "Project aggregates TASK-008"
+          }
+        ],
+        "source": "PROJECT-CURRENT",
+        "target": "TASK-008",
+        "documentation": [
+          {
+            "value": "Runtime task relationship managed by OpenCode runtime."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "ProjectTaskLink"
+          }
+        }
+      },
+      {
+        "identifier": "REL-TASK-008-ARCH",
+        "type": "Association",
+        "name": [
+          {
+            "value": "TASK-008 traces to ELM-FUNC-LINK-CONTRACT-VALIDATORS-TO-STIX-SCHEMA"
+          }
+        ],
+        "source": "TASK-008",
+        "target": "ELM-FUNC-LINK-CONTRACT-VALIDATORS-TO-STIX-SCHEMA",
+        "documentation": [
+          {
+            "value": "Runtime task traceability relationship managed by OpenCode runtime."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "TaskArchitectureTrace"
+          }
+        }
+      },
+      {
+        "identifier": "REL-PROJECT-TASK-009",
+        "type": "Aggregation",
+        "name": [
+          {
+            "value": "Project aggregates TASK-009"
+          }
+        ],
+        "source": "PROJECT-CURRENT",
+        "target": "TASK-009",
+        "documentation": [
+          {
+            "value": "Runtime task relationship managed by OpenCode runtime."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "ProjectTaskLink"
+          }
+        }
+      },
+      {
+        "identifier": "REL-TASK-009-ARCH",
+        "type": "Association",
+        "name": [
+          {
+            "value": "TASK-009 traces to ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS"
+          }
+        ],
+        "source": "TASK-009",
+        "target": "ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS",
+        "documentation": [
+          {
+            "value": "Runtime task traceability relationship managed by OpenCode runtime."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "TaskArchitectureTrace"
+          }
+        }
+      },
+      {
+        "identifier": "REL-PROJECT-TASK-010",
+        "type": "Aggregation",
+        "name": [
+          {
+            "value": "Project aggregates TASK-010"
+          }
+        ],
+        "source": "PROJECT-CURRENT",
+        "target": "TASK-010",
+        "documentation": [
+          {
+            "value": "Runtime task relationship managed by OpenCode runtime."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "ProjectTaskLink"
+          }
+        }
+      },
+      {
+        "identifier": "REL-TASK-010-ARCH",
+        "type": "Association",
+        "name": [
+          {
+            "value": "TASK-010 traces to ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT"
+          }
+        ],
+        "source": "TASK-010",
+        "target": "ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT",
+        "documentation": [
+          {
+            "value": "Runtime task traceability relationship managed by OpenCode runtime."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "TaskArchitectureTrace"
+          }
+        }
+      },
+      {
+        "identifier": "REL-PROJECT-TASK-011",
+        "type": "Aggregation",
+        "name": [
+          {
+            "value": "Project aggregates TASK-011"
+          }
+        ],
+        "source": "PROJECT-CURRENT",
+        "target": "TASK-011",
+        "documentation": [
+          {
+            "value": "Runtime task relationship managed by OpenCode runtime."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "ProjectTaskLink"
+          }
+        }
+      },
+      {
+        "identifier": "REL-TASK-011-ARCH",
+        "type": "Association",
+        "name": [
+          {
+            "value": "TASK-011 traces to ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS"
+          }
+        ],
+        "source": "TASK-011",
+        "target": "ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS",
+        "documentation": [
+          {
+            "value": "Runtime task traceability relationship managed by OpenCode runtime."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "TaskArchitectureTrace"
+          }
+        }
+      },
+      {
+        "identifier": "REL-PROJECT-TASK-012",
+        "type": "Aggregation",
+        "name": [
+          {
+            "value": "Project aggregates TASK-012"
+          }
+        ],
+        "source": "PROJECT-CURRENT",
+        "target": "TASK-012",
+        "documentation": [
+          {
+            "value": "Runtime task relationship managed by OpenCode runtime."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "ProjectTaskLink"
+          }
+        }
+      },
+      {
+        "identifier": "REL-TASK-012-ARCH",
+        "type": "Association",
+        "name": [
+          {
+            "value": "TASK-012 traces to ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT"
+          }
+        ],
+        "source": "TASK-012",
+        "target": "ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT",
+        "documentation": [
+          {
+            "value": "Runtime task traceability relationship managed by OpenCode runtime."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "TaskArchitectureTrace"
+          }
+        }
       }
     ]
   },

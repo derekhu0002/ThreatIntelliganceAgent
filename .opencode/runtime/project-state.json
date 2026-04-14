@@ -1,30 +1,223 @@
 {
   "version": 2,
-  "activeGoal": "",
-  "designSummary": "",
-  "designDecisions": [],
-  "tasks": [],
-  "issues": [],
+  "activeGoal": "Formalize agent_app/opencode_app/.opencode/schema as DataObject ELM-DATA-STIX-ARGO-SCHEMA; link ELM-FUNC-VALIDATE-EVENT-",
+  "designSummary": "Schema-driven contract architecture approved for ELM-001. The brownfield design formalizes agent_app/opencode_app/.opencode/schema/ as aggregate DataObject ELM-DATA-STIX-ARGO-SCHEMA, links existing event/result validation functions to that DataObject, introduces a shared schema contract catalog software unit for cross-cutting schema resolution and schema-derived Pydantic v2 models, and extends existing mock adapter, result assembler, python listener boundary, and JS STIX native tool modules to enforce strict typed parsing and assembly without raw dict/stdout passthrough.",
+  "designDecisions": [
+    "ADR: Model agent_app/opencode_app/.opencode/schema/ as a single aggregate ArchiMate DataObject ELM-DATA-STIX-ARGO-SCHEMA instead of many graph nodes because the requirement treats the directory as the single contract source shared by validation, model generation, and JS boundary enforcement.",
+    "ADR: Reuse existing brownfield ownership boundaries in services/mock_opencti_adapter, services/result_assembler, services/python_listener, and agent_app/opencode_app/.opencode/tools/stix_query.js; introduce only one new software unit services/stix_contracts for shared schema-derived contract typing because no current module cleanly owns cross-cutting event/result schema resolution.",
+    "ADR: Default Python contract model framework is Pydantic v2. Dataclass event entities and bare dict result boundaries are deprecated as final contract types; strict validation failures must surface at Python and JS boundaries rather than being silently coerced.",
+    "ADR: The JS native tool boundary must parse stdout as JSON and validate command-specific payload structure before returning. Raw stdout passthrough is prohibited even when the upstream CLI exits successfully."
+  ],
+  "tasks": [
+    {
+      "id": "TASK-001",
+      "title": "Formalize agent_app/opencode_app/",
+      "status": "cancelled",
+      "retryCount": 0,
+      "kind": "planning",
+      "owner": "SystemArchitect",
+      "summary": "Created by decompose_goal as planning input for software-unit decomposition.",
+      "details": "SystemArchitect must refine this planning item into concrete software-unit-scoped implementation tasks.",
+      "createdAt": "2026-04-14T02:45:48.770Z",
+      "updatedAt": "2026-04-14T03:49:58.323Z"
+    },
+    {
+      "id": "TASK-002",
+      "title": "opencode/schema as DataObject ELM-DATA-STIX-ARGO-SCHEMA",
+      "status": "cancelled",
+      "retryCount": 0,
+      "kind": "planning",
+      "owner": "SystemArchitect",
+      "summary": "Created by decompose_goal as planning input for software-unit decomposition.",
+      "details": "SystemArchitect must refine this planning item into concrete software-unit-scoped implementation tasks.",
+      "createdAt": "2026-04-14T02:45:48.770Z",
+      "updatedAt": "2026-04-14T03:49:58.379Z"
+    },
+    {
+      "id": "TASK-003",
+      "title": "link ELM-FUNC-VALIDATE-EVENT-CONTRACT and ELM-FUNC-VALIDATE-RESULT-CONTRACT to it",
+      "status": "cancelled",
+      "retryCount": 0,
+      "kind": "planning",
+      "owner": "SystemArchitect",
+      "summary": "Created by decompose_goal as planning input for software-unit decomposition.",
+      "details": "SystemArchitect must refine this planning item into concrete software-unit-scoped implementation tasks.",
+      "createdAt": "2026-04-14T02:45:48.770Z",
+      "updatedAt": "2026-04-14T03:49:58.443Z"
+    },
+    {
+      "id": "TASK-004",
+      "title": "generate strict Python schema-derived entities (prefer Pydantic v2) for event/result contracts",
+      "status": "cancelled",
+      "retryCount": 0,
+      "kind": "planning",
+      "owner": "SystemArchitect",
+      "summary": "Created by decompose_goal as planning input for software-unit decomposition.",
+      "details": "SystemArchitect must refine this planning item into concrete software-unit-scoped implementation tasks.",
+      "createdAt": "2026-04-14T02:45:48.770Z",
+      "updatedAt": "2026-04-14T03:49:58.524Z"
+    },
+    {
+      "id": "TASK-005",
+      "title": "enforce strict typed parsing/assembly in agent_app/opencode_app/",
+      "status": "cancelled",
+      "retryCount": 0,
+      "kind": "planning",
+      "owner": "SystemArchitect",
+      "summary": "Created by decompose_goal as planning input for software-unit decomposition.",
+      "details": "SystemArchitect must refine this planning item into concrete software-unit-scoped implementation tasks.",
+      "createdAt": "2026-04-14T02:45:48.770Z",
+      "updatedAt": "2026-04-14T03:49:58.585Z"
+    },
+    {
+      "id": "TASK-006",
+      "title": "Formalize schema directory as architecture DataObject",
+      "status": "done",
+      "retryCount": 0,
+      "kind": "implementation",
+      "owner": "SystemArchitect",
+      "summary": "Completed as the consolidated architecture persistence task for registering the approved schema directory DataObject intent. TASK-007 is redundant because the DataObject registration and persistence outcome are already covered here.",
+      "details": "Completed as the consolidated architecture persistence task for registering the approved schema directory DataObject intent. TASK-007 is redundant because the DataObject registration and persistence outcome are already covered here.",
+      "softwareUnitId": "ELM-APP-COMP-STIX-CONTRACT-CATALOG",
+      "softwareUnitTitle": "STIX Contract Schema Catalog",
+      "architectureElementId": "ELM-FUNC-REGISTER-STIX-SCHEMA-DATAOBJECT",
+      "createdAt": "2026-04-14T02:59:20.308Z",
+      "updatedAt": "2026-04-14T03:30:07.301Z"
+    },
+    {
+      "id": "TASK-007",
+      "title": "Persist opencode/schema as DataObject ELM-DATA-STIX-ARGO-SCHEMA",
+      "status": "cancelled",
+      "retryCount": 0,
+      "kind": "implementation",
+      "owner": "SystemArchitect",
+      "summary": "Cancelled as a redundant duplicate of TASK-006. The architecture graph already contains DataObject ELM-DATA-STIX-ARGO-SCHEMA, so separate runtime tracking for this duplicate registration task is unnecessary.",
+      "details": "Cancelled as a redundant duplicate of TASK-006. The architecture graph already contains DataObject ELM-DATA-STIX-ARGO-SCHEMA, so separate runtime tracking for this duplicate registration task is unnecessary.",
+      "softwareUnitId": "ELM-APP-COMP-STIX-CONTRACT-CATALOG",
+      "softwareUnitTitle": "STIX Contract Schema Catalog",
+      "architectureElementId": "ELM-FUNC-REGISTER-STIX-SCHEMA-DATAOBJECT",
+      "createdAt": "2026-04-14T02:59:20.308Z",
+      "updatedAt": "2026-04-14T03:30:20.533Z"
+    },
+    {
+      "id": "TASK-008",
+      "title": "Link ELM-FUNC-VALIDATE-EVENT-CONTRACT and ELM-FUNC-VALIDATE-RESULT-CONTRACT to ELM-DATA-STIX-ARGO-SCHEMA",
+      "status": "done",
+      "retryCount": 0,
+      "kind": "implementation",
+      "owner": "SystemArchitect",
+      "summary": "Completed. Validator-to-schema dependency persistence is already present in the architecture graph through REL-VALIDATE-EVENT-ACCESS-STIX-SCHEMA and REL-VALIDATE-RESULT-ACCESS-STIX-SCHEMA, so the runtime task now reflects the achieved state.",
+      "details": "Completed. Validator-to-schema dependency persistence is already present in the architecture graph through REL-VALIDATE-EVENT-ACCESS-STIX-SCHEMA and REL-VALIDATE-RESULT-ACCESS-STIX-SCHEMA, so the runtime task now reflects the achieved state.",
+      "softwareUnitId": "ELM-APP-COMP-STIX-CONTRACT-CATALOG",
+      "softwareUnitTitle": "STIX Contract Schema Catalog",
+      "architectureElementId": "ELM-FUNC-LINK-CONTRACT-VALIDATORS-TO-STIX-SCHEMA",
+      "createdAt": "2026-04-14T02:59:20.308Z",
+      "updatedAt": "2026-04-14T03:30:33.483Z"
+    },
+    {
+      "id": "TASK-009",
+      "title": "Generate and integrate strict Python schema-derived entities for event/result contracts",
+      "status": "done",
+      "retryCount": 2,
+      "kind": "implementation",
+      "owner": "Implementation",
+      "summary": "Reworked QA/audit bounce-back by restoring workspace alias/config compatibility, adding AGENTS.md/workspace metadata, and adding tagged Python-side verification for schema-derived contract and canonical schema catalog intent.",
+      "details": "Reworked QA/audit bounce-back by restoring workspace alias/config compatibility, adding AGENTS.md/workspace metadata, and adding tagged Python-side verification for schema-derived contract and canonical schema catalog intent.",
+      "softwareUnitId": "ELM-APP-COMP-STIX-CONTRACT-CATALOG",
+      "softwareUnitTitle": "STIX Contract Schema Catalog",
+      "architectureElementId": "ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS",
+      "createdAt": "2026-04-14T02:59:20.308Z",
+      "updatedAt": "2026-04-14T03:56:02.359Z",
+      "commitId": "c19e656119b7f55575a21cf8092c0e8b8a9f5b91"
+    },
+    {
+      "id": "TASK-010",
+      "title": "Enforce strict typed parsing and assembly in stix_query.js",
+      "status": "done",
+      "retryCount": 2,
+      "kind": "implementation",
+      "owner": "Implementation",
+      "summary": "Reworked QA/audit bounce-back by adding tagged stix_query validation tests for invalid JSON, invalid payload shape, valid neighbors output, and schema-catalog traceability without weakening strict boundary validation.",
+      "details": "Reworked QA/audit bounce-back by adding tagged stix_query validation tests for invalid JSON, invalid payload shape, valid neighbors output, and schema-catalog traceability without weakening strict boundary validation.",
+      "softwareUnitId": "ELM-APP-COMP-STIX-NATIVE-TOOL",
+      "softwareUnitTitle": "STIX Native Query Tool Boundary",
+      "architectureElementId": "ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT",
+      "createdAt": "2026-04-14T02:59:20.308Z",
+      "updatedAt": "2026-04-14T03:56:02.409Z",
+      "commitId": "c19e656119b7f55575a21cf8092c0e8b8a9f5b91"
+    },
+    {
+      "id": "TASK-011",
+      "title": "Complete schema-derived Python contract integration and brownfield workspace compatibility",
+      "status": "cancelled",
+      "retryCount": 0,
+      "kind": "implementation",
+      "owner": "Implementation",
+      "summary": "Preserve the shared Pydantic contract work but finish the brownfield-compatible integration seam by restoring canonical alias/workspace metadata and adding traceable automated verification for the Python-side intent.",
+      "details": "",
+      "softwareUnitId": "ELM-APP-COMP-STIX-CONTRACT-CATALOG",
+      "softwareUnitTitle": "STIX Contract Schema Catalog",
+      "architectureElementId": "ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS",
+      "createdAt": "2026-04-14T03:48:32.304Z",
+      "updatedAt": "2026-04-14T03:49:58.159Z"
+    },
+    {
+      "id": "TASK-012",
+      "title": "Complete traceable strict validation coverage for stix_query.js boundary",
+      "status": "cancelled",
+      "retryCount": 0,
+      "kind": "implementation",
+      "owner": "Implementation",
+      "summary": "Preserve the shipped JSON/Zod validation behavior in stix_query.js and close the audit gap by adding traceable automated verification for the intended JS boundary and schema dependency intent.",
+      "details": "",
+      "softwareUnitId": "ELM-APP-COMP-STIX-NATIVE-TOOL",
+      "softwareUnitTitle": "STIX Native Query Tool Boundary",
+      "architectureElementId": "ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT",
+      "createdAt": "2026-04-14T03:48:32.304Z",
+      "updatedAt": "2026-04-14T03:49:58.219Z"
+    }
+  ],
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "category": "ArchitectureGap",
+      "summary": "IntentNotVerified for commit 64af873 TASK-009/TASK-010",
+      "details": "IntentNotVerified: commit 64af873e4c7736b8dd855c8a5824df74eb9e194a lacks tagged automated verification for ELM-001, ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS, and ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT. Reality scanner verifiedIntentIds only include ELM-APP-PROC-THREAT-COLLAB-SKILL, ELM-TECH-ARTIFACT-AGENT-DEFS, ELM-TECH-ARTIFACT-OPENCODE-WORKSPACE, and REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001. QA must add tagged automated tests before release can continue.",
+      "createdAt": "2026-04-14T03:43:13.939Z"
+    },
+    {
+      "id": "ISSUE-002",
+      "category": "BugReport",
+      "summary": "Remote client alias resolution not backed by workspace config",
+      "details": "Validation of commit 64af873e4c7736b8dd855c8a5824df74eb9e194a found a regression in the affected listener boundary. services/python_listener/remote_client.py resolves canonical main-agent aliases from agent_app/opencode_app/.opencode/opencode.json, but that file does not define agent_aliases. As a result resolve_main_agent_alias('ThreatIntelliganceCommander', repo_root) returns the legacy alias instead of ThreatIntelPrimary and tests/test_python_listener.py::test_default_main_agent_is_canonical_and_legacy_aliases_resolve fails. Local-only QA ran because live_environment_ready=false; 跳过了真实环境验证.",
+      "createdAt": "2026-04-14T03:45:42.433Z"
+    }
+  ],
   "validations": {
     "qa": {
-      "status": "not_run",
-      "summary": "No validation has been recorded yet.",
-      "updatedAt": "1970-01-01T00:00:00.000Z"
+      "status": "passed",
+      "summary": "QA passed for commit c19e656119b7f55575a21cf8092c0e8b8a9f5b91. Local-only validation executed because live_environment_ready=false; 跳过了真实环境验证. Affected-area regression suite passed: PYTHONPATH=. pytest tests/test_mock_opencti_adapter.py tests/test_result_assembler.py tests/test_python_listener.py tests/test_stix_cli.py tests/test_stix_contracts.py tests/test_opencode_workspace_config.py -> 29 passed. Focused rework tests passed for listener alias/config compatibility and stix_query.js strict JSON/payload validation. Traceable automated tests now cover ELM-001, ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS, ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT, and ELM-DATA-STIX-ARGO-SCHEMA in tests/test_python_listener.py, tests/test_stix_contracts.py, and tests/test_opencode_workspace_config.py. Remaining note: Pydantic warns that AssemblyContract.schema shadows BaseModel.schema, but this did not cause test failures.",
+      "details": "QA passed for commit c19e656119b7f55575a21cf8092c0e8b8a9f5b91. Local-only validation executed because live_environment_ready=false; 跳过了真实环境验证. Affected-area regression suite passed: PYTHONPATH=. pytest tests/test_mock_opencti_adapter.py tests/test_result_assembler.py tests/test_python_listener.py tests/test_stix_cli.py tests/test_stix_contracts.py tests/test_opencode_workspace_config.py -> 29 passed. Focused rework tests passed for listener alias/config compatibility and stix_query.js strict JSON/payload validation. Traceable automated tests now cover ELM-001, ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS, ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT, and ELM-DATA-STIX-ARGO-SCHEMA in tests/test_python_listener.py, tests/test_stix_contracts.py, and tests/test_opencode_workspace_config.py. Remaining note: Pydantic warns that AssemblyContract.schema shadows BaseModel.schema, but this did not cause test failures.",
+      "commitId": "c19e656119b7f55575a21cf8092c0e8b8a9f5b91",
+      "updatedAt": "2026-04-14T03:59:26.873Z"
     },
     "audit": {
-      "status": "not_run",
-      "summary": "No validation has been recorded yet.",
-      "updatedAt": "1970-01-01T00:00:00.000Z"
+      "status": "passed",
+      "summary": "Audit passed for commit c19e656119b7f55575a21cf8092c0e8b8a9f5b91. Rework closes the prior IntentNotVerified gaps: reality scanner verifiedIntentIds now include ELM-001, ELM-DATA-STIX-ARGO-SCHEMA, ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS, and ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT. Tagged automated tests verify schema catalog/DataObject intent, Python shared Pydantic contract boundaries, and stix_query.js strict stdout JSON validation behavior. Targeted tagged tests pass.",
+      "details": "Audit passed for commit c19e656119b7f55575a21cf8092c0e8b8a9f5b91. Rework closes the prior IntentNotVerified gaps: reality scanner verifiedIntentIds now include ELM-001, ELM-DATA-STIX-ARGO-SCHEMA, ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS, and ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT. Tagged automated tests verify schema catalog/DataObject intent, Python shared Pydantic contract boundaries, and stix_query.js strict stdout JSON validation behavior. Targeted tagged tests pass.",
+      "commitId": "c19e656119b7f55575a21cf8092c0e8b8a9f5b91",
+      "updatedAt": "2026-04-14T03:59:02.497Z"
     }
   },
   "release": {
-    "status": "not_started",
-    "summary": "Release has not been prepared yet.",
-    "updatedAt": "2026-04-13T23:31:39.906Z"
+    "status": "completed",
+    "summary": "Completed sprint release finalization for the full-model batch after successful QA and Audit. Release scope commit: c19e656119b7f55575a21cf8092c0e8b8a9f5b91. Completed runtime tasks in scope: TASK-006, TASK-008, TASK-009, TASK-010. Release log written to /mnt/d/projects/ThreatIntelliganceAgent/SprintRleaseLog.md. Intent traceability matrix generated for the release commit and all matrix rows are marked ✅ Yes, so 100% of intended sprint scope in matrix scope was verified by tests without verification gaps.",
+    "releaseLogPath": "SprintRleaseLog.md",
+    "updatedAt": "2026-04-14T04:02:05.491Z"
   },
   "counters": {
-    "task": 0,
-    "issue": 0
+    "task": 12,
+    "issue": 2
   },
-  "updatedAt": "2026-04-13T23:40:43.630Z"
+  "updatedAt": "2026-04-14T04:02:05.493Z"
 }
