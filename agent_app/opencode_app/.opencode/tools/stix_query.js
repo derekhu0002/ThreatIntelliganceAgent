@@ -1,15 +1,60 @@
 // @ArchitectureID: ELM-APP-COMP-STIX-NATIVE-TOOL
+// @ArchitectureID: ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT
 
 import { spawn } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { tool } from "@opencode-ai/plugin";
+import { z } from "zod";
 
 const FILE_DIR = path.dirname(fileURLToPath(import.meta.url));
 const FALLBACK_REPO_ROOT = path.resolve(FILE_DIR, "..", "..", "..", "..");
 const DEFAULT_STIX_DATA_PATH = "data/stix_samples/threat_intel_bundle.json";
 const ALLOWED_AGENTS = new Set(["ThreatIntelAnalyst", "STIX_EvidenceSpecialist"]);
+const nonEmptyString = z.string().trim().min(1);
+const stixObjectSummarySchema = z.object({
+  id: nonEmptyString,
+  type: nonEmptyString,
+  name: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
+  pattern: z.string().nullable().optional(),
+  value: z.string().nullable().optional(),
+  confidence: z.number().finite().nullable().optional(),
+}).strict();
+const stixSearchResultSchema = z.object({
+  query: nonEmptyString,
+  match_count: z.number().int().nonnegative(),
+  matches: z.array(stixObjectSummarySchema),
+}).strict().superRefine((payload, ctx) => {
+  if (payload.match_count !== payload.matches.length) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "match_count must equal the number of matches.",
+      path: ["match_count"],
+    });
+  }
+});
+const stixNeighborRelationshipSchema = z.object({
+  relationship_id: nonEmptyString,
+  relationship_type: nonEmptyString,
+  direction: z.enum(["incoming", "outgoing"]),
+  peer: stixObjectSummarySchema,
+}).strict();
+const stixNeighborsResultSchema = z.object({
+  stix_id: nonEmptyString,
+  object: stixObjectSummarySchema,
+  relationship_count: z.number().int().nonnegative(),
+  relationships: z.array(stixNeighborRelationshipSchema),
+}).strict().superRefine((payload, ctx) => {
+  if (payload.relationship_count !== payload.relationships.length) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "relationship_count must equal the number of relationships.",
+      path: ["relationship_count"],
+    });
+  }
+});
 
 function resolveRepoRoot(context) {
   return context.worktree || FALLBACK_REPO_ROOT;
@@ -90,6 +135,28 @@ async function runCommand(command, commandArgs, context, cwd) {
   });
 }
 
+function parseValidatedCliOutput(stdout, command) {
+  let payload;
+
+  try {
+    payload = JSON.parse(stdout);
+  } catch (error) {
+    throw new Error(
+      `stix_query received invalid JSON from tools.stix_cli: ${error.message}`,
+    );
+  }
+
+  const schema = command === "search" ? stixSearchResultSchema : stixNeighborsResultSchema;
+  const validated = schema.safeParse(payload);
+  if (!validated.success) {
+    throw new Error(
+      `stix_query received invalid ${command} payload from tools.stix_cli: ${validated.error.message}`,
+    );
+  }
+
+  return validated.data;
+}
+
 export default tool({
   description: "Query local STIX evidence for analyst workflows.",
   args: {
@@ -114,6 +181,7 @@ export default tool({
       },
     });
 
-    return await runCommand(pythonBin, cliArgs, context, repoRoot);
+    const stdout = await runCommand(pythonBin, cliArgs, context, repoRoot);
+    return parseValidatedCliOutput(stdout, args.command);
   },
 });

@@ -152,7 +152,7 @@ def build_remote_response(request_payload: dict[str, Any], stix_data_path: str |
         normalized_event=normalized_event,
         evidence_bundle=evidence_bundle,
         collaboration_output=collaboration_output,
-    )
+    ).model_dump(mode="python")
 
 
 @dataclass

@@ -1,0 +1,61 @@
+"""Shared strict contracts for STIX-facing service boundaries."""
+
+# @ArchitectureID: ELM-APP-COMP-STIX-CONTRACT-CATALOG
+
+from .catalog import (
+    ANALYSIS_RESULT_SCHEMA_PATH,
+    CANONICAL_SCHEMA_ROOT,
+    MOCK_OPENCTI_EVENT_SCHEMA_PATH,
+    load_contract_schema,
+    load_stix_schema,
+    resolve_canonical_schema_root,
+)
+from .models import (
+    REQUIRED_TOP_LEVEL_FIELDS,
+    RESULT_SCHEMA_VERSION,
+    AnalysisConclusion,
+    AnalysisResultEvent,
+    AssemblyContract,
+    CollaborationRoleOutput,
+    CollaborationTrace,
+    EvidenceQueryBasis,
+    EventEntity,
+    EventObservable,
+    NormalizedMockOpenCTIEvent,
+    StixNeighborRelationship,
+    StixNeighborsResult,
+    StixObjectSummary,
+    StixSearchResult,
+    ThreatAnalysisResult,
+    build_analysis_result_json_schema,
+    parse_analysis_result,
+    parse_event_contract,
+)
+
+__all__ = [
+    "ANALYSIS_RESULT_SCHEMA_PATH",
+    "CANONICAL_SCHEMA_ROOT",
+    "MOCK_OPENCTI_EVENT_SCHEMA_PATH",
+    "REQUIRED_TOP_LEVEL_FIELDS",
+    "RESULT_SCHEMA_VERSION",
+    "AnalysisConclusion",
+    "AnalysisResultEvent",
+    "AssemblyContract",
+    "CollaborationRoleOutput",
+    "CollaborationTrace",
+    "EvidenceQueryBasis",
+    "EventEntity",
+    "EventObservable",
+    "NormalizedMockOpenCTIEvent",
+    "StixNeighborRelationship",
+    "StixNeighborsResult",
+    "StixObjectSummary",
+    "StixSearchResult",
+    "ThreatAnalysisResult",
+    "build_analysis_result_json_schema",
+    "load_contract_schema",
+    "load_stix_schema",
+    "parse_analysis_result",
+    "parse_event_contract",
+    "resolve_canonical_schema_root",
+]

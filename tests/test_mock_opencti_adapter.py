@@ -30,7 +30,7 @@ def test_normalize_event_trims_and_filters_contract_fields() -> None:
             "triggered_at": " 2026-04-09T12:00:00Z ",
             "summary": " suspicious activity observed ",
             "severity": " high ",
-            "labels": [" apt28 ", "", None, " phishing "],
+            "labels": [" apt28 ", " phishing "],
             "entity": {
                 "id": " indicator--123 ",
                 "type": " indicator ",
@@ -47,6 +47,28 @@ def test_normalize_event_trims_and_filters_contract_fields() -> None:
     assert normalized.observables[0].value == "203.0.113.10"
     assert normalized.labels == ["apt28", "phishing"]
     assert normalized.to_dict()["severity"] == "high"
+
+
+def test_normalize_event_rejects_invalid_label_values() -> None:
+    with pytest.raises(EventContractError, match="labels"):
+        normalize_event(
+            {
+                "contract_version": "mock-opencti-event.v1",
+                "event_id": "event-123",
+                "event_type": "opencti.push.indicator",
+                "source": "mock-opencti",
+                "triggered_at": "2026-04-09T12:00:00Z",
+                "summary": "suspicious activity observed",
+                "severity": "high",
+                "labels": ["apt28", ""],
+                "entity": {
+                    "id": "indicator--123",
+                    "type": "indicator",
+                    "name": "Suspicious IP",
+                },
+                "observables": [{"type": "ipv4-addr", "value": "203.0.113.10"}],
+            }
+        )
 
 
 def test_load_and_normalize_event_rejects_missing_observables(tmp_path: Path) -> None:

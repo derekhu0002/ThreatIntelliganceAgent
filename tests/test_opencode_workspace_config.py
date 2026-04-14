@@ -42,7 +42,7 @@ const context = {
 
 try {
   const output = await tool.execute(args, context);
-  process.stdout.write(output);
+  process.stdout.write(typeof output === 'string' ? output : JSON.stringify(output));
 } catch (error) {
   process.stderr.write(`${error.message}\n`);
   process.exit(1);
@@ -115,6 +115,41 @@ def test_stix_query_tool_allows_analyst_agents() -> None:
     payload = json.loads(completed.stdout)
     assert payload["query"] == "APT28"
     assert payload["match_count"] >= 1
+
+
+def test_stix_query_tool_rejects_invalid_json_stdout(tmp_path: Path) -> None:
+    tool_path = WORKSPACE_ROOT / "tools/stix_query.js"
+    fake_python = tmp_path / "fake-python"
+    fake_python.write_text("#!/usr/bin/env sh\nprintf 'not-json'\n", encoding="utf-8")
+    fake_python.chmod(0o755)
+
+    completed = _run_tool_module(
+        tool_path,
+        {"command": "search", "query": "APT28", "pythonBin": str(fake_python)},
+        agent="ThreatIntelAnalyst",
+    )
+
+    assert completed.returncode != 0
+    assert "invalid JSON" in completed.stderr
+
+
+def test_stix_query_tool_rejects_invalid_search_payload_shape(tmp_path: Path) -> None:
+    tool_path = WORKSPACE_ROOT / "tools/stix_query.js"
+    fake_python = tmp_path / "fake-python"
+    fake_python.write_text(
+        "#!/usr/bin/env sh\nprintf '%s' '{\"query\":\"APT28\",\"match_count\":\"one\",\"matches\":[]}'\n",
+        encoding="utf-8",
+    )
+    fake_python.chmod(0o755)
+
+    completed = _run_tool_module(
+        tool_path,
+        {"command": "search", "query": "APT28", "pythonBin": str(fake_python)},
+        agent="ThreatIntelAnalyst",
+    )
+
+    assert completed.returncode != 0
+    assert "invalid search payload" in completed.stderr
 
 
 def test_threat_intel_orchestrator_tool_exports_valid_custom_tool() -> None:

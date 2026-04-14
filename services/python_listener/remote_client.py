@@ -139,10 +139,10 @@ class RemoteOpencodeClient:
             if not isinstance(candidate, dict):
                 continue
             try:
-                validate_structured_result(candidate)
+                validated_result = validate_structured_result(candidate)
             except ValueError:
                 continue
-            candidates.append(candidate)
+            candidates.append(validated_result.model_dump(mode="python"))
 
         if candidates:
             return candidates[0]

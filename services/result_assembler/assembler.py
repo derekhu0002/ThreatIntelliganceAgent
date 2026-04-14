@@ -1,31 +1,35 @@
 """Structured result assembly for the closed-loop analysis."""
 
 # @ArchitectureID: ELM-APP-COMP-RESULT-ASSEMBLER
+# @ArchitectureID: ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import Any
 
-from .schema import REQUIRED_TOP_LEVEL_FIELDS, RESULT_SCHEMA_VERSION
+from pydantic import ValidationError
+
+from services.stix_contracts import AnalysisResultEvent, NormalizedMockOpenCTIEvent, ThreatAnalysisResult, parse_analysis_result
+
+from .schema import RESULT_SCHEMA_VERSION
 
 
-def assemble_structured_result(
-    *,
-    run_context: dict[str, Any],
-    normalized_event: dict[str, Any],
-    evidence_bundle: dict[str, Any],
-    collaboration_output: dict[str, Any],
-) -> dict[str, Any]:
-    # @ArchitectureID: ELM-APP-COMP-RESULT-ASSEMBLER
-    evidence_matches = sum(search.get("match_count", 0) for search in evidence_bundle.get("searches", []))
-    relationship_count = len(evidence_bundle.get("relationships", []))
-    final_assessment = collaboration_output.get("final_assessment", {})
-
-    result = {
-        "schema_version": RESULT_SCHEMA_VERSION,
-        "run_id": run_context["run_id"],
-        "generated_at": run_context["created_at"],
-        "event": {
+def _coerce_analysis_result_event(normalized_event: Mapping[str, Any] | NormalizedMockOpenCTIEvent) -> AnalysisResultEvent:
+    if isinstance(normalized_event, NormalizedMockOpenCTIEvent):
+        payload = {
+            "event_id": normalized_event.event_id,
+            "source": normalized_event.source,
+            "event_type": normalized_event.event_type,
+            "triggered_at": normalized_event.triggered_at,
+            "summary": normalized_event.summary,
+            "entity": normalized_event.entity.model_dump(mode="python"),
+            "observables": [observable.model_dump(mode="python") for observable in normalized_event.observables],
+            "labels": list(normalized_event.labels),
+            "severity": normalized_event.severity,
+        }
+    else:
+        payload = {
             "event_id": normalized_event["event_id"],
             "source": normalized_event["source"],
             "event_type": normalized_event["event_type"],
@@ -35,9 +39,40 @@ def assemble_structured_result(
             "observables": normalized_event["observables"],
             "labels": normalized_event.get("labels", []),
             "severity": normalized_event.get("severity"),
+        }
+    return AnalysisResultEvent.model_validate(payload)
+
+
+def assemble_structured_result(
+    *,
+    run_context: dict[str, Any],
+    normalized_event: Mapping[str, Any] | NormalizedMockOpenCTIEvent,
+    evidence_bundle: dict[str, Any],
+    collaboration_output: dict[str, Any],
+) -> ThreatAnalysisResult:
+    # @ArchitectureID: ELM-APP-COMP-RESULT-ASSEMBLER
+    event_contract = _coerce_analysis_result_event(normalized_event)
+    evidence_matches = sum(search.get("match_count", 0) for search in evidence_bundle.get("searches", []))
+    relationship_count = len(evidence_bundle.get("relationships", []))
+    final_assessment = collaboration_output.get("final_assessment", {})
+
+    result = {
+        "schema_version": RESULT_SCHEMA_VERSION,
+        "run_id": run_context["run_id"],
+        "generated_at": run_context["created_at"],
+        "event": {
+            "event_id": event_contract.event_id,
+            "source": event_contract.source,
+            "event_type": event_contract.event_type,
+            "triggered_at": event_contract.triggered_at,
+            "summary": event_contract.summary,
+            "entity": event_contract.entity.model_dump(mode="python"),
+            "observables": [observable.model_dump(mode="python") for observable in event_contract.observables],
+            "labels": list(event_contract.labels),
+            "severity": event_contract.severity,
         },
         "key_information_summary": [
-            normalized_event["summary"],
+            event_contract.summary,
             f"STIX semantic queries returned {evidence_matches} object matches and {relationship_count} related relationship views.",
             final_assessment.get("summary", "Commander summary unavailable."),
         ],
@@ -64,15 +99,14 @@ def assemble_structured_result(
         },
     }
 
-    validate_structured_result(result)
-    return result
+    return validate_structured_result(result)
 
 
-def validate_structured_result(result: dict[str, Any]) -> None:
-    missing = REQUIRED_TOP_LEVEL_FIELDS.difference(result)
-    if missing:
-        raise ValueError(f"Structured result is missing required fields: {sorted(missing)}")
-
-    participants = result["collaboration_trace"].get("participants", [])
-    if len(participants) < 2:
-        raise ValueError("Structured result must include at least two participating analysis roles.")
+def validate_structured_result(result: Mapping[str, Any] | ThreatAnalysisResult) -> ThreatAnalysisResult:
+    try:
+        return parse_analysis_result(result)
+    except ValidationError as exc:
+        for error in exc.errors():
+            if tuple(error.get("loc", ())) == ("collaboration_trace", "participants") and error.get("type") == "too_short":
+                raise ValueError("Structured result must include at least two participating analysis roles.") from exc
+        raise ValueError(str(exc)) from exc
