@@ -181,15 +181,15 @@
     {
       "id": "ISSUE-001",
       "category": "ArchitectureGap",
-      "summary": "IntentNotVerified for commit 64af873 TASK-009/TASK-010",
-      "details": "IntentNotVerified: commit 64af873e4c7736b8dd855c8a5824df74eb9e194a lacks tagged automated verification for ELM-001, ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS, and ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT. Reality scanner verifiedIntentIds only include ELM-APP-PROC-THREAT-COLLAB-SKILL, ELM-TECH-ARTIFACT-AGENT-DEFS, ELM-TECH-ARTIFACT-OPENCODE-WORKSPACE, and REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001. QA must add tagged automated tests before release can continue.",
+      "summary": "IntentNotVerified for commit 64af873 TASK-009/TASK-010 [Resolved]",
+      "details": "Resolved by tagged automated verification added in rework commit c19e656119b7f55575a21cf8092c0e8b8a9f5b91. QA and Audit now pass, and verified intent covers ELM-001, ELM-DATA-STIX-ARGO-SCHEMA, ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS, and ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT.",
       "createdAt": "2026-04-14T03:43:13.939Z"
     },
     {
       "id": "ISSUE-002",
       "category": "BugReport",
-      "summary": "Remote client alias resolution not backed by workspace config",
-      "details": "Validation of commit 64af873e4c7736b8dd855c8a5824df74eb9e194a found a regression in the affected listener boundary. services/python_listener/remote_client.py resolves canonical main-agent aliases from agent_app/opencode_app/.opencode/opencode.json, but that file does not define agent_aliases. As a result resolve_main_agent_alias('ThreatIntelliganceCommander', repo_root) returns the legacy alias instead of ThreatIntelPrimary and tests/test_python_listener.py::test_default_main_agent_is_canonical_and_legacy_aliases_resolve fails. Local-only QA ran because live_environment_ready=false; 跳过了真实环境验证.",
+      "summary": "Remote client alias resolution not backed by workspace config [Resolved]",
+      "details": "Resolved by brownfield compatibility rework in commit c19e656119b7f55575a21cf8092c0e8b8a9f5b91. Listener alias resolution, workspace metadata, and AGENTS.md expectations are now satisfied; QA passed.",
       "createdAt": "2026-04-14T03:45:42.433Z"
     }
   ],
@@ -219,5 +219,5 @@
     "task": 12,
     "issue": 2
   },
-  "updatedAt": "2026-04-14T04:02:05.493Z"
+  "updatedAt": "2026-04-14T05:25:02.435Z"
 }
