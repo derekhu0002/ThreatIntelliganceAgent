@@ -177,6 +177,30 @@ def test_db_schema_explorer_rejects_non_analyst_agents() -> None:
     assert "restricted to ThreatIntelAnalyst" in completed.stderr
 
 
+def test_db_schema_explorer_returns_handoff_message_for_secops_agents() -> None:
+    # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
+    # @ArchitectureID: ELM-TECH-ARTIFACT-AGENT-DEFS
+    tool_path = WORKSPACE_ROOT / "tools/db_schema_explorer.js"
+
+    completed = _run_tool_module(tool_path, {}, agent="ThreatIntelSecOps")
+
+    assert completed.returncode == 0, completed.stderr
+    assert "reserved for ThreatIntelAnalyst compatibility scope" in completed.stdout
+    assert "delegate back to ThreatIntelAnalyst" in completed.stdout
+
+
+def test_stix_query_returns_handoff_message_for_secops_agents() -> None:
+    # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
+    # @ArchitectureID: ELM-TECH-ARTIFACT-AGENT-DEFS
+    tool_path = WORKSPACE_ROOT / "tools/stix_query.js"
+
+    completed = _run_tool_module(tool_path, {"command": "search", "query": "APT28"}, agent="ThreatIntelSecOps")
+
+    assert completed.returncode == 0, completed.stderr
+    assert "reserved for ThreatIntelAnalyst compatibility scope" in completed.stdout
+    assert "delegate back to ThreatIntelAnalyst" in completed.stdout
+
+
 def test_stix_query_tool_supports_advanced_filter_queries() -> None:
     # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
     # @ArchitectureID: ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT

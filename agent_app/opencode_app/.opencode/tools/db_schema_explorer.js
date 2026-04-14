@@ -11,7 +11,8 @@ import { z } from "zod";
 const FILE_DIR = path.dirname(fileURLToPath(import.meta.url));
 const LOCAL_WORKSPACE_ROOT = path.resolve(FILE_DIR, "..", "..");
 const DEFAULT_STIX_DATA_PATH = "data/stix_samples/threat_intel_bundle.json";
-const ALLOWED_AGENTS = new Set(["ThreatIntelAnalyst", "STIX_EvidenceSpecialist"]);
+const ANALYST_AGENTS = new Set(["ThreatIntelAnalyst", "STIX_EvidenceSpecialist"]);
+const SECOPS_AGENTS = new Set(["ThreatIntelSecOps", "TARA_analyst"]);
 const nonEmptyString = z.string().trim().min(1);
 const entityTypeSchema = z.object({
   entity_type: nonEmptyString,
@@ -66,9 +67,24 @@ function resolveAgentName(context) {
   ).trim();
 }
 
+function buildScopeHandoff(agentName) {
+  return [
+    "db_schema_explorer is reserved for ThreatIntelAnalyst compatibility scope.",
+    `Current agent: ${agentName || "<unset>"}.`,
+    "ThreatIntelSecOps must use the analyst-provided STIX evidence already returned by ThreatIntelPrimary.",
+    "If additional schema lookup is required, delegate back to ThreatIntelAnalyst instead of calling this tool directly.",
+  ].join("\n");
+}
+
 function enforceAgentScope(context) {
   const agentName = resolveAgentName(context);
-  if (!ALLOWED_AGENTS.has(agentName)) {
+  if (ANALYST_AGENTS.has(agentName)) {
+    return { agentName, handoff: null };
+  }
+  if (SECOPS_AGENTS.has(agentName)) {
+    return { agentName, handoff: buildScopeHandoff(agentName) };
+  }
+  {
     const details = agentName || "<unset>";
     throw new Error(
       `db_schema_explorer is restricted to ThreatIntelAnalyst compatibility scope; received agent ${details}.`,
@@ -159,7 +175,10 @@ export default tool({
     pythonBin: tool.schema.string().optional(),
   },
   async execute(args, context) {
-    enforceAgentScope(context);
+    const scope = enforceAgentScope(context);
+    if (scope.handoff) {
+      return scope.handoff;
+    }
 
     const repoRoot = resolveRepoRoot(context);
     const pythonCandidates = resolvePythonCandidates(args);
@@ -170,7 +189,7 @@ export default tool({
     context.metadata({
       title: "db_schema_explorer",
       metadata: {
-        agent: resolveAgentName(context),
+        agent: scope.agentName,
         pythonBin: pythonCandidates[0],
         repoRoot,
       },
