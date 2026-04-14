@@ -1,6 +1,8 @@
 services:
   opencode:
-    image: ghcr.io/anomalyco/opencode
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "8124:4096"
     entrypoint: ["/usr/local/bin/opencode"]
@@ -8,6 +10,10 @@ services:
     working_dir: /root/project_tia
     env_file:
       - ../.env
+    environment:
+      PYTHON_BIN: python3
+      PYTHONPATH: /root/project_tia
+      THREAT_INTEL_REPO_ROOT: /root/project_tia
     volumes:
       - ./opencode_app:/root/project_tia
     stdin_open: true

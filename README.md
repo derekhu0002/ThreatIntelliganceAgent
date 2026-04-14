@@ -96,7 +96,8 @@ python3 -m pip install pytest
 ### OPENCODE SERVER / Agent 侧
 
 - `agent_app/docker-compose.yml` 使用镜像：`ghcr.io/anomalyco/opencode`
-- 容器会挂载 `agent_app/opencode_app` 作为 agent 工作区
+- Compose 会先构建一个薄包装镜像，为 OPENCODE 补充 Python 3 运行时
+- 容器会挂载整个仓库到 `/root/project_tia`，并以 `agent_app/opencode_app` 作为当前工作目录
 - Compose 会读取仓库根目录的 `.env`
 - 当前 `agent_app/opencode_app/.opencode/opencode.json` 中默认 provider 依赖：
   - `DEEPSEEK_API_KEY`
@@ -110,6 +111,12 @@ python3 -m pip install pytest
 ```bash
 docker compose -f agent_app/docker-compose.yml up
 ```
+
+当前 compose 额外约束：
+
+- 容器内提供 `python3` 和 `python` 两个可执行入口
+- `THREAT_INTEL_REPO_ROOT=/root/project_tia`
+- Python import 根路径指向整个仓库，保证 `python -m tools.stix_cli` 可从 agent 工作目录正常执行
 
 或在 `agent_app/` 目录下运行：
 

@@ -28,7 +28,18 @@ const schemaSummarySchema = z.object({
 }).strict();
 
 function resolveRepoRoot(context) {
-  return context.worktree || FALLBACK_REPO_ROOT;
+  return process.env.THREAT_INTEL_REPO_ROOT || context.worktree || FALLBACK_REPO_ROOT;
+}
+
+function resolvePythonCandidates(args) {
+  const requested = args.pythonBin || process.env.PYTHON_BIN;
+  if (requested) {
+    return [requested];
+  }
+
+  return process.platform === "win32"
+    ? ["python", "python3"]
+    : ["python3", "python"];
 }
 
 function resolveAgentName(context) {
@@ -84,6 +95,24 @@ async function runCommand(command, commandArgs, context, cwd) {
   });
 }
 
+async function runCliCommand(pythonCandidates, cliArgs, context, cwd) {
+  let lastError;
+
+  for (const pythonBin of pythonCandidates) {
+    try {
+      return await runCommand(pythonBin, cliArgs, context, cwd);
+    } catch (error) {
+      lastError = error;
+      if (error?.code !== "ENOENT") {
+        throw error;
+      }
+    }
+  }
+
+  const attempted = pythonCandidates.join(", ");
+  throw new Error(`db_schema_explorer could not find a usable Python executable. Tried: ${attempted}.`);
+}
+
 function parseValidatedCliOutput(stdout) {
   let payload;
 
@@ -115,9 +144,7 @@ export default tool({
     enforceAgentScope(context);
 
     const repoRoot = resolveRepoRoot(context);
-    const pythonBin = args.pythonBin
-      || process.env.PYTHON_BIN
-      || (process.platform === "win32" ? "python" : "python3");
+    const pythonCandidates = resolvePythonCandidates(args);
     const dataPath = args.data
       ? path.resolve(repoRoot, args.data)
       : path.resolve(repoRoot, DEFAULT_STIX_DATA_PATH);
@@ -126,12 +153,13 @@ export default tool({
       title: "db_schema_explorer",
       metadata: {
         agent: resolveAgentName(context),
+        pythonBin: pythonCandidates[0],
         repoRoot,
       },
     });
 
-    const stdout = await runCommand(
-      pythonBin,
+    const stdout = await runCliCommand(
+      pythonCandidates,
       ["-m", "tools.stix_cli", "--data", dataPath, "schema-summary"],
       context,
       repoRoot,
