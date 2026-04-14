@@ -1,0 +1,20 @@
+version: 1
+components:
+  - id: ELM-APP-COMP-PY-LISTENER
+    globs:
+      - services/python_listener/**/*.py
+  - id: ELM-APP-COMP-MOCK-OPENCTI-ADAPTER
+    globs:
+      - services/mock_opencti_adapter/**/*.py
+  - id: ELM-APP-COMP-RESULT-ASSEMBLER
+    globs:
+      - services/result_assembler/**/*.py
+  - id: ELM-APP-COMP-AGENT-ORCH
+    globs:
+      - services/remote_opencode_server/**/*.py
+  - id: ELM-APP-COMP-STIX-CLI
+    globs:
+      - tools/stix_cli/**/*.py
+  - id: ELM-APP-COMP-REMOTE-WORKSPACE
+    globs:
+      - agent_app/opencode_app/.opencode/**
