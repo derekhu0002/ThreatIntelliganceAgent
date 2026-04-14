@@ -55,6 +55,42 @@ const stixNeighborsResultSchema = z.object({
     });
   }
 });
+const advancedFilterValueSchema = z.union([nonEmptyString, z.number().finite(), z.boolean()]);
+const stixAdvancedFilterRelationshipSchema = z.object({
+  relationship_id: nonEmptyString,
+  relationship_type: nonEmptyString,
+  source: stixObjectSummarySchema,
+  target: stixObjectSummarySchema,
+}).strict();
+const stixAdvancedFilterResultSchema = z.object({
+  filters: z.record(nonEmptyString, advancedFilterValueSchema),
+  match_count: z.number().int().nonnegative(),
+  matches: z.array(stixObjectSummarySchema),
+  relationship_count: z.number().int().nonnegative(),
+  relationships: z.array(stixAdvancedFilterRelationshipSchema),
+}).strict().superRefine((payload, ctx) => {
+  if (Object.keys(payload.filters).length === 0) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "filters must contain at least one schema-derived field.",
+      path: ["filters"],
+    });
+  }
+  if (payload.match_count !== payload.matches.length) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "match_count must equal the number of matches.",
+      path: ["match_count"],
+    });
+  }
+  if (payload.relationship_count !== payload.relationships.length) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "relationship_count must equal the number of relationships.",
+      path: ["relationship_count"],
+    });
+  }
+});
 
 function resolveRepoRoot(context) {
   return context.worktree || FALLBACK_REPO_ROOT;
@@ -83,6 +119,9 @@ function buildCliArgs(args, repoRoot) {
   if (args.command === "neighbors" && !args.stixId) {
     throw new Error("stix_query requires `stixId` when command is `neighbors`.");
   }
+  if (args.command === "advanced_filter" && !args.filtersJson) {
+    throw new Error("stix_query requires `filtersJson` when command is `advanced_filter`.");
+  }
 
   const cliArgs = ["-m", "tools.stix_cli"];
   const dataPath = args.data
@@ -93,8 +132,10 @@ function buildCliArgs(args, repoRoot) {
 
   if (args.command === "search") {
     cliArgs.push("--query", args.query);
-  } else {
+  } else if (args.command === "neighbors") {
     cliArgs.push("--stix-id", args.stixId);
+  } else {
+    cliArgs.push("--filters-json", args.filtersJson);
   }
 
   return cliArgs;
@@ -148,7 +189,11 @@ function parseValidatedCliOutput(stdout, command) {
     );
   }
 
-  const schema = command === "search" ? stixSearchResultSchema : stixNeighborsResultSchema;
+  const schema = command === "search"
+    ? stixSearchResultSchema
+    : command === "neighbors"
+      ? stixNeighborsResultSchema
+      : stixAdvancedFilterResultSchema;
   const validated = schema.safeParse(payload);
   if (!validated.success) {
     throw new Error(
@@ -162,9 +207,10 @@ function parseValidatedCliOutput(stdout, command) {
 export default tool({
   description: "Query local STIX evidence for analyst workflows.",
   args: {
-    command: tool.schema.enum(["search", "neighbors"]),
+    command: tool.schema.enum(["search", "neighbors", "advanced_filter"]),
     query: tool.schema.string().optional(),
     stixId: tool.schema.string().optional(),
+    filtersJson: tool.schema.string().optional(),
     data: tool.schema.string().optional(),
     pythonBin: tool.schema.string().optional(),
   },
@@ -172,7 +218,9 @@ export default tool({
     enforceAgentScope(context);
 
     const repoRoot = resolveRepoRoot(context);
-    const pythonBin = args.pythonBin || process.env.PYTHON_BIN || "python3";
+    const pythonBin = args.pythonBin
+      || process.env.PYTHON_BIN
+      || (process.platform === "win32" ? "python" : "python3");
     const cliArgs = buildCliArgs(args, repoRoot);
 
     context.metadata({

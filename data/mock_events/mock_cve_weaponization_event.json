@@ -1,0 +1,25 @@
+{
+  "contract_version": "mock-opencti-event.v1",
+  "event_id": "opencti-push-cve-001",
+  "event_type": "opencti.push.vulnerability",
+  "source": "mock-opencti",
+  "triggered_at": "2026-04-14T08:15:00Z",
+  "summary": "Mock OPENCTI pushed a critical vulnerability exposure alert for CVE-2025-1234 with potential malware weaponization paths.",
+  "severity": "critical",
+  "labels": [
+    "cve",
+    "weaponization",
+    "critical"
+  ],
+  "entity": {
+    "id": "vulnerability--12340000-0000-4000-8000-000000000001",
+    "type": "vulnerability",
+    "name": "CVE-2025-1234"
+  },
+  "observables": [
+    {
+      "type": "vulnerability",
+      "value": "CVE-2025-1234"
+    }
+  ]
+}

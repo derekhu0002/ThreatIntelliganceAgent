@@ -16,10 +16,11 @@ Activate this skill when the remote workspace receives a threat-intelligence pus
 
 1. `ThreatIntelPrimary` validates the incoming request contract and owns the final answer.
 2. `ThreatIntelPrimary` delegates STIX evidence retrieval and interpretation to `ThreatIntelAnalyst`.
-3. `ThreatIntelAnalyst` may use the native `stix_query` tool and no other role may use that tool.
-4. If `ThreatIntelAnalyst` returns no relevant local STIX evidence, `ThreatIntelPrimary` must skip deep SecOps assessment and return a minimal TASK-009 result stating `未发现本地 STIX 情报关联`.
-5. If analyst evidence exists, `ThreatIntelPrimary` delegates operational impact and actions to `ThreatIntelSecOps` using the analyst return payload.
-6. `ThreatIntelPrimary` merges event context, analyst findings, and optional SecOps output into the final TASK-009 schema response on the remote side.
+3. `ThreatIntelAnalyst` must follow the Schema-First principle: explore data structure -> construct structured query -> return precise evidence.
+4. `ThreatIntelAnalyst` may use `db_schema_explorer` and the native `stix_query` tool, and no other role may use those tools.
+5. If `ThreatIntelAnalyst` returns no relevant local STIX evidence, `ThreatIntelPrimary` must skip deep SecOps assessment and return a minimal TASK-009 result stating `未发现本地 STIX 情报关联`.
+6. If analyst evidence exists, `ThreatIntelPrimary` delegates operational impact and actions to `ThreatIntelSecOps` using the analyst return payload.
+7. `ThreatIntelPrimary` merges event context, analyst findings, and optional SecOps output into the final TASK-009 schema response on the remote side.
 
 ## Return structure
 

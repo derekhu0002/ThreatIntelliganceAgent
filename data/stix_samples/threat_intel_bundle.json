@@ -32,6 +32,21 @@
       "description": "Delivery of credential harvesting links through targeted phishing messages."
     },
     {
+      "type": "attack-pattern",
+      "spec_version": "2.1",
+      "id": "attack-pattern--10590000-0000-4000-8000-000000000001",
+      "created": "2026-04-14T08:00:00.000Z",
+      "modified": "2026-04-14T08:00:00.000Z",
+      "name": "Command and Scripting Interpreter: PowerShell",
+      "description": "Adversaries may abuse PowerShell for execution, download, and post-exploitation activity.",
+      "external_references": [
+        {
+          "source_name": "mitre-attack",
+          "external_id": "T1059"
+        }
+      ]
+    },
+    {
       "type": "malware",
       "spec_version": "2.1",
       "id": "malware--44444444-4444-4444-8444-444444444444",
@@ -40,6 +55,32 @@
       "name": "Zebrocy Downloader",
       "is_family": true,
       "description": "A malware family often referenced in phishing-led intrusion activity."
+    },
+    {
+      "type": "malware",
+      "spec_version": "2.1",
+      "id": "malware--12340000-0000-4000-8000-000000000001",
+      "created": "2026-04-14T08:00:00.000Z",
+      "modified": "2026-04-14T08:00:00.000Z",
+      "name": "Graphite Dropper",
+      "is_family": false,
+      "description": "A fictional malware strain used to demonstrate CVE weaponization and post-exploitation chains.",
+      "confidence": 77
+    },
+    {
+      "type": "vulnerability",
+      "spec_version": "2.1",
+      "id": "vulnerability--12340000-0000-4000-8000-000000000001",
+      "created": "2026-04-14T08:00:00.000Z",
+      "modified": "2026-04-14T08:00:00.000Z",
+      "name": "CVE-2025-1234",
+      "description": "A critical remote code execution vulnerability used here to model malware weaponization pathways.",
+      "external_references": [
+        {
+          "source_name": "cve",
+          "external_id": "CVE-2025-1234"
+        }
+      ]
     },
     {
       "type": "indicator",
@@ -54,6 +95,20 @@
       "pattern_type": "stix",
       "valid_from": "2026-04-09T10:00:00.000Z",
       "confidence": 82
+    },
+    {
+      "type": "indicator",
+      "spec_version": "2.1",
+      "id": "indicator--12340000-0000-4000-8000-000000000001",
+      "created": "2026-04-14T08:00:00.000Z",
+      "modified": "2026-04-14T08:00:00.000Z",
+      "name": "PowerShell cradle command",
+      "description": "Indicator representing a suspicious PowerShell download cradle associated with APT28 tradecraft.",
+      "indicator_types": ["malicious-activity"],
+      "pattern": "[process:command_line MATCHES '(?i).*powershell.*IEX.*']",
+      "pattern_type": "stix",
+      "valid_from": "2026-04-14T08:00:00.000Z",
+      "confidence": 74
     },
     {
       "type": "ipv4-addr",
@@ -90,6 +145,56 @@
       "relationship_type": "uses",
       "source_ref": "intrusion-set--22222222-2222-4222-8222-222222222222",
       "target_ref": "malware--44444444-4444-4444-8444-444444444444"
+    },
+    {
+      "type": "relationship",
+      "spec_version": "2.1",
+      "id": "relationship--bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+      "created": "2026-04-14T08:00:00.000Z",
+      "modified": "2026-04-14T08:00:00.000Z",
+      "relationship_type": "uses",
+      "source_ref": "intrusion-set--22222222-2222-4222-8222-222222222222",
+      "target_ref": "attack-pattern--10590000-0000-4000-8000-000000000001"
+    },
+    {
+      "type": "relationship",
+      "spec_version": "2.1",
+      "id": "relationship--cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+      "created": "2026-04-14T08:00:00.000Z",
+      "modified": "2026-04-14T08:00:00.000Z",
+      "relationship_type": "indicates",
+      "source_ref": "indicator--12340000-0000-4000-8000-000000000001",
+      "target_ref": "attack-pattern--10590000-0000-4000-8000-000000000001"
+    },
+    {
+      "type": "relationship",
+      "spec_version": "2.1",
+      "id": "relationship--dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+      "created": "2026-04-14T08:00:00.000Z",
+      "modified": "2026-04-14T08:00:00.000Z",
+      "relationship_type": "uses",
+      "source_ref": "intrusion-set--22222222-2222-4222-8222-222222222222",
+      "target_ref": "indicator--12340000-0000-4000-8000-000000000001"
+    },
+    {
+      "type": "relationship",
+      "spec_version": "2.1",
+      "id": "relationship--eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+      "created": "2026-04-14T08:00:00.000Z",
+      "modified": "2026-04-14T08:00:00.000Z",
+      "relationship_type": "targets",
+      "source_ref": "malware--12340000-0000-4000-8000-000000000001",
+      "target_ref": "vulnerability--12340000-0000-4000-8000-000000000001"
+    },
+    {
+      "type": "relationship",
+      "spec_version": "2.1",
+      "id": "relationship--ffffffff-ffff-4fff-8fff-ffffffffffff",
+      "created": "2026-04-14T08:00:00.000Z",
+      "modified": "2026-04-14T08:00:00.000Z",
+      "relationship_type": "uses",
+      "source_ref": "intrusion-set--22222222-2222-4222-8222-222222222222",
+      "target_ref": "malware--12340000-0000-4000-8000-000000000001"
     },
     {
       "type": "relationship",

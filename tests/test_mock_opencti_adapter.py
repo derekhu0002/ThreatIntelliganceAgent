@@ -92,3 +92,20 @@ def test_load_and_normalize_event_rejects_missing_observables(tmp_path: Path) ->
 
     with pytest.raises(EventContractError, match="observables"):
         load_and_normalize_event(event_path)
+
+
+@pytest.mark.parametrize(
+    "event_name",
+    [
+        "mock_ttp_hunting_event.json",
+        "mock_cve_weaponization_event.json",
+        "mock_apt_profiling_event.json",
+    ],
+)
+def test_new_mock_scenario_events_match_declared_contract(event_name: str) -> None:
+    event = load_and_normalize_event(REPO_ROOT / "data/mock_events" / event_name)
+
+    assert event.contract_version == "mock-opencti-event.v1"
+    assert event.event_id
+    assert event.entity.name
+    assert len(event.observables) >= 1

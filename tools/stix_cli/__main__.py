@@ -6,7 +6,7 @@ import argparse
 import json
 from pathlib import Path
 
-from .semantic_query import load_bundle, neighbors, search_entities
+from .semantic_query import advanced_filter, load_bundle, neighbors, search_entities, summarize_schema
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -25,6 +25,18 @@ def build_parser() -> argparse.ArgumentParser:
     neighbor_parser = subparsers.add_parser("neighbors", help="List relationships touching one STIX object")
     neighbor_parser.add_argument("--stix-id", required=True, help="Target STIX object id.")
 
+    advanced_filter_parser = subparsers.add_parser(
+        "advanced_filter",
+        help="Filter STIX objects using schema-derived field names and relationship pivots",
+    )
+    advanced_filter_parser.add_argument(
+        "--filters-json",
+        required=True,
+        help="JSON object containing schema-derived filter fields.",
+    )
+
+    subparsers.add_parser("schema-summary", help="Summarize the supported local STIX schema and query fields")
+
     return parser
 
 
@@ -35,8 +47,12 @@ def main() -> None:
 
     if args.command == "search":
         payload = search_entities(bundle, args.query)
-    else:
+    elif args.command == "neighbors":
         payload = neighbors(bundle, args.stix_id)
+    elif args.command == "advanced_filter":
+        payload = advanced_filter(bundle, json.loads(args.filters_json))
+    else:
+        payload = summarize_schema(bundle)
 
     print(json.dumps(payload, indent=2, ensure_ascii=False))
 

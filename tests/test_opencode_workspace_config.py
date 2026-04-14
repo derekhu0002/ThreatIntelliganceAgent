@@ -135,6 +135,62 @@ def test_stix_query_tool_allows_analyst_agents() -> None:
     assert payload["match_count"] >= 1
 
 
+def test_db_schema_explorer_tool_allows_analyst_agents() -> None:
+    # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
+    # @ArchitectureID: ELM-TECH-ARTIFACT-AGENT-DEFS
+    tool_path = WORKSPACE_ROOT / "tools/db_schema_explorer.js"
+
+    completed = _run_tool_module(tool_path, {}, agent="ThreatIntelAnalyst")
+
+    assert completed.returncode == 0, completed.stderr
+    payload = json.loads(completed.stdout)
+    assert "supported_query_fields" in payload
+    assert any(item["entity_type"] == "vulnerability" for item in payload["entity_types"])
+
+
+def test_db_schema_explorer_rejects_non_analyst_agents() -> None:
+    # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
+    # @ArchitectureID: ELM-TECH-ARTIFACT-AGENT-DEFS
+    tool_path = WORKSPACE_ROOT / "tools/db_schema_explorer.js"
+
+    completed = _run_tool_module(tool_path, {}, agent="ThreatIntelPrimary")
+
+    assert completed.returncode != 0
+    assert "restricted to ThreatIntelAnalyst" in completed.stderr
+
+
+def test_stix_query_tool_supports_advanced_filter_queries() -> None:
+    # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
+    # @ArchitectureID: ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT
+    tool_path = WORKSPACE_ROOT / "tools/stix_query.js"
+
+    completed = _run_tool_module(
+        tool_path,
+        {"command": "advanced_filter", "filtersJson": json.dumps({"type": "malware", "relationship_target": "CVE-2025-1234"})},
+        agent="ThreatIntelAnalyst",
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    payload = json.loads(completed.stdout)
+    assert payload["match_count"] >= 1
+    assert payload["relationship_count"] >= 1
+
+
+def test_stix_query_tool_rejects_unknown_advanced_filter_fields() -> None:
+    # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
+    # @ArchitectureID: ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT
+    tool_path = WORKSPACE_ROOT / "tools/stix_query.js"
+
+    completed = _run_tool_module(
+        tool_path,
+        {"command": "advanced_filter", "filtersJson": json.dumps({"guessed_field": "APT28"})},
+        agent="ThreatIntelAnalyst",
+    )
+
+    assert completed.returncode != 0
+    assert "Unsupported filter fields" in completed.stderr
+
+
 def test_stix_query_tool_rejects_invalid_json_stdout(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
     # @ArchitectureID: ELM-001
@@ -279,6 +335,8 @@ def test_canonical_agent_descriptors_expose_traceable_role_intent() -> None:
     assert _has_trace_tag(analyst_text, REQ_TAG, REQ_ID)
     assert _has_trace_tag(analyst_text, ARCH_TAG, AGENT_DEFS_ID)
     assert "stix_query" in analyst_text
+    assert "db_schema_explorer" in analyst_text
+    assert "must call `db_schema_explorer` first" in analyst_text
     assert "Do not assemble the final TASK-009 result" in analyst_text
 
     assert _has_trace_tag(secops_text, REQ_TAG, REQ_ID)
@@ -293,6 +351,7 @@ def test_collaboration_skill_exposes_traceable_delegation_contract() -> None:
 
     assert _has_trace_tag(skill_text, REQ_TAG, REQ_ID)
     assert _has_trace_tag(skill_text, ARCH_TAG, COLLAB_SKILL_ID)
-    assert "ThreatIntelAnalyst` may use the native `stix_query` tool and no other role may use that tool" in skill_text
+    assert "ThreatIntelAnalyst` must follow the Schema-First principle" in skill_text
+    assert "db_schema_explorer` and the native `stix_query` tool" in skill_text
     assert "Primary -> Analyst -> SecOps -> Primary" in skill_text
     assert "final assembly was performed by the remote Primary role" in skill_text

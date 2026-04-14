@@ -1,0 +1,25 @@
+{
+  "contract_version": "mock-opencti-event.v1",
+  "event_id": "opencti-push-apt-001",
+  "event_type": "opencti.push.threat-actor",
+  "source": "mock-opencti",
+  "triggered_at": "2026-04-14T08:30:00Z",
+  "summary": "Mock OPENCTI pushed an APT profiling task for APT28 to review linked malware, techniques, and supporting indicators.",
+  "severity": "high",
+  "labels": [
+    "apt",
+    "profiling",
+    "apt28"
+  ],
+  "entity": {
+    "id": "intrusion-set--22222222-2222-4222-8222-222222222222",
+    "type": "intrusion-set",
+    "name": "APT28"
+  },
+  "observables": [
+    {
+      "type": "intrusion-set",
+      "value": "APT28"
+    }
+  ]
+}

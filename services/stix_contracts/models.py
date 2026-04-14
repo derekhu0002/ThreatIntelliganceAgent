@@ -101,6 +101,47 @@ class StixNeighborsResult(StrictContractModel):
         return self
 
 
+class StixAdvancedFilterRelationship(StrictContractModel):
+    relationship_id: NonEmptyString
+    relationship_type: NonEmptyString
+    source: StixObjectSummary
+    target: StixObjectSummary
+
+
+class StixAdvancedFilterResult(StrictContractModel):
+    filters: dict[NonEmptyString, NonEmptyString | int | float | bool]
+    match_count: Annotated[int, Field(ge=0)]
+    matches: list[StixObjectSummary]
+    relationship_count: Annotated[int, Field(ge=0)]
+    relationships: list[StixAdvancedFilterRelationship]
+
+    @model_validator(mode="after")
+    def validate_counts(self) -> "StixAdvancedFilterResult":
+        if not self.filters:
+            raise ValueError("filters must contain at least one schema-derived field.")
+        if self.match_count != len(self.matches):
+            raise ValueError("match_count must equal the number of matches.")
+        if self.relationship_count != len(self.relationships):
+            raise ValueError("relationship_count must equal the number of relationships.")
+        return self
+
+
+class StixEntitySchemaSummary(StrictContractModel):
+    entity_type: NonEmptyString
+    stix_types: list[NonEmptyString]
+    key_fields: list[NonEmptyString]
+    relationship_types: list[NonEmptyString] = Field(default_factory=list)
+
+
+class StixSchemaSummary(StrictContractModel):
+    schema_version: NonEmptyString
+    schema_first_guidance: NonEmptyString
+    supported_query_fields: list[NonEmptyString]
+    relationship_fields: list[NonEmptyString]
+    relationship_types: list[NonEmptyString]
+    entity_types: list[StixEntitySchemaSummary]
+
+
 class EvidenceQueryBasis(StrictContractModel):
     stix_bundle: NonEmptyString
     searches: list[StixSearchResult] = Field(default_factory=list)
