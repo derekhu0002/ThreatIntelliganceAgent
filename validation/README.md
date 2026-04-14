@@ -3,6 +3,7 @@
 ## STIX CLI
 
 ```bash
+cd agent_app/opencode_app
 python3 -m tools.stix_cli --data data/stix_samples/threat_intel_bundle.json search --query APT28
 ```
 

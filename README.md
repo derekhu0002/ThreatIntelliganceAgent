@@ -41,7 +41,7 @@
 以下内容**属于 agent-side capabilities，不是 listener 的本地运行依赖**：
 
 - `agent_app/opencode_app/.opencode/tools`
-- `tools/stix_cli`
+- `agent_app/opencode_app/tools/stix_cli`
 
 它们当前保留在仓库内，主要用于：
 
@@ -64,7 +64,7 @@ services/
   remote_opencode_server/         # 本地 mock remote server（测试/验证用）
   result_assembler/               # 结构化结果 schema 与校验/组装
 
-tools/stix_cli/                   # STIX 2.1 语义查询 CLI（agent-side capability）
+agent_app/opencode_app/tools/stix_cli/ # STIX 2.1 语义查询 CLI（agent-side capability）
 data/
   mock_events/                    # Mock OPENCTI PUSH 事件样例与 schema
   stix_samples/                   # 本地 STIX 样例数据
@@ -97,7 +97,8 @@ python3 -m pip install pytest
 
 - `agent_app/docker-compose.yml` 使用镜像：`ghcr.io/anomalyco/opencode`
 - Compose 会先构建一个薄包装镜像，为 OPENCODE 补充 Python 3 运行时
-- 容器会挂载整个仓库到 `/root/project_tia`，并以 `agent_app/opencode_app` 作为当前工作目录
+- Agent 侧依赖已经内聚到 `agent_app/opencode_app/` 下，容器仅挂载该目录到 `/root/project_tia`
+- `agent_app/opencode_app/` 内现在包含 agent-side `tools/stix_cli` 与 `data/stix_samples/` 运行依赖
 - Compose 会读取仓库根目录的 `.env`
 - 当前 `agent_app/opencode_app/.opencode/opencode.json` 中默认 provider 依赖：
   - `DEEPSEEK_API_KEY`
@@ -116,7 +117,7 @@ docker compose -f agent_app/docker-compose.yml up
 
 - 容器内提供 `python3` 和 `python` 两个可执行入口
 - `THREAT_INTEL_REPO_ROOT=/root/project_tia`
-- Python import 根路径指向整个仓库，保证 `python -m tools.stix_cli` 可从 agent 工作目录正常执行
+- Python import 根路径指向 `agent_app/opencode_app` 自包含工作区，保证 `python -m tools.stix_cli` 可直接运行
 
 或在 `agent_app/` 目录下运行：
 

@@ -2,14 +2,15 @@ from pathlib import Path
 
 import pytest
 
-from tools.stix_cli import advanced_filter, load_bundle, neighbors, search_entities, summarize_schema
+from agent_app.opencode_app.tools.stix_cli import advanced_filter, load_bundle, neighbors, search_entities, summarize_schema
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+STIX_BUNDLE_PATH = REPO_ROOT / "agent_app/opencode_app/data/stix_samples/threat_intel_bundle.json"
 
 
 def test_search_entities_returns_expected_matches_for_indicator_and_observable() -> None:
-    bundle = load_bundle(REPO_ROOT / "data/stix_samples/threat_intel_bundle.json")
+    bundle = load_bundle(STIX_BUNDLE_PATH)
 
     result = search_entities(bundle, "203.0.113.10")
     match_ids = {match["id"] for match in result["matches"]}
@@ -20,7 +21,7 @@ def test_search_entities_returns_expected_matches_for_indicator_and_observable()
 
 
 def test_neighbors_returns_relationship_view_for_known_indicator() -> None:
-    bundle = load_bundle(REPO_ROOT / "data/stix_samples/threat_intel_bundle.json")
+    bundle = load_bundle(STIX_BUNDLE_PATH)
 
     result = neighbors(bundle, "indicator--55555555-5555-4555-8555-555555555555")
     relationship_types = {relationship["relationship_type"] for relationship in result["relationships"]}
@@ -33,14 +34,14 @@ def test_neighbors_returns_relationship_view_for_known_indicator() -> None:
 
 
 def test_neighbors_rejects_unknown_stix_id() -> None:
-    bundle = load_bundle(REPO_ROOT / "data/stix_samples/threat_intel_bundle.json")
+    bundle = load_bundle(STIX_BUNDLE_PATH)
 
     with pytest.raises(ValueError, match="was not found"):
         neighbors(bundle, "indicator--missing")
 
 
 def test_schema_summary_exposes_core_entity_types_and_supported_fields() -> None:
-    bundle = load_bundle(REPO_ROOT / "data/stix_samples/threat_intel_bundle.json")
+    bundle = load_bundle(STIX_BUNDLE_PATH)
 
     result = summarize_schema(bundle)
     entity_types = {item["entity_type"]: item for item in result["entity_types"]}
@@ -55,7 +56,7 @@ def test_schema_summary_exposes_core_entity_types_and_supported_fields() -> None
 
 
 def test_advanced_filter_supports_schema_derived_relationship_pivots() -> None:
-    bundle = load_bundle(REPO_ROOT / "data/stix_samples/threat_intel_bundle.json")
+    bundle = load_bundle(STIX_BUNDLE_PATH)
 
     result = advanced_filter(
         bundle,
@@ -71,7 +72,7 @@ def test_advanced_filter_supports_schema_derived_relationship_pivots() -> None:
 
 
 def test_advanced_filter_rejects_unknown_fields() -> None:
-    bundle = load_bundle(REPO_ROOT / "data/stix_samples/threat_intel_bundle.json")
+    bundle = load_bundle(STIX_BUNDLE_PATH)
 
     with pytest.raises(ValueError, match="Unsupported filter fields"):
         advanced_filter(bundle, {"guessed_field": "APT28"})

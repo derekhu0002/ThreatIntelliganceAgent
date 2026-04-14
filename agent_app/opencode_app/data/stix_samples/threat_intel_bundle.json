@@ -1,0 +1,210 @@
+{
+  "type": "bundle",
+  "id": "bundle--12345678-1234-4123-8123-1234567890ab",
+  "spec_version": "2.1",
+  "objects": [
+    {
+      "type": "identity",
+      "spec_version": "2.1",
+      "id": "identity--11111111-1111-4111-8111-111111111111",
+      "created": "2026-04-09T10:00:00.000Z",
+      "modified": "2026-04-09T10:00:00.000Z",
+      "name": "Mock CTI Lab",
+      "identity_class": "organization"
+    },
+    {
+      "type": "intrusion-set",
+      "spec_version": "2.1",
+      "id": "intrusion-set--22222222-2222-4222-8222-222222222222",
+      "created": "2026-04-09T10:00:00.000Z",
+      "modified": "2026-04-09T10:00:00.000Z",
+      "name": "APT28",
+      "description": "A threat actor cluster associated with credential theft and spearphishing operations.",
+      "aliases": ["Fancy Bear"]
+    },
+    {
+      "type": "attack-pattern",
+      "spec_version": "2.1",
+      "id": "attack-pattern--33333333-3333-4333-8333-333333333333",
+      "created": "2026-04-09T10:00:00.000Z",
+      "modified": "2026-04-09T10:00:00.000Z",
+      "name": "Spearphishing Link",
+      "description": "Delivery of credential harvesting links through targeted phishing messages."
+    },
+    {
+      "type": "attack-pattern",
+      "spec_version": "2.1",
+      "id": "attack-pattern--10590000-0000-4000-8000-000000000001",
+      "created": "2026-04-14T08:00:00.000Z",
+      "modified": "2026-04-14T08:00:00.000Z",
+      "name": "Command and Scripting Interpreter: PowerShell",
+      "description": "Adversaries may abuse PowerShell for execution, download, and post-exploitation activity.",
+      "external_references": [
+        {
+          "source_name": "mitre-attack",
+          "external_id": "T1059"
+        }
+      ]
+    },
+    {
+      "type": "malware",
+      "spec_version": "2.1",
+      "id": "malware--44444444-4444-4444-8444-444444444444",
+      "created": "2026-04-09T10:00:00.000Z",
+      "modified": "2026-04-09T10:00:00.000Z",
+      "name": "Zebrocy Downloader",
+      "is_family": true,
+      "description": "A malware family often referenced in phishing-led intrusion activity."
+    },
+    {
+      "type": "malware",
+      "spec_version": "2.1",
+      "id": "malware--12340000-0000-4000-8000-000000000001",
+      "created": "2026-04-14T08:00:00.000Z",
+      "modified": "2026-04-14T08:00:00.000Z",
+      "name": "Graphite Dropper",
+      "is_family": false,
+      "description": "A fictional malware strain used to demonstrate CVE weaponization and post-exploitation chains.",
+      "confidence": 77
+    },
+    {
+      "type": "vulnerability",
+      "spec_version": "2.1",
+      "id": "vulnerability--12340000-0000-4000-8000-000000000001",
+      "created": "2026-04-14T08:00:00.000Z",
+      "modified": "2026-04-14T08:00:00.000Z",
+      "name": "CVE-2025-1234",
+      "description": "A critical remote code execution vulnerability used here to model malware weaponization pathways.",
+      "external_references": [
+        {
+          "source_name": "cve",
+          "external_id": "CVE-2025-1234"
+        }
+      ]
+    },
+    {
+      "type": "indicator",
+      "spec_version": "2.1",
+      "id": "indicator--55555555-5555-4555-8555-555555555555",
+      "created": "2026-04-09T10:00:00.000Z",
+      "modified": "2026-04-09T10:00:00.000Z",
+      "name": "Suspicious IP 203.0.113.10",
+      "description": "Indicator for outbound traffic to infrastructure linked to phishing follow-on activity.",
+      "indicator_types": ["malicious-activity"],
+      "pattern": "[ipv4-addr:value = '203.0.113.10']",
+      "pattern_type": "stix",
+      "valid_from": "2026-04-09T10:00:00.000Z",
+      "confidence": 82
+    },
+    {
+      "type": "indicator",
+      "spec_version": "2.1",
+      "id": "indicator--12340000-0000-4000-8000-000000000001",
+      "created": "2026-04-14T08:00:00.000Z",
+      "modified": "2026-04-14T08:00:00.000Z",
+      "name": "PowerShell cradle command",
+      "description": "Indicator representing a suspicious PowerShell download cradle associated with APT28 tradecraft.",
+      "indicator_types": ["malicious-activity"],
+      "pattern": "[process:command_line MATCHES '(?i).*powershell.*IEX.*']",
+      "pattern_type": "stix",
+      "valid_from": "2026-04-14T08:00:00.000Z",
+      "confidence": 74
+    },
+    {
+      "type": "ipv4-addr",
+      "spec_version": "2.1",
+      "id": "ipv4-addr--66666666-6666-4666-8666-666666666666",
+      "value": "203.0.113.10"
+    },
+    {
+      "type": "relationship",
+      "spec_version": "2.1",
+      "id": "relationship--77777777-7777-4777-8777-777777777777",
+      "created": "2026-04-09T10:00:00.000Z",
+      "modified": "2026-04-09T10:00:00.000Z",
+      "relationship_type": "indicates",
+      "source_ref": "indicator--55555555-5555-4555-8555-555555555555",
+      "target_ref": "intrusion-set--22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "type": "relationship",
+      "spec_version": "2.1",
+      "id": "relationship--88888888-8888-4888-8888-888888888888",
+      "created": "2026-04-09T10:00:00.000Z",
+      "modified": "2026-04-09T10:00:00.000Z",
+      "relationship_type": "uses",
+      "source_ref": "intrusion-set--22222222-2222-4222-8222-222222222222",
+      "target_ref": "attack-pattern--33333333-3333-4333-8333-333333333333"
+    },
+    {
+      "type": "relationship",
+      "spec_version": "2.1",
+      "id": "relationship--99999999-9999-4999-8999-999999999999",
+      "created": "2026-04-09T10:00:00.000Z",
+      "modified": "2026-04-09T10:00:00.000Z",
+      "relationship_type": "uses",
+      "source_ref": "intrusion-set--22222222-2222-4222-8222-222222222222",
+      "target_ref": "malware--44444444-4444-4444-8444-444444444444"
+    },
+    {
+      "type": "relationship",
+      "spec_version": "2.1",
+      "id": "relationship--bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+      "created": "2026-04-14T08:00:00.000Z",
+      "modified": "2026-04-14T08:00:00.000Z",
+      "relationship_type": "uses",
+      "source_ref": "intrusion-set--22222222-2222-4222-8222-222222222222",
+      "target_ref": "attack-pattern--10590000-0000-4000-8000-000000000001"
+    },
+    {
+      "type": "relationship",
+      "spec_version": "2.1",
+      "id": "relationship--cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+      "created": "2026-04-14T08:00:00.000Z",
+      "modified": "2026-04-14T08:00:00.000Z",
+      "relationship_type": "indicates",
+      "source_ref": "indicator--12340000-0000-4000-8000-000000000001",
+      "target_ref": "attack-pattern--10590000-0000-4000-8000-000000000001"
+    },
+    {
+      "type": "relationship",
+      "spec_version": "2.1",
+      "id": "relationship--dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+      "created": "2026-04-14T08:00:00.000Z",
+      "modified": "2026-04-14T08:00:00.000Z",
+      "relationship_type": "uses",
+      "source_ref": "intrusion-set--22222222-2222-4222-8222-222222222222",
+      "target_ref": "indicator--12340000-0000-4000-8000-000000000001"
+    },
+    {
+      "type": "relationship",
+      "spec_version": "2.1",
+      "id": "relationship--eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+      "created": "2026-04-14T08:00:00.000Z",
+      "modified": "2026-04-14T08:00:00.000Z",
+      "relationship_type": "targets",
+      "source_ref": "malware--12340000-0000-4000-8000-000000000001",
+      "target_ref": "vulnerability--12340000-0000-4000-8000-000000000001"
+    },
+    {
+      "type": "relationship",
+      "spec_version": "2.1",
+      "id": "relationship--ffffffff-ffff-4fff-8fff-ffffffffffff",
+      "created": "2026-04-14T08:00:00.000Z",
+      "modified": "2026-04-14T08:00:00.000Z",
+      "relationship_type": "uses",
+      "source_ref": "intrusion-set--22222222-2222-4222-8222-222222222222",
+      "target_ref": "malware--12340000-0000-4000-8000-000000000001"
+    },
+    {
+      "type": "relationship",
+      "spec_version": "2.1",
+      "id": "relationship--aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+      "created": "2026-04-09T10:00:00.000Z",
+      "modified": "2026-04-09T10:00:00.000Z",
+      "relationship_type": "related-to",
+      "source_ref": "indicator--55555555-5555-4555-8555-555555555555",
+      "target_ref": "ipv4-addr--66666666-6666-4666-8666-666666666666"
+    }
+  ]
+}

@@ -111,6 +111,24 @@ def test_opencode_workspace_config_declares_canonical_roles_and_aliases() -> Non
     }
 
 
+def test_opencode_app_contains_local_tool_runtime_dependencies() -> None:
+    # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
+    # @ArchitectureID: ELM-TECH-ARTIFACT-OPENCODE-WORKSPACE
+    assert (REPO_ROOT / "agent_app/opencode_app/tools/__init__.py").is_file()
+    assert (REPO_ROOT / "agent_app/opencode_app/tools/stix_cli/__main__.py").is_file()
+    assert (REPO_ROOT / "agent_app/opencode_app/tools/stix_cli/semantic_query.py").is_file()
+    assert (REPO_ROOT / "agent_app/opencode_app/data/stix_samples/threat_intel_bundle.json").is_file()
+
+
+def test_external_duplicate_agent_runtime_files_are_removed() -> None:
+    # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
+    # @ArchitectureID: ELM-TECH-ARTIFACT-OPENCODE-WORKSPACE
+    assert not (REPO_ROOT / "tools/__init__.py").exists()
+    assert not (REPO_ROOT / "tools/stix_cli/__main__.py").exists()
+    assert not (REPO_ROOT / "tools/stix_cli/semantic_query.py").exists()
+    assert not (REPO_ROOT / "data/stix_samples/threat_intel_bundle.json").exists()
+
+
 def test_stix_query_tool_rejects_non_analyst_agents() -> None:
     # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
     # @ArchitectureID: ELM-TECH-ARTIFACT-AGENT-DEFS

@@ -14,8 +14,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any, Iterator
 
+from agent_app.opencode_app.tools.stix_cli.semantic_query import load_bundle, neighbors, search_entities
 from services.result_assembler import assemble_structured_result
-from tools.stix_cli.semantic_query import load_bundle, neighbors, search_entities
 
 
 CANONICAL_ROLE_ALIASES = {

@@ -1,6 +1,7 @@
 // @ArchitectureID: ELM-APP-COMP-SCHEMA-EXPLORER
 
 import { spawn } from "node:child_process";
+import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -8,7 +9,7 @@ import { tool } from "@opencode-ai/plugin";
 import { z } from "zod";
 
 const FILE_DIR = path.dirname(fileURLToPath(import.meta.url));
-const FALLBACK_REPO_ROOT = path.resolve(FILE_DIR, "..", "..", "..", "..");
+const LOCAL_WORKSPACE_ROOT = path.resolve(FILE_DIR, "..", "..");
 const DEFAULT_STIX_DATA_PATH = "data/stix_samples/threat_intel_bundle.json";
 const ALLOWED_AGENTS = new Set(["ThreatIntelAnalyst", "STIX_EvidenceSpecialist"]);
 const nonEmptyString = z.string().trim().min(1);
@@ -28,7 +29,24 @@ const schemaSummarySchema = z.object({
 }).strict();
 
 function resolveRepoRoot(context) {
-  return process.env.THREAT_INTEL_REPO_ROOT || context.worktree || FALLBACK_REPO_ROOT;
+  const candidates = [
+    process.env.THREAT_INTEL_REPO_ROOT,
+    context.worktree,
+    LOCAL_WORKSPACE_ROOT,
+  ];
+
+  for (const candidate of candidates) {
+    if (!candidate) {
+      continue;
+    }
+
+    const normalized = path.resolve(candidate);
+    if (existsSync(path.join(normalized, "tools", "stix_cli", "__main__.py"))) {
+      return normalized;
+    }
+  }
+
+  return LOCAL_WORKSPACE_ROOT;
 }
 
 function resolvePythonCandidates(args) {

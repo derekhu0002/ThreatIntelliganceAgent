@@ -14,6 +14,7 @@ from services.python_listener.remote_client import (
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+STIX_BUNDLE_PATH = REPO_ROOT / "agent_app/opencode_app/data/stix_samples/threat_intel_bundle.json"
 
 
 def test_listener_process_event_dispatches_remote_request_and_persists_remote_result(tmp_path: Path) -> None:
@@ -23,7 +24,7 @@ def test_listener_process_event_dispatches_remote_request_and_persists_remote_re
     # @ArchitectureID: ELM-DATA-STIX-ARGO-SCHEMA
     output_path = tmp_path / "listener-result.json"
 
-    with start_mock_remote_server(stix_data_path=REPO_ROOT / "data/stix_samples/threat_intel_bundle.json") as server:
+    with start_mock_remote_server(stix_data_path=STIX_BUNDLE_PATH) as server:
         listener = ThreatIntelListener(remote_server_url=server.base_url)
         result = listener.process_event(
             REPO_ROOT / "data/mock_events/mock_opencti_push_event.json",
