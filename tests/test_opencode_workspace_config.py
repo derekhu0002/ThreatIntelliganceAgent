@@ -118,6 +118,9 @@ def test_stix_query_tool_allows_analyst_agents() -> None:
 
 
 def test_stix_query_tool_rejects_invalid_json_stdout(tmp_path: Path) -> None:
+    # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
+    # @ArchitectureID: ELM-001
+    # @ArchitectureID: ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT
     tool_path = WORKSPACE_ROOT / "tools/stix_query.js"
     fake_python = tmp_path / "fake-python"
     fake_python.write_text("#!/usr/bin/env sh\nprintf 'not-json'\n", encoding="utf-8")
@@ -134,6 +137,9 @@ def test_stix_query_tool_rejects_invalid_json_stdout(tmp_path: Path) -> None:
 
 
 def test_stix_query_tool_rejects_invalid_search_payload_shape(tmp_path: Path) -> None:
+    # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
+    # @ArchitectureID: ELM-001
+    # @ArchitectureID: ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT
     tool_path = WORKSPACE_ROOT / "tools/stix_query.js"
     fake_python = tmp_path / "fake-python"
     fake_python.write_text(
@@ -150,6 +156,37 @@ def test_stix_query_tool_rejects_invalid_search_payload_shape(tmp_path: Path) ->
 
     assert completed.returncode != 0
     assert "invalid search payload" in completed.stderr
+
+
+def test_stix_query_tool_allows_valid_neighbors_payload() -> None:
+    # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
+    # @ArchitectureID: ELM-001
+    # @ArchitectureID: ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT
+    tool_path = WORKSPACE_ROOT / "tools/stix_query.js"
+
+    completed = _run_tool_module(
+        tool_path,
+        {"command": "neighbors", "stixId": "indicator--55555555-5555-4555-8555-555555555555"},
+        agent="ThreatIntelAnalyst",
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    payload = json.loads(completed.stdout)
+    assert payload["stix_id"] == "indicator--55555555-5555-4555-8555-555555555555"
+    assert payload["relationship_count"] == len(payload["relationships"])
+
+
+def test_stix_query_boundary_and_workspace_retain_schema_catalog_traceability() -> None:
+    # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
+    # @ArchitectureID: ELM-001
+    # @ArchitectureID: ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT
+    # @ArchitectureID: ELM-DATA-STIX-ARGO-SCHEMA
+    config = json.loads((WORKSPACE_ROOT / "opencode.json").read_text(encoding="utf-8"))
+    tool_text = (WORKSPACE_ROOT / "tools/stix_query.js").read_text(encoding="utf-8")
+
+    assert config["workspace"]["root"] == "agent_app/opencode_app/.opencode"
+    assert (WORKSPACE_ROOT / "schema" / "common" / "core.json").is_file()
+    assert "ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT" in tool_text
 
 
 def test_threat_intel_orchestrator_tool_exports_valid_custom_tool() -> None:

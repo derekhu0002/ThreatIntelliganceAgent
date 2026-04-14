@@ -17,6 +17,10 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_listener_process_event_dispatches_remote_request_and_persists_remote_result(tmp_path: Path) -> None:
+    # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
+    # @ArchitectureID: ELM-001
+    # @ArchitectureID: ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS
+    # @ArchitectureID: ELM-DATA-STIX-ARGO-SCHEMA
     output_path = tmp_path / "listener-result.json"
 
     with start_mock_remote_server(stix_data_path=REPO_ROOT / "data/stix_samples/threat_intel_bundle.json") as server:
@@ -105,7 +109,22 @@ def test_remote_client_wraps_timeout_as_remote_dispatch_error() -> None:
 
 
 def test_default_main_agent_is_canonical_and_legacy_aliases_resolve() -> None:
+    # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
+    # @ArchitectureID: ELM-001
+    # @ArchitectureID: ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS
     default_agent = load_default_main_agent(REPO_ROOT)
     assert default_agent == "ThreatIntelPrimary"
     assert resolve_main_agent_alias("ThreatIntelliganceCommander", REPO_ROOT) == "ThreatIntelPrimary"
     assert resolve_main_agent_alias("ThreatIntelPrimary", REPO_ROOT) == "ThreatIntelPrimary"
+
+
+def test_legacy_alias_resolution_has_deterministic_fallback_without_workspace_aliases(monkeypatch: pytest.MonkeyPatch) -> None:
+    # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
+    # @ArchitectureID: ELM-001
+    # @ArchitectureID: ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS
+    monkeypatch.setattr(
+        "services.python_listener.remote_client.load_workspace_config",
+        lambda repo_root: {"default_agent": "ThreatIntelPrimary"},
+    )
+
+    assert resolve_main_agent_alias("ThreatIntelliganceCommander", REPO_ROOT) == "ThreatIntelPrimary"

@@ -20,6 +20,11 @@ class RemoteDispatchError(RuntimeError):
 
 
 DEFAULT_OPENCODE_BASE_URL = "http://127.0.0.1:8124"
+DEFAULT_AGENT_ALIASES = {
+    "ThreatIntelliganceCommander": "ThreatIntelPrimary",
+    "STIX_EvidenceSpecialist": "ThreatIntelAnalyst",
+    "TARA_analyst": "ThreatIntelSecOps",
+}
 
 
 def load_workspace_config(repo_root: Path) -> dict[str, Any]:
@@ -33,9 +38,11 @@ def load_workspace_config(repo_root: Path) -> dict[str, Any]:
 def resolve_main_agent_alias(agent_name: str, repo_root: Path) -> str:
     config = load_workspace_config(repo_root)
     alias_map = config.get("agent_aliases", {})
-    if not isinstance(alias_map, dict):
-        return agent_name.strip()
-    canonical = alias_map.get(agent_name.strip())
+    merged_aliases = dict(DEFAULT_AGENT_ALIASES)
+    if isinstance(alias_map, dict):
+        merged_aliases.update({key: value for key, value in alias_map.items() if isinstance(key, str) and isinstance(value, str)})
+
+    canonical = merged_aliases.get(agent_name.strip())
     if isinstance(canonical, str) and canonical.strip():
         return canonical.strip()
     return agent_name.strip()
