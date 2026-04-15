@@ -5,7 +5,9 @@
 from __future__ import annotations
 
 import json
+import os
 from collections import defaultdict
+from datetime import date, datetime, time, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -39,6 +41,22 @@ FIELD_PRIORITY = (
     "aliases",
     "is_family",
 )
+NEO4J_COUNTER_FIELDS = (
+    "constraints_added",
+    "constraints_removed",
+    "contains_system_updates",
+    "contains_updates",
+    "indexes_added",
+    "indexes_removed",
+    "labels_added",
+    "labels_removed",
+    "nodes_created",
+    "nodes_deleted",
+    "properties_set",
+    "relationships_created",
+    "relationships_deleted",
+    "system_updates",
+)
 
 
 def load_bundle(bundle_path: str | Path) -> dict[str, Any]:
@@ -48,6 +66,153 @@ def load_bundle(bundle_path: str | Path) -> dict[str, Any]:
         raise ValueError("STIX data file must contain a bundle object.")
     bundle.setdefault("objects", [])
     return bundle
+
+
+def _load_neo4j_driver() -> Any:
+    try:
+        from neo4j import GraphDatabase
+    except ImportError as exc:  # pragma: no cover - exercised by runtime environment
+        raise RuntimeError(
+            "The official neo4j Python driver is required. Install package 'neo4j' before running neo4j-cypher."
+        ) from exc
+
+    return GraphDatabase
+
+
+def _ensure_non_empty_string(value: Any, field_name: str) -> str:
+    normalized = str(value or "").strip()
+    if not normalized:
+        raise ValueError(f"{field_name} must be a non-empty string.")
+    return normalized
+
+
+def _resolve_neo4j_settings() -> dict[str, str]:
+    return {
+        "uri": _ensure_non_empty_string(os.environ.get("NEO4J_URI"), "NEO4J_URI"),
+        "username": _ensure_non_empty_string(os.environ.get("NEO4J_USERNAME"), "NEO4J_USERNAME"),
+        "password": _ensure_non_empty_string(os.environ.get("NEO4J_PASSWORD"), "NEO4J_PASSWORD"),
+        "database": _ensure_non_empty_string(os.environ.get("NEO4J_DATABASE", "neo4j"), "NEO4J_DATABASE"),
+    }
+
+
+def _class_identity(value: Any) -> tuple[str, str]:
+    cls = value.__class__
+    return cls.__module__, cls.__name__
+
+
+def _clean_mapping_items(value: Any) -> dict[str, Any]:
+    return {str(key): clean_neo4j_value(item) for key, item in value.items()}
+
+
+# @ArchitectureID: {E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC}
+def clean_neo4j_value(value: Any) -> Any:
+    if value is None or isinstance(value, (bool, int, float, str)):
+        return value
+
+    module_name, class_name = _class_identity(value)
+
+    if module_name.startswith("neo4j") and class_name == "Record":
+        return {str(key): clean_neo4j_value(value[key]) for key in value.keys()}
+
+    if isinstance(value, dict):
+        return {str(key): clean_neo4j_value(item) for key, item in value.items()}
+
+    if isinstance(value, (list, tuple, set)):
+        return [clean_neo4j_value(item) for item in value]
+
+    if isinstance(value, (date, datetime, time)):
+        return value.isoformat()
+
+    if isinstance(value, timedelta):
+        return str(value)
+
+    if hasattr(value, "labels") and hasattr(value, "items"):
+        return {
+            "kind": "node",
+            "labels": sorted(str(label) for label in value.labels),
+            "properties": _clean_mapping_items(value),
+        }
+
+    if hasattr(value, "start_node") and hasattr(value, "end_node") and hasattr(value, "items"):
+        return {
+            "kind": "relationship",
+            "type": str(getattr(value, "type", class_name)),
+            "properties": _clean_mapping_items(value),
+        }
+
+    if hasattr(value, "nodes") and hasattr(value, "relationships"):
+        return {
+            "kind": "path",
+            "nodes": [clean_neo4j_value(node) for node in value.nodes],
+            "relationships": [clean_neo4j_value(relationship) for relationship in value.relationships],
+            "length": len(value.relationships),
+        }
+
+    if module_name.startswith("neo4j.graph") and class_name == "Node":
+        return {
+            "kind": "node",
+            "labels": sorted(str(label) for label in value.labels),
+            "properties": _clean_mapping_items(value),
+        }
+
+    if module_name.startswith("neo4j.time") and hasattr(value, "iso_format"):
+        return value.iso_format()
+
+    if module_name.startswith("neo4j.spatial"):
+        payload = {"srid": int(value.srid)}
+        for axis in ("x", "y", "z", "longitude", "latitude", "height"):
+            if hasattr(value, axis):
+                payload[axis] = clean_neo4j_value(getattr(value, axis))
+        return payload
+
+    if hasattr(value, "items"):
+        return _clean_mapping_items(value)
+
+    if hasattr(value, "isoformat"):
+        return value.isoformat()
+
+    raise TypeError(f"Unsupported Neo4j result value type: {module_name}.{class_name}")
+
+
+def _clean_neo4j_summary(summary: Any) -> dict[str, Any]:
+    counters = {
+        field: int(getattr(summary.counters, field, 0))
+        for field in NEO4J_COUNTER_FIELDS
+        if getattr(summary.counters, field, 0)
+    }
+    database = getattr(summary, "database", None)
+    if database is not None and hasattr(database, "name"):
+        database = database.name
+
+    return {
+        "database": str(database) if database is not None else None,
+        "query_type": getattr(summary, "query_type", None),
+        "result_available_after_ms": getattr(summary, "result_available_after", None),
+        "result_consumed_after_ms": getattr(summary, "result_consumed_after", None),
+        "counters": counters,
+    }
+
+
+def execute_neo4j_cypher(cypher: str) -> dict[str, Any]:
+    settings = _resolve_neo4j_settings()
+    graph_database = _load_neo4j_driver()
+    driver = graph_database.driver(
+        settings["uri"],
+        auth=(settings["username"], settings["password"]),
+    )
+
+    try:
+        with driver.session(database=settings["database"]) as session:
+            result = session.run(_ensure_non_empty_string(cypher, "cypher"))
+            records = [clean_neo4j_value(record) for record in result]
+            summary = _clean_neo4j_summary(result.consume())
+    finally:
+        driver.close()
+
+    return {
+        "records": records,
+        "summary": summary,
+    }
 
 
 def _summary_for_object(stix_object: dict[str, Any]) -> dict[str, Any]:

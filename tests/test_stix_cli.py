@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from agent_app.opencode_app.tools.stix_cli import advanced_filter, load_bundle, neighbors, search_entities, summarize_schema
+from agent_app.opencode_app.tools.stix_cli import advanced_filter, clean_neo4j_value, load_bundle, neighbors, search_entities, summarize_schema
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -76,3 +76,119 @@ def test_advanced_filter_rejects_unknown_fields() -> None:
 
     with pytest.raises(ValueError, match="Unsupported filter fields"):
         advanced_filter(bundle, {"guessed_field": "APT28"})
+
+
+def test_clean_neo4j_value_flattens_nodes_relationships_and_records() -> None:
+    node_type = type(
+        "Node",
+        (),
+        {
+            "__module__": "neo4j.graph",
+            "__init__": lambda self, labels, properties: setattr(self, "labels", labels) or setattr(self, "_properties", properties),
+            "items": lambda self: self._properties.items(),
+        },
+    )
+    def _relationship_init(self, rel_type, properties, start_node, end_node):
+        self.type = rel_type
+        self._properties = properties
+        self.start_node = start_node
+        self.end_node = end_node
+
+    relationship_type = type(
+        "Relationship",
+        (),
+        {
+            "__module__": "neo4j.graph",
+            "__init__": _relationship_init,
+            "items": lambda self: self._properties.items(),
+        },
+    )
+    class Record(tuple):
+        __module__ = "neo4j._data"
+
+        def __new__(cls, payload: dict[str, object]):
+            instance = super().__new__(cls, tuple(payload.values()))
+            instance._payload = payload
+            return instance
+
+        def keys(self):
+            return self._payload.keys()
+
+        def __getitem__(self, key):
+            if isinstance(key, str):
+                return self._payload[key]
+            return super().__getitem__(key)
+
+    node = node_type({"Indicator"}, {"name": "APT28", "score": 95})
+    record = Record(
+        {
+            "n": node,
+            "r": relationship_type("RELATED_TO", {"confidence": 80}, node, node),
+        }
+    )
+
+    cleaned = clean_neo4j_value(record)
+
+    assert cleaned == {
+        "n": {
+            "kind": "node",
+            "labels": ["Indicator"],
+            "properties": {"name": "APT28", "score": 95},
+        },
+        "r": {
+            "kind": "relationship",
+            "type": "RELATED_TO",
+            "properties": {"confidence": 80},
+        },
+    }
+    assert "element_id" not in str(cleaned)
+    assert "<Record" not in str(cleaned)
+
+
+def test_clean_neo4j_value_flattens_paths_without_driver_wrappers() -> None:
+    node_type = type(
+        "Node",
+        (),
+        {
+            "__module__": "neo4j.graph",
+            "__init__": lambda self, labels, properties: setattr(self, "labels", labels) or setattr(self, "_properties", properties),
+            "items": lambda self: self._properties.items(),
+        },
+    )
+    def _relationship_init(self, rel_type, properties, start_node, end_node):
+        self.type = rel_type
+        self._properties = properties
+        self.start_node = start_node
+        self.end_node = end_node
+
+    relationship_type = type(
+        "Relationship",
+        (),
+        {
+            "__module__": "neo4j.graph",
+            "__init__": _relationship_init,
+            "items": lambda self: self._properties.items(),
+        },
+    )
+    path_type = type(
+        "Path",
+        (),
+        {
+            "__module__": "neo4j.graph",
+            "__init__": lambda self, nodes, relationships: setattr(self, "nodes", nodes) or setattr(self, "relationships", relationships),
+        },
+    )
+
+    alpha = node_type({"Host"}, {"name": "alpha"})
+    beta = node_type({"Host"}, {"name": "beta"})
+    path = path_type(
+        [alpha, beta],
+        [relationship_type("CONNECTED_TO", {"weight": 1}, alpha, beta)],
+    )
+
+    cleaned = clean_neo4j_value(path)
+
+    assert cleaned["kind"] == "path"
+    assert cleaned["length"] == 1
+    assert cleaned["nodes"][0]["properties"]["name"] == "alpha"
+    assert cleaned["relationships"][0]["type"] == "CONNECTED_TO"

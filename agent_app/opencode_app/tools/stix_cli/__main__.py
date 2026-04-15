@@ -6,7 +6,14 @@ import argparse
 import json
 from pathlib import Path
 
-from .semantic_query import advanced_filter, load_bundle, neighbors, search_entities, summarize_schema
+from .semantic_query import (
+    advanced_filter,
+    execute_neo4j_cypher,
+    load_bundle,
+    neighbors,
+    search_entities,
+    summarize_schema,
+)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -35,6 +42,9 @@ def build_parser() -> argparse.ArgumentParser:
         help="JSON object containing schema-derived filter fields.",
     )
 
+    neo4j_parser = subparsers.add_parser("neo4j-cypher", help="Execute native Cypher against Neo4j")
+    neo4j_parser.add_argument("--cypher", required=True, help="Raw Cypher statement to execute.")
+
     subparsers.add_parser("schema-summary", help="Summarize the supported local STIX schema and query fields")
 
     return parser
@@ -43,16 +53,19 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
-    bundle = load_bundle(args.data)
-
-    if args.command == "search":
-        payload = search_entities(bundle, args.query)
-    elif args.command == "neighbors":
-        payload = neighbors(bundle, args.stix_id)
-    elif args.command == "advanced_filter":
-        payload = advanced_filter(bundle, json.loads(args.filters_json))
+    if args.command == "neo4j-cypher":
+        payload = execute_neo4j_cypher(args.cypher)
     else:
-        payload = summarize_schema(bundle)
+        bundle = load_bundle(args.data)
+
+        if args.command == "search":
+            payload = search_entities(bundle, args.query)
+        elif args.command == "neighbors":
+            payload = neighbors(bundle, args.stix_id)
+        elif args.command == "advanced_filter":
+            payload = advanced_filter(bundle, json.loads(args.filters_json))
+        else:
+            payload = summarize_schema(bundle)
 
     print(json.dumps(payload, indent=2, ensure_ascii=False))
 
