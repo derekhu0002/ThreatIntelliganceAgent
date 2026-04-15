@@ -1,0 +1,1500 @@
+{
+  "identifier": "ai4pb-shared-knowledge-graph",
+  "version": "1.0.0",
+  "name": [
+    {
+      "value": "AI4PB Shared Knowledge Graph"
+    }
+  ],
+  "documentation": [
+    {
+      "value": "Schema-compliant shared knowledge graph maintained by OpenCode tools."
+    }
+  ],
+  "metadata": {
+    "schema": "./.opencode/schema/archimate3.1/archimate3.1-exchange-model.schema.json",
+    "schemaversion": "3.1"
+  },
+  "extensions": {
+    "ai4pb": {
+      "managedBy": "opencode",
+      "counters": {},
+      "designSummary": "",
+      "designDecisions": [],
+      "runtime": {
+        "activeGoal": "",
+        "validations": {
+          "qa": {
+            "status": "not_run",
+            "summary": "No validation has been recorded yet.",
+            "updatedAt": "1970-01-01T00:00:00.000Z"
+          },
+          "audit": {
+            "status": "not_run",
+            "summary": "No validation has been recorded yet.",
+            "updatedAt": "1970-01-01T00:00:00.000Z"
+          }
+        },
+        "release": {
+          "status": "not_started",
+          "summary": "Release has not been prepared yet.",
+          "updatedAt": "2026-04-15T08:14:18.840Z"
+        },
+        "updatedAt": "2026-04-15T08:23:48.692Z"
+      }
+    }
+  },
+  "elements": {
+    "element": [
+      {
+        "identifier": "ELM-STRATEGY-GOAL",
+        "type": "Goal",
+        "name": [
+          {
+            "value": "Deliver Structured Threat Intelligence Analysis from PUSH Events"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "Describe the element as a goal: a high-level end state or outcome that stakeholders intend to achieve. In this architecture, Deliver Structured Threat Intelligence Analysis from PUSH Events defines, constrains, or supports traceable solution intent within the managed model. Establish a minimal but verifiable closed-loop threat-intelligence capability that turns incoming OPENCTI-style PUSH events into structured analysis conclusions and recommended actions with end-to-end traceability."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "layer": "strategy",
+            "baseline": "core"
+          }
+        }
+      },
+      {
+        "identifier": "ELM-STRATEGY-CAPABILITY",
+        "type": "Capability",
+        "name": [
+          {
+            "value": "Threat Intelligence Closed-Loop Analysis Capability"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "Describe the element as a capability: an ability that an organization, person, or system possesses to achieve an outcome. In this architecture, Threat Intelligence Closed-Loop Analysis Capability defines, constrains, or supports traceable solution intent within the managed model. The product capability to ingest threat-intelligence push events, normalize event facts, retrieve STIX evidence, orchestrate multi-agent reasoning, and publish structured assessment results for operational use."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "layer": "strategy",
+            "baseline": "core"
+          }
+        }
+      },
+      {
+        "identifier": "ELM-STRATEGY-COURSE",
+        "type": "CourseOfAction",
+        "name": [
+          {
+            "value": "Minimal Closed-Loop Delivery Approach"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "Describe the element as a course of action: an approach, directive, or plan for configuring capabilities and resources. In this architecture, Minimal Closed-Loop Delivery Approach defines, constrains, or supports traceable solution intent within the managed model. Deliver the threat-intelligence workflow as a minimal closed loop: event intake, schema-governed normalization, remote agent collaboration, evidence-backed assessment, and runtime artifact output, with local mocks available for validation."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "layer": "strategy",
+            "baseline": "core"
+          }
+        }
+      },
+      {
+        "identifier": "ELM-BUSINESS-ACTOR",
+        "type": "BusinessActor",
+        "name": [
+          {
+            "value": "Threat Intelligence Analyst / SecOps Team"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "Describe the element as a business actor: an organizational entity that is capable of performing behavior and owning or using business roles, processes, or services. In this architecture, Threat Intelligence Analyst / SecOps Team defines, constrains, or supports traceable solution intent within the managed model. The operational users who receive threat-intelligence PUSH events and need structured conclusions, supporting evidence, and recommended containment or hunting actions."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "layer": "business",
+            "baseline": "core"
+          }
+        }
+      },
+      {
+        "identifier": "ELM-BUSINESS-PROCESS",
+        "type": "BusinessProcess",
+        "name": [
+          {
+            "value": "Threat Intelligence PUSH Analysis Flow"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "Describe the element as a business process: a sequence of business behavior that produces a defined set of business outcomes. In this architecture, Threat Intelligence PUSH Analysis Flow defines, constrains, or supports traceable solution intent within the managed model. Receive a PUSH event, normalize and extract known STIX context, submit the request to the remote OPENCODE multi-agent workflow, combine evidence and specialist viewpoints, and produce an actionable structured assessment."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "layer": "business",
+            "baseline": "core"
+          }
+        }
+      },
+      {
+        "identifier": "ELM-BUSINESS-SERVICE",
+        "type": "BusinessService",
+        "name": [
+          {
+            "value": "Structured Threat Intelligence Assessment Service"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "An externally consumable service that provides validated, structured threat-intelligence assessments with evidence basis, collaboration trace, verdict, confidence, and recommended actions."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "layer": "business",
+            "baseline": "core"
+          }
+        }
+      },
+      {
+        "identifier": "ELM-APPLICATION-COMPONENT",
+        "type": "ApplicationComponent",
+        "name": [
+          {
+            "value": "Core Application System"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "Describe the element as an application component: a modular application building block that encapsulates automated behavior and data. In this architecture, Core Application System is the modular software building block that automates and supports the business process behind Current Product Goal."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "layer": "application",
+            "baseline": "core"
+          }
+        }
+      },
+      {
+        "identifier": "ELM-APPLICATION-SERVICE",
+        "type": "ApplicationService",
+        "name": [
+          {
+            "value": "Threat Intelligence Processing Service"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "The automated application-layer service that executes the closed-loop PUSH-event analysis path and supplies the structured assessment used by the business service."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "layer": "application",
+            "baseline": "core"
+          }
+        }
+      },
+      {
+        "identifier": "ELM-APPLICATION-DATA",
+        "type": "DataObject",
+        "name": [
+          {
+            "value": "Threat Event and Analysis Result Data"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "The normalized PUSH event payloads, STIX evidence summaries, and structured JSON analysis artifacts created and consumed across the application workflow."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "layer": "application",
+            "baseline": "core"
+          }
+        }
+      },
+      {
+        "identifier": "ELM-TECHNOLOGY-NODE",
+        "type": "Node",
+        "name": [
+          {
+            "value": "Core Technology Runtime"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "Describe the element as a node: a computational or physical resource that hosts, executes, or supports technology and application behavior. In this architecture, Core Technology Runtime is the runtime environment that hosts and executes the technology and application behavior required for Current Product Goal."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "layer": "technology",
+            "baseline": "core"
+          }
+        }
+      },
+      {
+        "identifier": "ELM-TECHNOLOGY-ARTIFACT",
+        "type": "Artifact",
+        "name": [
+          {
+            "value": "Deployable Solution Artifact"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "Describe the element as an artifact: a physical or deployable piece of information used or produced in technology or application realization. In this architecture, Deployable Solution Artifact is the deployable solution package generated from the core application system for operation on the target runtime node."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "layer": "technology",
+            "baseline": "core"
+          }
+        }
+      },
+      {
+        "identifier": "ELM-APP-COMP-MOCK-OPENCTI-ADAPTER",
+        "type": "ApplicationComponent",
+        "name": [
+          {
+            "value": "Mock OPENCTI Event Adapter"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "Normalizes incoming Mock OPENCTI PUSH payloads into a strict internal event contract before downstream analysis dispatch. Physical module: services/mock_opencti_adapter."
+          }
+        ]
+      },
+      {
+        "identifier": "ELM-APP-COMP-PY-LISTENER",
+        "type": "ApplicationComponent",
+        "name": [
+          {
+            "value": "Python Listener"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "Receives or loads PUSH events, creates run context, builds remote analysis requests, dispatches them to the OPENCODE server protocol, and persists structured analysis output artifacts. Physical module: services/python_listener."
+          }
+        ]
+      },
+      {
+        "identifier": "ELM-APP-COMP-RESULT-ASSEMBLER",
+        "type": "ApplicationComponent",
+        "name": [
+          {
+            "value": "Structured Result Assembler"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "Builds and validates the canonical structured threat-intelligence analysis result from normalized events, evidence bundles, and collaboration output. Physical module: services/result_assembler."
+          }
+        ]
+      },
+      {
+        "identifier": "ELM-APP-COMP-STIX-CONTRACT-CATALOG",
+        "type": "ApplicationComponent",
+        "name": [
+          {
+            "value": "STIX Contract Catalog"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "Owns strict Pydantic and JSON-schema based contract definitions and schema catalog resolution for event, STIX query, and analysis result boundaries. Physical module: services/stix_contracts."
+          }
+        ]
+      },
+      {
+        "identifier": "ELM-APP-COMP-AGENT-ORCH",
+        "type": "ApplicationComponent",
+        "name": [
+          {
+            "value": "Remote Agent Orchestration Mock"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "Provides a protocol-compatible local mock of the remote OPENCODE agent orchestration boundary, including request extraction, evidence generation, collaboration synthesis, and structured response assembly for validation. Physical module: services/remote_opencode_server."
+          }
+        ]
+      },
+      {
+        "identifier": "ELM-APP-COMP-STIX-CLI",
+        "type": "ApplicationComponent",
+        "name": [
+          {
+            "value": "STIX Semantic Query CLI"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "Loads local STIX 2.1 bundles and exposes schema summary, text search, advanced filter, and neighbor traversal behaviors used by agent-side evidence analysis. Physical module: agent_app/opencode_app/tools/stix_cli."
+          }
+        ]
+      },
+      {
+        "identifier": "ELM-FUNC-VALIDATE-EVENT-CONTRACT",
+        "type": "ApplicationFunction",
+        "name": [
+          {
+            "value": "Validate Event Contract"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "[Input]: Raw Mock OPENCTI PUSH event payload loaded from JSON or passed in memory.\n[Processing]: Verify the payload is a JSON object and parse it with the strict Pydantic event contract; convert schema violations into deterministic contract errors.\n[Output]: A validated `NormalizedMockOpenCTIEvent` instance or an `EventContractError`.\n[Acceptance Criteria]: Valid event payloads pass without losing required fields; non-object or schema-invalid payloads are rejected before downstream processing."
+          }
+        ]
+      },
+      {
+        "identifier": "ELM-FUNC-NORMALIZE-PUSH-EVENT",
+        "type": "ApplicationFunction",
+        "name": [
+          {
+            "value": "Normalize PUSH Event"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "[Input]: File path or in-memory Mock OPENCTI PUSH event payload.\n[Processing]: Load JSON when given a file path, enforce the canonical event schema, and transform the inbound payload into the normalized event structure used by downstream services.\n[Output]: Canonical normalized event data with event metadata, entity, observables, labels, and severity.\n[Acceptance Criteria]: The same source event yields the same normalized structure; missing required sections or invalid values block downstream use."
+          }
+        ]
+      },
+      {
+        "identifier": "ELM-FUNC-CREATE-ANALYSIS-RUN-CONTEXT",
+        "type": "ApplicationFunction",
+        "name": [
+          {
+            "value": "Create Analysis Run Context"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "[Input]: A normalized event containing event id and source.\n[Processing]: Generate a UTC timestamped run id and execution metadata that correlates one analysis run with one source event.\n[Output]: Run context with `run_id`, `created_at`, `event_id`, and `source`.\n[Acceptance Criteria]: Every processed event gets a traceable run context containing the originating event id and UTC execution timestamps."
+          }
+        ]
+      },
+      {
+        "identifier": "ELM-FUNC-DISPATCH-REMOTE-ANALYSIS-REQUEST",
+        "type": "ApplicationFunction",
+        "name": [
+          {
+            "value": "Dispatch Remote Analysis Request"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "[Input]: Normalized event data, run context, resolved main-agent identity, and remote server endpoint configuration.\n[Processing]: Build the remote request and prompt, resolve canonical agent aliases, create a remote session, submit the analysis message via the session/message protocol, and validate the returned result.\n[Output]: Structured threat-analysis result or a remote dispatch error.\n[Acceptance Criteria]: Requests target the configured protocol endpoints, include the required JSON schema contract, and fail explicitly on timeout, connectivity, or invalid remote output."
+          }
+        ]
+      },
+      {
+        "identifier": "ELM-FUNC-PERSIST-ANALYSIS-RESULT",
+        "type": "ApplicationFunction",
+        "name": [
+          {
+            "value": "Persist Analysis Result"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "[Input]: Structured threat-analysis result and an optional destination path.\n[Processing]: Resolve the output location, create parent runtime directories when missing, and write the structured JSON artifact to disk.\n[Output]: UTF-8 JSON result artifact under `artifacts/runtime/` or a caller-specified path.\n[Acceptance Criteria]: Successful runs always produce a readable JSON artifact; default naming uses the event id and missing directories are auto-created."
+          }
+        ]
+      },
+      {
+        "identifier": "ELM-FUNC-ASSEMBLE-STRUCTURED-RESULT",
+        "type": "ApplicationFunction",
+        "name": [
+          {
+            "value": "Assemble Structured Result"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "[Input]: Run context, normalized event, STIX evidence bundle, and multi-role collaboration output.\n[Processing]: Merge event facts, evidence statistics, final assessment details, recommended actions, and collaboration trace metadata into the canonical threat-analysis result payload.\n[Output]: A fully populated structured analysis result ready for validation and consumption.\n[Acceptance Criteria]: The assembled result contains all required top-level sections, preserves event/evidence traceability, and includes collaboration and conclusion content expected by the closed loop."
+          }
+        ]
+      },
+      {
+        "identifier": "ELM-FUNC-VALIDATE-RESULT-CONTRACT",
+        "type": "ApplicationFunction",
+        "name": [
+          {
+            "value": "Validate Result Contract"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "[Input]: Candidate structured analysis result object.\n[Processing]: Parse the payload against the strict result model, enforce schema-derived field constraints, and reject outputs that violate regression rules such as minimum participant count.\n[Output]: Validated `ThreatAnalysisResult` object or a validation error.\n[Acceptance Criteria]: Only schema-compliant results pass; outputs lacking required sections or fewer than two participating roles are rejected before publication."
+          }
+        ]
+      },
+      {
+        "identifier": "ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS",
+        "type": "ApplicationFunction",
+        "name": [
+          {
+            "value": "Generate Schema-Derived Python Contracts"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "[Input]: Canonical JSON schema files for event and result contracts plus schema-root configuration.\n[Processing]: Materialize strict Pydantic models and schema builders that mirror the canonical boundary expectations for events, STIX query payloads, and structured analysis outputs.\n[Output]: Reusable Python contract classes, parser functions, and schema-generation helpers.\n[Acceptance Criteria]: Contract classes remain aligned with canonical schema files, forbid extra fields, and support both runtime validation and JSON schema emission."
+          }
+        ]
+      },
+      {
+        "identifier": "ELM-FUNC-LOAD-CANONICAL-CONTRACT-SCHEMAS",
+        "type": "ApplicationFunction",
+        "name": [
+          {
+            "value": "Load Canonical Contract Schemas"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "[Input]: Logical contract name or relative schema path under the canonical schema root.\n[Processing]: Resolve repository-local schema locations, verify file existence, load JSON schema content, and cache parsed schema objects for repeated use.\n[Output]: Canonical schema documents for event, result, or STIX schema exploration workflows.\n[Acceptance Criteria]: Missing or malformed schema files raise explicit catalog errors; valid schema files load as JSON objects from expected canonical locations."
+          }
+        ]
+      },
+      {
+        "identifier": "ELM-FUNC-BUILD-EVIDENCE-BUNDLE",
+        "type": "ApplicationFunction",
+        "name": [
+          {
+            "value": "Build Evidence Bundle"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "[Input]: Normalized event content and the path to a local STIX 2.1 bundle.\n[Processing]: Search the STIX bundle with the pushed entity name and observable values, collect top matches, and traverse neighbor relationships for selected candidate STIX ids.\n[Output]: Evidence bundle containing the STIX bundle path, search result sets, and relationship views.\n[Acceptance Criteria]: Evidence generation records the searched bundle, preserves per-query match counts, and returns relationship context for selected candidate STIX objects when present."
+          }
+        ]
+      },
+      {
+        "identifier": "ELM-FUNC-SYNTHESIZE-COLLABORATION-ASSESSMENT",
+        "type": "ApplicationFunction",
+        "name": [
+          {
+            "value": "Synthesize Collaboration Assessment"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "[Input]: Main-agent identity, normalized event data, and generated STIX evidence bundle.\n[Processing]: Canonicalize legacy role aliases, derive supporting evidence references, generate specialist role summaries, and formulate a final threat assessment with confidence, verdict, and recommended actions.\n[Output]: Collaboration output containing participant roles, role summaries, traceability metadata, and final assessment content.\n[Acceptance Criteria]: The synthesized output includes primary, analyst, and SecOps roles; evidence refs remain traceable to the event and matched STIX objects; final assessment always contains summary, confidence, verdict, and actions."
+          }
+        ]
+      },
+      {
+        "identifier": "ELM-FUNC-SERVE-MOCK-REMOTE-PROTOCOL",
+        "type": "ApplicationFunction",
+        "name": [
+          {
+            "value": "Serve Mock Remote Protocol"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "[Input]: HTTP `POST /session` and `POST /session/{sessionId}/message` requests carrying OPENCODE-compatible payloads.\n[Processing]: Create mock sessions, extract embedded request context from message text, invoke evidence and collaboration assembly, and return protocol-compatible JSON responses for local validation.\n[Output]: Mock remote server responses that emulate the OPENCODE session/message flow.\n[Acceptance Criteria]: Supported routes return JSON responses with session ids and structured analysis payloads; unknown routes or sessions produce explicit HTTP errors."
+          }
+        ]
+      },
+      {
+        "identifier": "ELM-FUNC-SUMMARIZE-STIX-SCHEMA",
+        "type": "ApplicationFunction",
+        "name": [
+          {
+            "value": "Summarize STIX Schema"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "[Input]: Local STIX 2.1 bundle.\n[Processing]: Inspect bundle objects and relationships, derive observed entity types, supported query fields, key fields, and relationship types, and package schema-first guidance for callers.\n[Output]: Bundle-specific schema summary describing queryable fields and observed STIX entity and relationship structure.\n[Acceptance Criteria]: The summary enumerates supported query fields and observed relationship types from the bundle so callers can build filters from actual schema evidence."
+          }
+        ]
+      },
+      {
+        "identifier": "ELM-FUNC-SEARCH-STIX-ENTITIES",
+        "type": "ApplicationFunction",
+        "name": [
+          {
+            "value": "Search STIX Entities"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "[Input]: Local STIX bundle and free-text query string.\n[Processing]: Scan STIX objects across key descriptive fields, perform case-insensitive substring matching, and build compact summaries for matching objects.\n[Output]: Search result set containing query text, match count, and matched STIX object summaries.\n[Acceptance Criteria]: Search returns deterministic match counts and summaries for the same bundle and query pair, including enough entity metadata for downstream evidence review."
+          }
+        ]
+      },
+      {
+        "identifier": "ELM-FUNC-EXPLORE-STIX-RELATIONSHIPS",
+        "type": "ApplicationFunction",
+        "name": [
+          {
+            "value": "Explore STIX Relationships"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "[Input]: Local STIX bundle and target STIX object id.\n[Processing]: Locate the target object, traverse inbound and outbound relationship objects touching that id, and summarize neighboring peers plus relationship direction.\n[Output]: Neighbor view containing the target object summary, relationship count, and inbound and outbound relationship details.\n[Acceptance Criteria]: Existing STIX ids yield accurate relationship views with correct directionality and peer summaries; unknown ids are rejected with explicit lookup errors."
+          }
+        ]
+      },
+      {
+        "identifier": "PROJECT-CURRENT",
+        "type": "WorkPackage",
+        "name": [
+          {
+            "value": "Current Project Goal"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "Current OpenCode project goal."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "Project",
+            "rawRequirement": "",
+            "status": "InProgress"
+          }
+        }
+      }
+    ]
+  },
+  "relationships": {
+    "relationship": [
+      {
+        "identifier": "REL-CAPABILITY-REALIZES-GOAL",
+        "type": "Realization",
+        "name": [
+          {
+            "value": "Capability realizes goal"
+          }
+        ],
+        "source": "ELM-STRATEGY-CAPABILITY",
+        "target": "ELM-STRATEGY-GOAL",
+        "documentation": [
+          {
+            "value": "Describe the relationship as a realization: the source concept implements, fulfills, or makes the target concept concrete. In this architecture, Core Product Capability makes Product Delivery Goal concrete by providing the ability needed to achieve that strategic outcome."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "baseline": "core"
+          }
+        }
+      },
+      {
+        "identifier": "REL-COURSE-REALIZES-CAPABILITY",
+        "type": "Realization",
+        "name": [
+          {
+            "value": "Course realizes capability"
+          }
+        ],
+        "source": "ELM-STRATEGY-COURSE",
+        "target": "ELM-STRATEGY-CAPABILITY",
+        "documentation": [
+          {
+            "value": "Describe the relationship as a realization: the source concept implements, fulfills, or makes the target concept concrete. In this architecture, MVP Delivery Course Of Action gives concrete form to Core Product Capability by prescribing how that capability will be established."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "baseline": "core"
+          }
+        }
+      },
+      {
+        "identifier": "REL-BUSINESS-REALIZES-STRATEGY",
+        "type": "Realization",
+        "name": [
+          {
+            "value": "Business realizes strategy"
+          }
+        ],
+        "source": "ELM-BUSINESS-PROCESS",
+        "target": "ELM-STRATEGY-CAPABILITY",
+        "documentation": [
+          {
+            "value": "Describe the relationship as a realization: the source concept implements, fulfills, or makes the target concept concrete. In this architecture, Core Business Flow operationalizes Core Product Capability through executable business behavior."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "baseline": "core"
+          }
+        }
+      },
+      {
+        "identifier": "REL-ACTOR-ASSIGNED-BUSINESS",
+        "type": "Assignment",
+        "name": [
+          {
+            "value": "Actor participates in business flow"
+          }
+        ],
+        "source": "ELM-BUSINESS-ACTOR",
+        "target": "ELM-BUSINESS-PROCESS",
+        "documentation": [
+          {
+            "value": "Describe the relationship as an assignment: the allocation of responsibility, behavior, or execution from an active structure element to a behavior element, or vice versa where appropriate in ArchiMate. In this architecture, Primary User is allocated participation responsibility in Core Business Flow from a business perspective."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "baseline": "core"
+          }
+        }
+      },
+      {
+        "identifier": "REL-BUSINESS-PROCESS-REALIZES-SERVICE",
+        "type": "Realization",
+        "name": [
+          {
+            "value": "Business process realizes service"
+          }
+        ],
+        "source": "ELM-BUSINESS-PROCESS",
+        "target": "ELM-BUSINESS-SERVICE",
+        "documentation": [
+          {
+            "value": "Describe the relationship as a realization: the source concept implements, fulfills, or makes the target concept concrete. In this architecture, Core Business Flow implements and makes Core User Service concrete as externally visible behavior."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "baseline": "core"
+          }
+        }
+      },
+      {
+        "identifier": "REL-BUSINESS-SERVICE-SERVES-ACTOR",
+        "type": "Serving",
+        "name": [
+          {
+            "value": "Business service serves actor"
+          }
+        ],
+        "source": "ELM-BUSINESS-SERVICE",
+        "target": "ELM-BUSINESS-ACTOR",
+        "documentation": [
+          {
+            "value": "Describe the relationship as a serving relationship: the source concept provides functionality or value that is used by the target concept. In this architecture, Core User Service provides business value and externally visible behavior to Primary User."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "baseline": "core"
+          }
+        }
+      },
+      {
+        "identifier": "REL-APPLICATION-SERVICE-SERVES-BUSINESS",
+        "type": "Serving",
+        "name": [
+          {
+            "value": "Application service serves business service"
+          }
+        ],
+        "source": "ELM-APPLICATION-SERVICE",
+        "target": "ELM-BUSINESS-SERVICE",
+        "documentation": [
+          {
+            "value": "Describe the relationship as a serving relationship: the source concept provides functionality or value that is used by the target concept. In this architecture, Core Application Service provides the automated support needed by the business-facing Core User Service."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "baseline": "core"
+          }
+        }
+      },
+      {
+        "identifier": "REL-APPLICATION-REALIZES-SERVICE",
+        "type": "Realization",
+        "name": [
+          {
+            "value": "Application component realizes application service"
+          }
+        ],
+        "source": "ELM-APPLICATION-COMPONENT",
+        "target": "ELM-APPLICATION-SERVICE",
+        "documentation": [
+          {
+            "value": "Describe the relationship as a realization: the source concept implements, fulfills, or makes the target concept concrete. In this architecture, Core Application System implements and makes Core Application Service concrete as the exposed application service boundary."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "baseline": "core"
+          }
+        }
+      },
+      {
+        "identifier": "REL-APPLICATION-ACCESSES-DATA",
+        "type": "Access",
+        "name": [
+          {
+            "value": "Application accesses domain data"
+          }
+        ],
+        "source": "ELM-APPLICATION-COMPONENT",
+        "target": "ELM-APPLICATION-DATA",
+        "documentation": [
+          {
+            "value": "Describe the relationship as an access relationship: the source behavior or active structure concept reads, writes, or otherwise uses the target passive structure concept. In this architecture, Core Application System reads and writes Core Domain Data in order to execute application behavior."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "baseline": "core"
+          }
+        }
+      },
+      {
+        "identifier": "REL-TECHNOLOGY-SUPPORTS-APPLICATION",
+        "type": "Association",
+        "name": [
+          {
+            "value": "Technology supports application"
+          }
+        ],
+        "source": "ELM-TECHNOLOGY-NODE",
+        "target": "ELM-APPLICATION-COMPONENT",
+        "documentation": [
+          {
+            "value": "Describe the relationship as an association: a generic structural or semantic link used when no more specific ArchiMate relationship type applies. In this architecture, Core Technology Runtime has a structural support link with Core Application System where no more specific baseline relationship is modeled."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "baseline": "core"
+          }
+        }
+      },
+      {
+        "identifier": "REL-TECHNOLOGY-HOSTS-APPLICATION-SERVICE",
+        "type": "Serving",
+        "name": [
+          {
+            "value": "Technology hosts application service"
+          }
+        ],
+        "source": "ELM-TECHNOLOGY-NODE",
+        "target": "ELM-APPLICATION-SERVICE",
+        "documentation": [
+          {
+            "value": "Describe the relationship as a serving relationship: the source concept provides functionality or value that is used by the target concept. In this architecture, Core Technology Runtime provides the infrastructure behavior required to host and expose Core Application Service."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "baseline": "core"
+          }
+        }
+      },
+      {
+        "identifier": "REL-ARTIFACT-REALIZES-APPLICATION",
+        "type": "Realization",
+        "name": [
+          {
+            "value": "Artifact realizes application deliverable"
+          }
+        ],
+        "source": "ELM-TECHNOLOGY-ARTIFACT",
+        "target": "ELM-APPLICATION-COMPONENT",
+        "documentation": [
+          {
+            "value": "Describe the relationship as a realization: the source concept implements, fulfills, or makes the target concept concrete. In this architecture, Deployable Solution Artifact is the concrete deployable manifestation of Core Application System."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "system-architect",
+            "baseline": "core"
+          }
+        }
+      },
+      {
+        "identifier": "REL-ASSIGN-ADAPTER-VALIDATE-EVENT",
+        "type": "Assignment",
+        "name": [
+          {
+            "value": "Adapter performs event validation"
+          }
+        ],
+        "source": "ELM-APP-COMP-MOCK-OPENCTI-ADAPTER",
+        "target": "ELM-FUNC-VALIDATE-EVENT-CONTRACT",
+        "documentation": [
+          {
+            "value": "The Mock OPENCTI Event Adapter is responsible for validating inbound event payloads against the strict event contract."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-ASSIGN-ADAPTER-NORMALIZE-EVENT",
+        "type": "Assignment",
+        "name": [
+          {
+            "value": "Adapter normalizes PUSH events"
+          }
+        ],
+        "source": "ELM-APP-COMP-MOCK-OPENCTI-ADAPTER",
+        "target": "ELM-FUNC-NORMALIZE-PUSH-EVENT",
+        "documentation": [
+          {
+            "value": "The Mock OPENCTI Event Adapter executes the normalization behavior that turns raw PUSH payloads into the canonical event structure."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-ASSIGN-LISTENER-RUN-CONTEXT",
+        "type": "Assignment",
+        "name": [
+          {
+            "value": "Listener creates run context"
+          }
+        ],
+        "source": "ELM-APP-COMP-PY-LISTENER",
+        "target": "ELM-FUNC-CREATE-ANALYSIS-RUN-CONTEXT",
+        "documentation": [
+          {
+            "value": "The Python Listener performs run-context generation for each inbound analysis request."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-ASSIGN-LISTENER-DISPATCH",
+        "type": "Assignment",
+        "name": [
+          {
+            "value": "Listener dispatches remote analysis"
+          }
+        ],
+        "source": "ELM-APP-COMP-PY-LISTENER",
+        "target": "ELM-FUNC-DISPATCH-REMOTE-ANALYSIS-REQUEST",
+        "documentation": [
+          {
+            "value": "The Python Listener is assigned the behavior that constructs and dispatches remote analysis requests through the OPENCODE server protocol."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-ASSIGN-LISTENER-PERSIST",
+        "type": "Assignment",
+        "name": [
+          {
+            "value": "Listener persists results"
+          }
+        ],
+        "source": "ELM-APP-COMP-PY-LISTENER",
+        "target": "ELM-FUNC-PERSIST-ANALYSIS-RESULT",
+        "documentation": [
+          {
+            "value": "The Python Listener owns persistence of structured JSON analysis artifacts into the runtime output directory."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-ASSIGN-ASSEMBLER-ASSEMBLE",
+        "type": "Assignment",
+        "name": [
+          {
+            "value": "Assembler builds structured result"
+          }
+        ],
+        "source": "ELM-APP-COMP-RESULT-ASSEMBLER",
+        "target": "ELM-FUNC-ASSEMBLE-STRUCTURED-RESULT",
+        "documentation": [
+          {
+            "value": "The Structured Result Assembler executes result composition from event, evidence, and collaboration inputs."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-ASSIGN-ASSEMBLER-VALIDATE",
+        "type": "Assignment",
+        "name": [
+          {
+            "value": "Assembler validates result"
+          }
+        ],
+        "source": "ELM-APP-COMP-RESULT-ASSEMBLER",
+        "target": "ELM-FUNC-VALIDATE-RESULT-CONTRACT",
+        "documentation": [
+          {
+            "value": "The Structured Result Assembler is responsible for enforcing the final structured-result contract before publication."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-ASSIGN-CONTRACTS-GENERATE",
+        "type": "Assignment",
+        "name": [
+          {
+            "value": "Catalog generates strict contracts"
+          }
+        ],
+        "source": "ELM-APP-COMP-STIX-CONTRACT-CATALOG",
+        "target": "ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS",
+        "documentation": [
+          {
+            "value": "The STIX Contract Catalog owns the schema-derived Python contract definitions used across event and result boundaries."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-ASSIGN-CONTRACTS-LOAD",
+        "type": "Assignment",
+        "name": [
+          {
+            "value": "Catalog loads schemas"
+          }
+        ],
+        "source": "ELM-APP-COMP-STIX-CONTRACT-CATALOG",
+        "target": "ELM-FUNC-LOAD-CANONICAL-CONTRACT-SCHEMAS",
+        "documentation": [
+          {
+            "value": "The STIX Contract Catalog resolves and loads canonical schema documents from repository-local schema locations."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-ASSIGN-ORCH-EVIDENCE",
+        "type": "Assignment",
+        "name": [
+          {
+            "value": "Mock orchestration builds evidence"
+          }
+        ],
+        "source": "ELM-APP-COMP-AGENT-ORCH",
+        "target": "ELM-FUNC-BUILD-EVIDENCE-BUNDLE",
+        "documentation": [
+          {
+            "value": "The Remote Agent Orchestration Mock performs evidence-bundle construction from local STIX data for validation flows."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-ASSIGN-ORCH-COLLAB",
+        "type": "Assignment",
+        "name": [
+          {
+            "value": "Mock orchestration synthesizes assessment"
+          }
+        ],
+        "source": "ELM-APP-COMP-AGENT-ORCH",
+        "target": "ELM-FUNC-SYNTHESIZE-COLLABORATION-ASSESSMENT",
+        "documentation": [
+          {
+            "value": "The Remote Agent Orchestration Mock produces multi-role collaboration summaries and final threat assessments."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-ASSIGN-ORCH-PROTOCOL",
+        "type": "Assignment",
+        "name": [
+          {
+            "value": "Mock orchestration serves protocol"
+          }
+        ],
+        "source": "ELM-APP-COMP-AGENT-ORCH",
+        "target": "ELM-FUNC-SERVE-MOCK-REMOTE-PROTOCOL",
+        "documentation": [
+          {
+            "value": "The Remote Agent Orchestration Mock exposes the local protocol-compatible session and message behaviors used in validation."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-ASSIGN-STIXCLI-SUMMARIZE",
+        "type": "Assignment",
+        "name": [
+          {
+            "value": "STIX CLI summarizes schema"
+          }
+        ],
+        "source": "ELM-APP-COMP-STIX-CLI",
+        "target": "ELM-FUNC-SUMMARIZE-STIX-SCHEMA",
+        "documentation": [
+          {
+            "value": "The STIX Semantic Query CLI provides schema-first summary behavior over local STIX bundles."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-ASSIGN-STIXCLI-SEARCH",
+        "type": "Assignment",
+        "name": [
+          {
+            "value": "STIX CLI searches entities"
+          }
+        ],
+        "source": "ELM-APP-COMP-STIX-CLI",
+        "target": "ELM-FUNC-SEARCH-STIX-ENTITIES",
+        "documentation": [
+          {
+            "value": "The STIX Semantic Query CLI performs free-text search across local STIX objects for evidence retrieval."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-ASSIGN-STIXCLI-REL",
+        "type": "Assignment",
+        "name": [
+          {
+            "value": "STIX CLI explores relationships"
+          }
+        ],
+        "source": "ELM-APP-COMP-STIX-CLI",
+        "target": "ELM-FUNC-EXPLORE-STIX-RELATIONSHIPS",
+        "documentation": [
+          {
+            "value": "The STIX Semantic Query CLI traverses inbound and outbound STIX relationships for a selected object."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-APP-SVC-SERVES-BIZ-SVC",
+        "type": "Serving",
+        "name": [
+          {
+            "value": "Application service serves business service"
+          }
+        ],
+        "source": "ELM-APPLICATION-SERVICE",
+        "target": "ELM-BUSINESS-SERVICE",
+        "documentation": [
+          {
+            "value": "The Threat Intelligence Processing Service provides the automated processing needed by the Structured Threat Intelligence Assessment Service."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-BIZ-PROC-REALIZES-BIZ-SVC",
+        "type": "Realization",
+        "name": [
+          {
+            "value": "Business process realizes business service"
+          }
+        ],
+        "source": "ELM-BUSINESS-PROCESS",
+        "target": "ELM-BUSINESS-SERVICE",
+        "documentation": [
+          {
+            "value": "The Threat Intelligence PUSH Analysis Flow operationalizes and realizes the outward-facing assessment service."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-BIZ-ACTOR-ASSIGNED-PROC",
+        "type": "Assignment",
+        "name": [
+          {
+            "value": "Actor participates in analysis flow"
+          }
+        ],
+        "source": "ELM-BUSINESS-ACTOR",
+        "target": "ELM-BUSINESS-PROCESS",
+        "documentation": [
+          {
+            "value": "Threat Intelligence Analyst / SecOps Team participates in and consumes the threat-intelligence push analysis workflow."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-BIZ-SVC-SERVES-ACTOR",
+        "type": "Serving",
+        "name": [
+          {
+            "value": "Business service serves actor"
+          }
+        ],
+        "source": "ELM-BUSINESS-SERVICE",
+        "target": "ELM-BUSINESS-ACTOR",
+        "documentation": [
+          {
+            "value": "The structured assessment service provides actionable threat-intelligence output to analysts and SecOps operators."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-BIZ-PROC-REALIZES-CAP",
+        "type": "Realization",
+        "name": [
+          {
+            "value": "Business process realizes capability"
+          }
+        ],
+        "source": "ELM-BUSINESS-PROCESS",
+        "target": "ELM-STRATEGY-CAPABILITY",
+        "documentation": [
+          {
+            "value": "The business flow makes the closed-loop threat-intelligence capability operational."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-CAP-REALIZES-GOAL",
+        "type": "Realization",
+        "name": [
+          {
+            "value": "Capability realizes goal"
+          }
+        ],
+        "source": "ELM-STRATEGY-CAPABILITY",
+        "target": "ELM-STRATEGY-GOAL",
+        "documentation": [
+          {
+            "value": "The closed-loop analysis capability is the concrete means to achieve structured threat-intelligence assessments from PUSH events."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-COURSE-REALIZES-CAP",
+        "type": "Realization",
+        "name": [
+          {
+            "value": "Course of action realizes capability"
+          }
+        ],
+        "source": "ELM-STRATEGY-COURSE",
+        "target": "ELM-STRATEGY-CAPABILITY",
+        "documentation": [
+          {
+            "value": "The minimal closed-loop delivery approach establishes the threat-intelligence processing capability."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-COMP-ADAPTER-REALIZES-APP-SVC",
+        "type": "Realization",
+        "name": [
+          {
+            "value": "Adapter realizes processing service"
+          }
+        ],
+        "source": "ELM-APP-COMP-MOCK-OPENCTI-ADAPTER",
+        "target": "ELM-APPLICATION-SERVICE",
+        "documentation": [
+          {
+            "value": "The Mock OPENCTI Event Adapter provides the schema-governed event normalization behavior required by the threat-intelligence processing service."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-COMP-LISTENER-REALIZES-APP-SVC",
+        "type": "Realization",
+        "name": [
+          {
+            "value": "Listener realizes processing service"
+          }
+        ],
+        "source": "ELM-APP-COMP-PY-LISTENER",
+        "target": "ELM-APPLICATION-SERVICE",
+        "documentation": [
+          {
+            "value": "The Python Listener is the primary application component that executes the PUSH-event intake and dispatch path of the threat-intelligence processing service."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-COMP-ASSEMBLER-REALIZES-APP-SVC",
+        "type": "Realization",
+        "name": [
+          {
+            "value": "Assembler realizes processing service"
+          }
+        ],
+        "source": "ELM-APP-COMP-RESULT-ASSEMBLER",
+        "target": "ELM-APPLICATION-SERVICE",
+        "documentation": [
+          {
+            "value": "The Structured Result Assembler makes the processing service concrete by transforming evidence and collaboration outputs into the canonical analysis result."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-COMP-CONTRACTS-REALIZES-APP-SVC",
+        "type": "Realization",
+        "name": [
+          {
+            "value": "Contract catalog realizes processing service"
+          }
+        ],
+        "source": "ELM-APP-COMP-STIX-CONTRACT-CATALOG",
+        "target": "ELM-APPLICATION-SERVICE",
+        "documentation": [
+          {
+            "value": "The STIX Contract Catalog realizes the processing service's strict boundary enforcement by supplying canonical schemas and typed contracts."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-COMP-ORCH-REALIZES-APP-SVC",
+        "type": "Realization",
+        "name": [
+          {
+            "value": "Orchestration mock realizes processing service"
+          }
+        ],
+        "source": "ELM-APP-COMP-AGENT-ORCH",
+        "target": "ELM-APPLICATION-SERVICE",
+        "documentation": [
+          {
+            "value": "The Remote Agent Orchestration Mock realizes the collaboration and evidence-backed assessment portion of the processing service during local validation."
+          }
+        ]
+      },
+      {
+        "identifier": "REL-COMP-STIXCLI-REALIZES-APP-SVC",
+        "type": "Realization",
+        "name": [
+          {
+            "value": "STIX CLI realizes processing service"
+          }
+        ],
+        "source": "ELM-APP-COMP-STIX-CLI",
+        "target": "ELM-APPLICATION-SERVICE",
+        "documentation": [
+          {
+            "value": "The STIX Semantic Query CLI realizes the evidence retrieval behaviors used by the threat-intelligence processing service."
+          }
+        ]
+      }
+    ]
+  },
+  "organizations": [
+    {
+      "identifier": "ORG-INTENTION-ROOT",
+      "label": [
+        {
+          "value": "Intention Architecture"
+        }
+      ],
+      "documentation": [
+        {
+          "value": "Core layered intention model maintained by SystemArchitect."
+        }
+      ],
+      "item": [
+        {
+          "identifier": "ORG-INTENTION-STRATEGY",
+          "label": [
+            {
+              "value": "Strategy Layer"
+            }
+          ],
+          "item": [
+            {
+              "identifier": "ORG-REF-STRATEGY-GOAL",
+              "label": [
+                {
+                  "value": "Goal"
+                }
+              ],
+              "elementRef": "ELM-STRATEGY-GOAL"
+            },
+            {
+              "identifier": "ORG-REF-STRATEGY-CAPABILITY",
+              "label": [
+                {
+                  "value": "Capability"
+                }
+              ],
+              "elementRef": "ELM-STRATEGY-CAPABILITY"
+            },
+            {
+              "identifier": "ORG-REF-STRATEGY-COURSE",
+              "label": [
+                {
+                  "value": "Course Of Action"
+                }
+              ],
+              "elementRef": "ELM-STRATEGY-COURSE"
+            }
+          ],
+          "extensions": {
+            "ai4pb": {
+              "managedBy": "system-architect",
+              "baseline": "core"
+            }
+          }
+        },
+        {
+          "identifier": "ORG-INTENTION-BUSINESS",
+          "label": [
+            {
+              "value": "Business Layer"
+            }
+          ],
+          "item": [
+            {
+              "identifier": "ORG-REF-BUSINESS-ACTOR",
+              "label": [
+                {
+                  "value": "Business Actor"
+                }
+              ],
+              "elementRef": "ELM-BUSINESS-ACTOR"
+            },
+            {
+              "identifier": "ORG-REF-BUSINESS-PROCESS",
+              "label": [
+                {
+                  "value": "Business Process"
+                }
+              ],
+              "elementRef": "ELM-BUSINESS-PROCESS"
+            },
+            {
+              "identifier": "ORG-REF-BUSINESS-SERVICE",
+              "label": [
+                {
+                  "value": "Business Service"
+                }
+              ],
+              "elementRef": "ELM-BUSINESS-SERVICE"
+            }
+          ],
+          "extensions": {
+            "ai4pb": {
+              "managedBy": "system-architect",
+              "baseline": "core"
+            }
+          }
+        },
+        {
+          "identifier": "ORG-INTENTION-APPLICATION",
+          "label": [
+            {
+              "value": "Application Layer"
+            }
+          ],
+          "item": [
+            {
+              "identifier": "ORG-REF-APPLICATION-COMPONENT",
+              "label": [
+                {
+                  "value": "Application Component"
+                }
+              ],
+              "elementRef": "ELM-APPLICATION-COMPONENT"
+            },
+            {
+              "identifier": "ORG-REF-APPLICATION-SERVICE",
+              "label": [
+                {
+                  "value": "Application Service"
+                }
+              ],
+              "elementRef": "ELM-APPLICATION-SERVICE"
+            },
+            {
+              "identifier": "ORG-REF-APPLICATION-DATA",
+              "label": [
+                {
+                  "value": "Data Object"
+                }
+              ],
+              "elementRef": "ELM-APPLICATION-DATA"
+            }
+          ],
+          "extensions": {
+            "ai4pb": {
+              "managedBy": "system-architect",
+              "baseline": "core"
+            }
+          }
+        },
+        {
+          "identifier": "ORG-INTENTION-TECHNOLOGY",
+          "label": [
+            {
+              "value": "Technology Layer"
+            }
+          ],
+          "item": [
+            {
+              "identifier": "ORG-REF-TECHNOLOGY-NODE",
+              "label": [
+                {
+                  "value": "Node"
+                }
+              ],
+              "elementRef": "ELM-TECHNOLOGY-NODE"
+            },
+            {
+              "identifier": "ORG-REF-TECHNOLOGY-ARTIFACT",
+              "label": [
+                {
+                  "value": "Artifact"
+                }
+              ],
+              "elementRef": "ELM-TECHNOLOGY-ARTIFACT"
+            }
+          ],
+          "extensions": {
+            "ai4pb": {
+              "managedBy": "system-architect",
+              "baseline": "core"
+            }
+          }
+        }
+      ],
+      "extensions": {
+        "ai4pb": {
+          "managedBy": "system-architect",
+          "baseline": "core"
+        }
+      }
+    }
+  ]
+}
