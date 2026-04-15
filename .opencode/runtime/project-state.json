@@ -1,44 +1,78 @@
 {
   "version": 2,
   "activeGoal": "Fast-track implementation of the human-architect-approved Neo4j chain: add Execute Neo4j Cypher and Neo4j Query Native T",
-  "designSummary": "",
-  "designDecisions": [],
+  "designSummary": "Minimal architect repair for QA issue ISSUE-001 on baseline commit 86b3f4501d6a8529b72a736bb18f8dff59d52034. Human-authored architecture remains authoritative and unchanged: ApplicationFunction {E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC} Execute Neo4j Cypher stays assigned to existing software unit ELM-APP-COMP-STIX-CLI, and ApplicationComponent {1CFA011B-787D-4e43-BE86-0AC04FE53394} Neo4j Query Native Tool remains the agent-facing tool boundary serving that CLI. Minimal rework is limited to compliant task traceability and intent-tagged automated coverage for {E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC}; no architecture semantics, capability boundaries, or human-architect nodes are redesigned. Because TASK-001 is a planning-only escalation artifact without architectureElementId mapping, downstream implementation should be routed through a new function-level implementation task anchored to software unit ELM-APP-COMP-STIX-CLI and architecture element {E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC}. No Requirement ID is introduced because none was authoritatively recoverable from the graph.",
+  "designDecisions": [
+    "ADR: Preserve the human-authored Neo4j architecture unchanged for ISSUE-001. The approved ApplicationFunction {E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC} and ApplicationComponent {1CFA011B-787D-4e43-BE86-0AC04FE53394} remain authoritative; the issue is traceability/task-contract completeness, not a design defect.",
+    "ADR: Accept existing software unit ELM-APP-COMP-STIX-CLI (STIX Semantic Query CLI) as the implementation owner for Execute Neo4j Cypher because the realized behavior already exists in agent_app/opencode_app/tools/stix_cli/semantic_query.py and __main__.py, and the graph already contains the Assignment from ELM-APP-COMP-STIX-CLI to {E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC}.",
+    "ADR: Reject introducing a new Neo4j-specific software unit or moving ownership into the tool wrapper. The JS tool file agent_app/opencode_app/.opencode/tools/neo4j_query.js correctly remains the agent-facing ApplicationComponent {1CFA011B-787D-4e43-BE86-0AC04FE53394}; it already has tagged tests. The missing QA intent coverage is specifically at ApplicationFunction {E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC}, so the minimal repair is tagged tests and task routing anchored to the existing Python CLI unit.",
+    "ADR: Do not invent or backfill a Requirement ID for the Neo4j batch because no authoritative requirement element was recoverable from the runtime graph. Route implementation rework using architecture-element traceability and preserve the absence of a requirement link as a known upstream metadata gap rather than fabricating motivation semantics."
+  ],
   "tasks": [
     {
       "id": "TASK-001",
       "title": "Fast-track implementation of the human-architect-approved Neo4j chain: add Execute Neo4j Cypher and Neo4j Query Native T",
       "status": "done",
-      "retryCount": 0,
+      "retryCount": 1,
       "kind": "planning",
       "owner": "SystemArchitect",
-      "summary": "Implemented Neo4j native query tool and CLI path, added clean Neo4j JSON serialization, validated write/query Cypher path against temporary Neo4j container, and committed changes.",
-      "details": "Implemented Neo4j native query tool and CLI path, added clean Neo4j JSON serialization, validated write/query Cypher path against temporary Neo4j container, and committed changes.",
+      "summary": "Planning/escalation record closed after architect traceability repair (TASK-002), QA pass, and Audit pass on commit 05d14a419e925bc9e7f59afff983daa3a1c42323.",
+      "details": "Planning/escalation record closed after architect traceability repair (TASK-002), QA pass, and Audit pass on commit 05d14a419e925bc9e7f59afff983daa3a1c42323.",
       "createdAt": "2026-04-15T16:09:13.436Z",
-      "updatedAt": "2026-04-15T16:59:14.477Z",
-      "commitId": "86b3f4501d6a8529b72a736bb18f8dff59d52034"
+      "updatedAt": "2026-04-15T23:39:48.108Z",
+      "commitId": "05d14a419e925bc9e7f59afff983daa3a1c42323"
+    },
+    {
+      "id": "TASK-002",
+      "title": "Add intent-tagged QA coverage for Execute Neo4j Cypher in STIX Semantic Query CLI",
+      "status": "done",
+      "retryCount": 0,
+      "kind": "implementation",
+      "owner": "Implementation",
+      "summary": "Completed localized QA rework for STIX Semantic Query CLI. Added intent-tagged tests in tests/test_stix_cli.py for clean_neo4j_value record/node/relationship/path JSON output, explicitly tracing to softwareUnitId ELM-APP-COMP-STIX-CLI and architectureElementId {E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC}. Focused validation passed with PYTHONPATH=. pytest tests/test_stix_cli.py -q.",
+      "details": "Completed localized QA rework for STIX Semantic Query CLI. Added intent-tagged tests in tests/test_stix_cli.py for clean_neo4j_value record/node/relationship/path JSON output, explicitly tracing to softwareUnitId ELM-APP-COMP-STIX-CLI and architectureElementId {E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC}. Focused validation passed with PYTHONPATH=. pytest tests/test_stix_cli.py -q.",
+      "softwareUnitId": "ELM-APP-COMP-STIX-CLI",
+      "softwareUnitTitle": "STIX Semantic Query CLI",
+      "architectureElementId": "{E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC}",
+      "createdAt": "2026-04-15T23:24:58.567Z",
+      "updatedAt": "2026-04-15T23:29:02.693Z",
+      "commitId": "05d14a419e925bc9e7f59afff983daa3a1c42323"
     }
   ],
-  "issues": [],
+  "issues": [
+    {
+      "id": "ISSUE-001",
+      "category": "BugReport",
+      "summary": "TASK-001 QA traceability gap for Neo4j fast-track batch [Resolved]",
+      "details": "Resolved by successful rework commit 05d14a419e925bc9e7f59afff983daa3a1c42323",
+      "createdAt": "2026-04-15T17:41:56.086Z"
+    }
+  ],
   "validations": {
     "qa": {
-      "status": "not_run",
-      "summary": "QA not run for the current goal.",
-      "updatedAt": "2026-04-15T16:09:13.436Z"
+      "status": "passed",
+      "summary": "Re-validation passed for TASK-002 on commit 05d14a419e925bc9e7f59afff983daa3a1c42323. Verified tagged automated coverage for ApplicationFunction {E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC} / software unit ELM-APP-COMP-STIX-CLI in tests/test_stix_cli.py, including clean_neo4j_value record/node/relationship/path serialization cleanliness. Local-only validation commands passed: PYTHONPATH=. pytest tests/test_stix_cli.py -q, PYTHONPATH=. pytest tests/test_neo4j_query_tool.py -q, and python3 -m py_compile agent_app/opencode_app/tools/stix_cli/semantic_query.py tests/test_stix_cli.py. 跳过了真实环境验证; human gate remained local Mock/AST only and no live DB/server/docker validation was required.",
+      "details": "Re-validation passed for TASK-002 on commit 05d14a419e925bc9e7f59afff983daa3a1c42323. Verified tagged automated coverage for ApplicationFunction {E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC} / software unit ELM-APP-COMP-STIX-CLI in tests/test_stix_cli.py, including clean_neo4j_value record/node/relationship/path serialization cleanliness. Local-only validation commands passed: PYTHONPATH=. pytest tests/test_stix_cli.py -q, PYTHONPATH=. pytest tests/test_neo4j_query_tool.py -q, and python3 -m py_compile agent_app/opencode_app/tools/stix_cli/semantic_query.py tests/test_stix_cli.py. 跳过了真实环境验证; human gate remained local Mock/AST only and no live DB/server/docker validation was required.",
+      "commitId": "05d14a419e925bc9e7f59afff983daa3a1c42323",
+      "updatedAt": "2026-04-15T23:35:45.767Z"
     },
     "audit": {
-      "status": "not_run",
-      "summary": "Audit not run for the current goal.",
-      "updatedAt": "2026-04-15T16:09:13.436Z"
+      "status": "passed",
+      "summary": "Architecture compliance audit passed for commit 05d14a419e925bc9e7f59afff983daa3a1c42323 in full-model lane after re-QA. Intent model is sufficient with all core layers present. Reviewed batch is limited to tests/test_stix_cli.py and introduces no architectural code drift. Explicit architecture trace evidence remains present for ELM-APP-COMP-STIX-CLI in agent_app/opencode_app/tools/stix_cli/semantic_query.py, for {E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC} in semantic_query.py and tests/test_stix_cli.py, and for {1CFA011B-787D-4e43-BE86-0AC04FE53394} in agent_app/opencode_app/.opencode/tools/neo4j_query.js and tests/test_neo4j_query_tool.py. Reality scan verifiedIntentIds includes ELM-APP-COMP-STIX-CLI, {E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC}, and {1CFA011B-787D-4e43-BE86-0AC04FE53394}, satisfying required automated intent coverage for the Neo4j batch.",
+      "details": "Architecture compliance audit passed for commit 05d14a419e925bc9e7f59afff983daa3a1c42323 in full-model lane after re-QA. Intent model is sufficient with all core layers present. Reviewed batch is limited to tests/test_stix_cli.py and introduces no architectural code drift. Explicit architecture trace evidence remains present for ELM-APP-COMP-STIX-CLI in agent_app/opencode_app/tools/stix_cli/semantic_query.py, for {E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC} in semantic_query.py and tests/test_stix_cli.py, and for {1CFA011B-787D-4e43-BE86-0AC04FE53394} in agent_app/opencode_app/.opencode/tools/neo4j_query.js and tests/test_neo4j_query_tool.py. Reality scan verifiedIntentIds includes ELM-APP-COMP-STIX-CLI, {E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC}, and {1CFA011B-787D-4e43-BE86-0AC04FE53394}, satisfying required automated intent coverage for the Neo4j batch.",
+      "commitId": "05d14a419e925bc9e7f59afff983daa3a1c42323",
+      "updatedAt": "2026-04-15T23:39:27.614Z"
     }
   },
   "release": {
-    "status": "not_started",
-    "summary": "Release not prepared for the current goal.",
-    "updatedAt": "2026-04-15T16:09:13.436Z"
+    "status": "completed",
+    "summary": "Release finalized for the validated Neo4j batch in /mnt/d/projects/ThreatIntelliganceAgent. Release scope commit: 05d14a419e925bc9e7f59afff983daa3a1c42323. Original implementation commit: 86b3f4501d6a8529b72a736bb18f8dff59d52034. Rework commit: 05d14a419e925bc9e7f59afff983daa3a1c42323. Final task states: TASK-001 done, TASK-002 done. ISSUE-001 resolved. QA passed. Audit passed. Traceability matrix included in SprintRleaseLog.md and records one verification gap row for planning scope TASK-001 and one verified row for TASK-002.",
+    "releaseLogPath": "SprintRleaseLog.md",
+    "updatedAt": "2026-04-15T23:43:22.544Z"
   },
   "counters": {
-    "task": 1,
-    "issue": 0
+    "task": 2,
+    "issue": 1
   },
-  "updatedAt": "2026-04-15T16:59:14.479Z"
+  "updatedAt": "2026-04-15T23:43:22.544Z"
 }

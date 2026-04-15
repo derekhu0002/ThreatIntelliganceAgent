@@ -1,45 +1,48 @@
 # Sprint Release Log
 
-- Release scope commit: `c19e656119b7f55575a21cf8092c0e8b8a9f5b91`
+- Release scope commit: `05d14a419e925bc9e7f59afff983daa3a1c42323`
+- Original implementation commit: `86b3f4501d6a8529b72a736bb18f8dff59d52034`
+- Rework commit: `05d14a419e925bc9e7f59afff983daa3a1c42323`
 - Release status: Completed
 
 ## Scope Summary
 
-- Formalized `agent_app/opencode_app/.opencode/schema/` as DataObject `ELM-DATA-STIX-ARGO-SCHEMA`.
-- Linked `ELM-FUNC-VALIDATE-EVENT-CONTRACT` and `ELM-FUNC-VALIDATE-RESULT-CONTRACT` to `ELM-DATA-STIX-ARGO-SCHEMA`.
-- Implemented strict shared Pydantic v2 Python contracts and strict typed JS boundary validation in `agent_app/opencode_app/.opencode/tools/stix_query.js`.
+- Finalized the validated Neo4j batch release around the rework commit `05d14a419e925bc9e7f59afff983daa3a1c42323`.
+- Closed `TASK-001` (planning/escalation record) and `TASK-002` (intent-tagged QA coverage repair).
+- Marked `ISSUE-001` resolved after QA pass and architecture audit pass.
 
 ## Completed Runtime Tasks
 
-- `TASK-006` — Formalize schema directory as architecture DataObject
-- `TASK-008` — Link validator functions to `ELM-DATA-STIX-ARGO-SCHEMA`
-- `TASK-009` — Generate and integrate strict Python schema-derived entities for event/result contracts
-- `TASK-010` — Enforce strict typed parsing and assembly in `stix_query.js`
+- `TASK-001` — Fast-track implementation of the human-architect-approved Neo4j chain: add Execute Neo4j Cypher and Neo4j Query Native T
+- `TASK-002` — Add intent-tagged QA coverage for Execute Neo4j Cypher in STIX Semantic Query CLI
+
+## Resolved Issues
+
+- `ISSUE-001` — Resolved
 
 ## Validation Status
 
-- QA: Passed on `c19e656119b7f55575a21cf8092c0e8b8a9f5b91`
-- Audit: Passed on `c19e656119b7f55575a21cf8092c0e8b8a9f5b91`
-
-## Verification Statement
-
-100% of the intended sprint scope represented in the generated intent traceability matrix was verified by tests. Every matrix row is marked `✅ Yes`, so this release is finalized without verification gaps.
+- QA: Passed on `05d14a419e925bc9e7f59afff983daa3a1c42323`
+- Audit: Passed on `05d14a419e925bc9e7f59afff983daa3a1c42323`
 
 ## Key Artifacts
 
-- Schema catalog root: `agent_app/opencode_app/.opencode/schema/`
-- JS boundary validation: `agent_app/opencode_app/.opencode/tools/stix_query.js`
-- Python verification: `tests/test_stix_contracts.py`
-- Listener verification: `tests/test_python_listener.py`
-- Workspace/boundary verification: `tests/test_opencode_workspace_config.py`
+- STIX CLI implementation: `agent_app/opencode_app/tools/stix_cli/semantic_query.py`
+- STIX CLI QA coverage: `tests/test_stix_cli.py`
+- Neo4j query tool: `agent_app/opencode_app/.opencode/tools/neo4j_query.js`
+- Neo4j query tool tests: `tests/test_neo4j_query_tool.py`
+
+## Verification Statement
+
+Full intent verification was not achieved in the generated traceability matrix because one or more rows remain marked `❌ No`. This release completed QA and audit successfully, but the release package contains traceability verification gaps for non-testable planning scope represented in the matrix.
 
 ## Intent Traceability Matrix
 
 # Traceability Matrix
 
-Scope: commit c19e656119b7f55575a21cf8092c0e8b8a9f5b91
+Scope: commit 05d14a419e925bc9e7f59afff983daa3a1c42323
 
 | Requirement (Intent) | Architecture Component (Design) | Implemented Task | Source Files (Reality) | Verified by Tests? |
 | --- | --- | --- | --- | --- |
-| N/A | ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS Generate Schema-Derived Python Contracts | TASK-009 Generate and integrate strict Python schema-derived entities for event/result contracts (c19e656119b7f55575a21cf8092c0e8b8a9f5b91) | N/A | ✅ Yes |
-| N/A | ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT Validate STIX Query CLI Output | TASK-010 Enforce strict typed parsing and assembly in stix_query.js (c19e656119b7f55575a21cf8092c0e8b8a9f5b91) | N/A | ✅ Yes |
+| N/A | N/A | TASK-001 Fast-track implementation of the human-architect-approved Neo4j chain: add Execute Neo4j Cypher and Neo4j Query Native T (05d14a419e925bc9e7f59afff983daa3a1c42323) | N/A | ❌ No |
+| N/A | {E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC} Execute Neo4j Cypher | TASK-002 Add intent-tagged QA coverage for Execute Neo4j Cypher in STIX Semantic Query CLI (05d14a419e925bc9e7f59afff983daa3a1c42323) | agent_app/opencode_app/tools/stix_cli/semantic_query.py<br>tests/test_stix_cli.py | ✅ Yes |
