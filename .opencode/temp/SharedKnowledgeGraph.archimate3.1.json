@@ -22,25 +22,25 @@
       "designSummary": "",
       "designDecisions": [],
       "runtime": {
-        "activeGoal": "",
+        "activeGoal": "Fast-track implementation of the human-architect-approved Neo4j chain: add Execute Neo4j Cypher and Neo4j Query Native T",
         "validations": {
           "qa": {
             "status": "not_run",
-            "summary": "No validation has been recorded yet.",
-            "updatedAt": "1970-01-01T00:00:00.000Z"
+            "summary": "QA not run for the current goal.",
+            "updatedAt": "2026-04-15T16:09:13.436Z"
           },
           "audit": {
             "status": "not_run",
-            "summary": "No validation has been recorded yet.",
-            "updatedAt": "1970-01-01T00:00:00.000Z"
+            "summary": "Audit not run for the current goal.",
+            "updatedAt": "2026-04-15T16:09:13.436Z"
           }
         },
         "release": {
           "status": "not_started",
-          "summary": "Release has not been prepared yet.",
-          "updatedAt": "2026-04-15T08:14:18.840Z"
+          "summary": "Release not prepared for the current goal.",
+          "updatedAt": "2026-04-15T16:09:13.436Z"
         },
-        "updatedAt": "2026-04-15T14:20:31.976Z"
+        "updatedAt": "2026-04-15T16:35:52.071Z"
       }
     }
   },
@@ -240,7 +240,8 @@
         "type": "Node",
         "name": [
           {
-            "value": "Core Technology Runtime"
+            "value": "Neo4j Graph Database",
+            "lang": "en"
           }
         ],
         "documentation": [
@@ -1081,24 +1082,96 @@
         ]
       },
       {
-        "identifier": "PROJECT-CURRENT",
-        "type": "WorkPackage",
+        "identifier": "{E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC}",
+        "type": "ApplicationFunction",
         "name": [
           {
-            "value": "Current Project Goal"
+            "value": "Execute Neo4j Cypher",
+            "lang": "en"
           }
         ],
         "documentation": [
           {
-            "value": "Current OpenCode project goal."
+            "value": "- **[Input]**: 接收原生的 Cypher 查询语句字符串。- **[Processing]**: 使用 neo4j 官方 Driver 连接数据库执行 Cypher。核心防腐逻辑：必须清洗结果，剔除 Neo4j 底层的系统元数据（如内部 node ID、`<Record>` 包装类等），将其扁平化序列化为纯净的 JSON 字典。- **[Output]**: 打印纯净的 JSON 字符串到 stdout。- **[Acceptance Criteria]**: 无论查询节点还是关系，返回的 ",
+            "lang": "en"
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{1CFA011B-787D-4e43-BE86-0AC04FE53394}",
+        "type": "ApplicationComponent",
+        "name": [
+          {
+            "value": "Neo4j Query Native Tool",
+            "lang": "en"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "- **[Input]**: 接收 Agent 传入的 JSON 参数 `{ \"cypher\": \"<合法的 Cypher 语句>\" }`。- **[Processing]**：作为 Agent 的调用入口，通过 `child_process` 唤起 Python STIX CLI，将 Cypher 语句透传，并捕获 stdout。- **[Output]**: 返回解析后的纯净 JSON 数据给 Agent。- **[Acceptance Criteria]**: Tool 必须在 OpenCode 中",
+            "lang": "en"
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "PROJECT-CURRENT",
+        "type": "WorkPackage",
+        "name": [
+          {
+            "value": "Fast-track implementation of the human-architect-approved Neo4j chain: add Execute Neo4j Cypher and Neo4j Query Native T"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "Fast-track implementation of the human-architect-approved Neo4j chain: add Execute Neo4j Cypher and Neo4j Query Native T"
           }
         ],
         "extensions": {
           "ai4pb": {
             "managedBy": "opencode-runtime",
             "kind": "Project",
-            "rawRequirement": "",
+            "rawRequirement": "Fast-track implementation of the human-architect-approved Neo4j chain: add Execute Neo4j Cypher and Neo4j Query Native T",
             "status": "InProgress"
+          }
+        }
+      },
+      {
+        "identifier": "TASK-001",
+        "type": "WorkPackage",
+        "name": [
+          {
+            "value": "Fast-track implementation of the human-architect-approved Neo4j chain: add Execute Neo4j Cypher and Neo4j Query Native T"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "Implemented Neo4j native query tool and CLI path, added clean Neo4j JSON serialization, validated write/query Cypher path against temporary Neo4j container, and committed changes."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "Task",
+            "taskKind": "planning",
+            "status": "Done",
+            "retryCount": 0,
+            "assignee": "SystemArchitect",
+            "summary": "Implemented Neo4j native query tool and CLI path, added clean Neo4j JSON serialization, validated write/query Cypher path against temporary Neo4j container, and committed changes.",
+            "commitId": "86b3f4501d6a8529b72a736bb18f8dff59d52034",
+            "softwareUnitId": "",
+            "softwareUnitTitle": "",
+            "architectureElementId": "",
+            "updatedAt": "2026-04-15T16:59:14.477Z"
           }
         }
       }
@@ -1460,7 +1533,13 @@
         ],
         "source": "ELM-APP-COMP-RESULT-ASSEMBLER",
         "target": "ELM-FUNC-ASSEMBLE-STRUCTURED-RESULT",
-        "extensions": {}
+        "extensions": {},
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-ASSIGN-ASSEMBLER-VALIDATE",
@@ -1472,7 +1551,13 @@
         ],
         "source": "ELM-APP-COMP-RESULT-ASSEMBLER",
         "target": "ELM-FUNC-VALIDATE-RESULT-CONTRACT",
-        "extensions": {}
+        "extensions": {},
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-ASSIGN-CONTRACTS-GENERATE",
@@ -1756,7 +1841,13 @@
         ],
         "source": "ELM-APP-COMP-RESULT-ASSEMBLER",
         "target": "ELM-APPLICATION-SERVICE",
-        "extensions": {}
+        "extensions": {},
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-COMP-CONTRACTS-REALIZES-APP-SVC",
@@ -2039,7 +2130,13 @@
           }
         ],
         "source": "ELM-APPLICATION-COMPONENT",
-        "target": "ELM-APP-COMP-OPENCODE-THREAT-WORKSPACE"
+        "target": "ELM-APP-COMP-OPENCODE-THREAT-WORKSPACE",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-THREAT-WORKSPACE-REALIZES-PRIMARY",
@@ -2050,7 +2147,13 @@
           }
         ],
         "source": "ELM-APP-COMP-OPENCODE-THREAT-WORKSPACE",
-        "target": "ELM-APP-IF-THREAT-PRIMARY"
+        "target": "ELM-APP-IF-THREAT-PRIMARY",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-THREAT-WORKSPACE-REALIZES-ANALYST",
@@ -2061,7 +2164,13 @@
           }
         ],
         "source": "ELM-APP-COMP-OPENCODE-THREAT-WORKSPACE",
-        "target": "ELM-APP-IF-THREAT-ANALYST"
+        "target": "ELM-APP-IF-THREAT-ANALYST",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-THREAT-WORKSPACE-REALIZES-SECOPS",
@@ -2072,7 +2181,13 @@
           }
         ],
         "source": "ELM-APP-COMP-OPENCODE-THREAT-WORKSPACE",
-        "target": "ELM-APP-IF-THREAT-SECOPS"
+        "target": "ELM-APP-IF-THREAT-SECOPS",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-THREAT-WORKSPACE-REALIZES-COMMANDER-ALIAS",
@@ -2083,7 +2198,13 @@
           }
         ],
         "source": "ELM-APP-COMP-OPENCODE-THREAT-WORKSPACE",
-        "target": "ELM-APP-IF-THREAT-COMMANDER-ALIAS"
+        "target": "ELM-APP-IF-THREAT-COMMANDER-ALIAS",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-THREAT-WORKSPACE-REALIZES-STIX-ALIAS",
@@ -2094,7 +2215,13 @@
           }
         ],
         "source": "ELM-APP-COMP-OPENCODE-THREAT-WORKSPACE",
-        "target": "ELM-APP-IF-STIX-EVIDENCE-SPECIALIST-ALIAS"
+        "target": "ELM-APP-IF-STIX-EVIDENCE-SPECIALIST-ALIAS",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-THREAT-WORKSPACE-REALIZES-TARA-ALIAS",
@@ -2105,7 +2232,13 @@
           }
         ],
         "source": "ELM-APP-COMP-OPENCODE-THREAT-WORKSPACE",
-        "target": "ELM-APP-IF-TARA-ANALYST-ALIAS"
+        "target": "ELM-APP-IF-TARA-ANALYST-ALIAS",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-THREAT-WORKSPACE-REALIZES-COLLAB-SKILL",
@@ -2116,7 +2249,13 @@
           }
         ],
         "source": "ELM-APP-COMP-OPENCODE-THREAT-WORKSPACE",
-        "target": "ELM-APP-IF-SKILL-THREAT-COLLAB"
+        "target": "ELM-APP-IF-SKILL-THREAT-COLLAB",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-THREAT-WORKSPACE-REALIZES-STIX-SKILL",
@@ -2127,7 +2266,13 @@
           }
         ],
         "source": "ELM-APP-COMP-OPENCODE-THREAT-WORKSPACE",
-        "target": "ELM-APP-IF-SKILL-STIX-REVIEW"
+        "target": "ELM-APP-IF-SKILL-STIX-REVIEW",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-THREAT-WORKSPACE-REALIZES-RISK-SKILL",
@@ -2138,7 +2283,13 @@
           }
         ],
         "source": "ELM-APP-COMP-OPENCODE-THREAT-WORKSPACE",
-        "target": "ELM-APP-IF-SKILL-RISK-ASSESS"
+        "target": "ELM-APP-IF-SKILL-RISK-ASSESS",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-THREAT-WORKSPACE-REALIZES-COMMANDER-SKILL-ALIAS",
@@ -2149,7 +2300,13 @@
           }
         ],
         "source": "ELM-APP-COMP-OPENCODE-THREAT-WORKSPACE",
-        "target": "ELM-APP-IF-SKILL-COMMANDER-LOOP-ALIAS"
+        "target": "ELM-APP-IF-SKILL-COMMANDER-LOOP-ALIAS",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-THREAT-WORKSPACE-REALIZES-TARA-SKILL-ALIAS",
@@ -2160,7 +2317,13 @@
           }
         ],
         "source": "ELM-APP-COMP-OPENCODE-THREAT-WORKSPACE",
-        "target": "ELM-APP-IF-SKILL-TARA-HANDLER-ALIAS"
+        "target": "ELM-APP-IF-SKILL-TARA-HANDLER-ALIAS",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-THREAT-WORKSPACE-ACCESS-EVENT-CONTEXT",
@@ -2171,7 +2334,13 @@
           }
         ],
         "source": "ELM-APP-COMP-OPENCODE-THREAT-WORKSPACE",
-        "target": "ELM-DATAOBJ-NORMALIZED-EVENT-CONTEXT"
+        "target": "ELM-DATAOBJ-NORMALIZED-EVENT-CONTEXT",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-THREAT-WORKSPACE-ACCESS-ANALYST-FINDINGS",
@@ -2182,7 +2351,13 @@
           }
         ],
         "source": "ELM-APP-COMP-OPENCODE-THREAT-WORKSPACE",
-        "target": "ELM-DATAOBJ-STIX-ANALYST-FINDINGS"
+        "target": "ELM-DATAOBJ-STIX-ANALYST-FINDINGS",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-THREAT-WORKSPACE-ACCESS-SECOPS-ASSESSMENT",
@@ -2193,7 +2368,13 @@
           }
         ],
         "source": "ELM-APP-COMP-OPENCODE-THREAT-WORKSPACE",
-        "target": "ELM-DATAOBJ-SECOPS-ASSESSMENT"
+        "target": "ELM-DATAOBJ-SECOPS-ASSESSMENT",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-THREAT-WORKSPACE-ACCESS-TASK009",
@@ -2204,7 +2385,13 @@
           }
         ],
         "source": "ELM-APP-COMP-OPENCODE-THREAT-WORKSPACE",
-        "target": "ELM-DATAOBJ-TASK009-RESULT"
+        "target": "ELM-DATAOBJ-TASK009-RESULT",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-DB-SCHEMA-EXPLORER-SERVES-WORKSPACE",
@@ -2215,7 +2402,13 @@
           }
         ],
         "source": "ELM-TECH-SVC-DB-SCHEMA-EXPLORER",
-        "target": "ELM-APP-COMP-OPENCODE-THREAT-WORKSPACE"
+        "target": "ELM-APP-COMP-OPENCODE-THREAT-WORKSPACE",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-STIX-QUERY-SERVES-WORKSPACE",
@@ -2226,7 +2419,13 @@
           }
         ],
         "source": "ELM-TECH-SVC-STIX-QUERY",
-        "target": "ELM-APP-COMP-OPENCODE-THREAT-WORKSPACE"
+        "target": "ELM-APP-COMP-OPENCODE-THREAT-WORKSPACE",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-PRIMARY-ACCESS-EVENT-CONTEXT",
@@ -2237,7 +2436,13 @@
           }
         ],
         "source": "ELM-APP-IF-THREAT-PRIMARY",
-        "target": "ELM-DATAOBJ-NORMALIZED-EVENT-CONTEXT"
+        "target": "ELM-DATAOBJ-NORMALIZED-EVENT-CONTEXT",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-PRIMARY-ACCESS-TASK009",
@@ -2248,7 +2453,13 @@
           }
         ],
         "source": "ELM-APP-IF-THREAT-PRIMARY",
-        "target": "ELM-DATAOBJ-TASK009-RESULT"
+        "target": "ELM-DATAOBJ-TASK009-RESULT",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-ANALYST-ACCESS-EVENT-CONTEXT",
@@ -2259,7 +2470,13 @@
           }
         ],
         "source": "ELM-APP-IF-THREAT-ANALYST",
-        "target": "ELM-DATAOBJ-NORMALIZED-EVENT-CONTEXT"
+        "target": "ELM-DATAOBJ-NORMALIZED-EVENT-CONTEXT",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-ANALYST-ACCESS-FINDINGS",
@@ -2270,7 +2487,13 @@
           }
         ],
         "source": "ELM-APP-IF-THREAT-ANALYST",
-        "target": "ELM-DATAOBJ-STIX-ANALYST-FINDINGS"
+        "target": "ELM-DATAOBJ-STIX-ANALYST-FINDINGS",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-SECOPS-ACCESS-FINDINGS",
@@ -2281,7 +2504,13 @@
           }
         ],
         "source": "ELM-APP-IF-THREAT-SECOPS",
-        "target": "ELM-DATAOBJ-STIX-ANALYST-FINDINGS"
+        "target": "ELM-DATAOBJ-STIX-ANALYST-FINDINGS",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-SECOPS-ACCESS-ASSESSMENT",
@@ -2292,7 +2521,13 @@
           }
         ],
         "source": "ELM-APP-IF-THREAT-SECOPS",
-        "target": "ELM-DATAOBJ-SECOPS-ASSESSMENT"
+        "target": "ELM-DATAOBJ-SECOPS-ASSESSMENT",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-STIX-ALIAS-ACCESS-FINDINGS",
@@ -2303,7 +2538,13 @@
           }
         ],
         "source": "ELM-APP-IF-STIX-EVIDENCE-SPECIALIST-ALIAS",
-        "target": "ELM-DATAOBJ-STIX-ANALYST-FINDINGS"
+        "target": "ELM-DATAOBJ-STIX-ANALYST-FINDINGS",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-TARA-ALIAS-ACCESS-ASSESSMENT",
@@ -2314,7 +2555,13 @@
           }
         ],
         "source": "ELM-APP-IF-TARA-ANALYST-ALIAS",
-        "target": "ELM-DATAOBJ-SECOPS-ASSESSMENT"
+        "target": "ELM-DATAOBJ-SECOPS-ASSESSMENT",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-COLLAB-SKILL-ACCESS-EVENT",
@@ -2325,7 +2572,13 @@
           }
         ],
         "source": "ELM-APP-IF-SKILL-THREAT-COLLAB",
-        "target": "ELM-DATAOBJ-NORMALIZED-EVENT-CONTEXT"
+        "target": "ELM-DATAOBJ-NORMALIZED-EVENT-CONTEXT",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-COLLAB-SKILL-ACCESS-TASK009",
@@ -2336,7 +2589,13 @@
           }
         ],
         "source": "ELM-APP-IF-SKILL-THREAT-COLLAB",
-        "target": "ELM-DATAOBJ-TASK009-RESULT"
+        "target": "ELM-DATAOBJ-TASK009-RESULT",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-STIX-SKILL-ACCESS-FINDINGS",
@@ -2347,7 +2606,13 @@
           }
         ],
         "source": "ELM-APP-IF-SKILL-STIX-REVIEW",
-        "target": "ELM-DATAOBJ-STIX-ANALYST-FINDINGS"
+        "target": "ELM-DATAOBJ-STIX-ANALYST-FINDINGS",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-RISK-SKILL-ACCESS-ASSESSMENT",
@@ -2358,7 +2623,13 @@
           }
         ],
         "source": "ELM-APP-IF-SKILL-RISK-ASSESS",
-        "target": "ELM-DATAOBJ-SECOPS-ASSESSMENT"
+        "target": "ELM-DATAOBJ-SECOPS-ASSESSMENT",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-DB-SCHEMA-EXPLORER-SERVES-ANALYST",
@@ -2369,7 +2640,13 @@
           }
         ],
         "source": "ELM-TECH-SVC-DB-SCHEMA-EXPLORER",
-        "target": "ELM-APP-IF-THREAT-ANALYST"
+        "target": "ELM-APP-IF-THREAT-ANALYST",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-STIX-QUERY-SERVES-ANALYST",
@@ -2380,7 +2657,13 @@
           }
         ],
         "source": "ELM-TECH-SVC-STIX-QUERY",
-        "target": "ELM-APP-IF-THREAT-ANALYST"
+        "target": "ELM-APP-IF-THREAT-ANALYST",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-DB-SCHEMA-EXPLORER-SERVES-STIX-ALIAS",
@@ -2391,7 +2674,13 @@
           }
         ],
         "source": "ELM-TECH-SVC-DB-SCHEMA-EXPLORER",
-        "target": "ELM-APP-IF-STIX-EVIDENCE-SPECIALIST-ALIAS"
+        "target": "ELM-APP-IF-STIX-EVIDENCE-SPECIALIST-ALIAS",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-STIX-QUERY-SERVES-STIX-ALIAS",
@@ -2402,7 +2691,13 @@
           }
         ],
         "source": "ELM-TECH-SVC-STIX-QUERY",
-        "target": "ELM-APP-IF-STIX-EVIDENCE-SPECIALIST-ALIAS"
+        "target": "ELM-APP-IF-STIX-EVIDENCE-SPECIALIST-ALIAS",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-APP-COMP-CORE-COMPOSES-RESULT-ASSEMBLER",
@@ -2413,7 +2708,13 @@
           }
         ],
         "source": "ELM-APPLICATION-COMPONENT",
-        "target": "ELM-APP-COMP-RESULT-ASSEMBLER"
+        "target": "ELM-APP-COMP-RESULT-ASSEMBLER",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-ASSIGN-ASSEMBLER-GENERATE-CONTRACTS",
@@ -2424,7 +2725,13 @@
           }
         ],
         "source": "ELM-APP-COMP-RESULT-ASSEMBLER",
-        "target": "ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS"
+        "target": "ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-ASSEMBLER-REALIZES-INTERFACE",
@@ -2435,7 +2742,13 @@
           }
         ],
         "source": "ELM-APP-COMP-RESULT-ASSEMBLER",
-        "target": "ELM-APP-IF-RESULT-ASSEMBLER"
+        "target": "ELM-APP-IF-RESULT-ASSEMBLER",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-ASSEMBLER-ACCESS-NORMALIZED-EVENT",
@@ -2446,7 +2759,13 @@
           }
         ],
         "source": "ELM-APP-COMP-RESULT-ASSEMBLER",
-        "target": "ELM-DATAOBJ-NORMALIZED-EVENT-CONTEXT"
+        "target": "ELM-DATAOBJ-NORMALIZED-EVENT-CONTEXT",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-ASSEMBLER-ACCESS-STIX-FINDINGS",
@@ -2457,7 +2776,13 @@
           }
         ],
         "source": "ELM-APP-COMP-RESULT-ASSEMBLER",
-        "target": "ELM-DATAOBJ-STIX-ANALYST-FINDINGS"
+        "target": "ELM-DATAOBJ-STIX-ANALYST-FINDINGS",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-ASSEMBLER-ACCESS-EVIDENCE-BUNDLE",
@@ -2468,7 +2793,13 @@
           }
         ],
         "source": "ELM-APP-COMP-RESULT-ASSEMBLER",
-        "target": "ELM-DATAOBJ-STIX-EVIDENCE-BUNDLE"
+        "target": "ELM-DATAOBJ-STIX-EVIDENCE-BUNDLE",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-ASSEMBLER-ACCESS-COLLAB-OUTPUT",
@@ -2479,7 +2810,13 @@
           }
         ],
         "source": "ELM-APP-COMP-RESULT-ASSEMBLER",
-        "target": "ELM-DATAOBJ-COLLABORATION-OUTPUT"
+        "target": "ELM-DATAOBJ-COLLABORATION-OUTPUT",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-ASSEMBLER-ACCESS-TASK009",
@@ -2490,7 +2827,13 @@
           }
         ],
         "source": "ELM-APP-COMP-RESULT-ASSEMBLER",
-        "target": "ELM-DATAOBJ-TASK009-RESULT"
+        "target": "ELM-DATAOBJ-TASK009-RESULT",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-STIX-QUERY-SERVES-ASSEMBLER",
@@ -2501,7 +2844,13 @@
           }
         ],
         "source": "ELM-TECH-SVC-STIX-QUERY",
-        "target": "ELM-APP-COMP-RESULT-ASSEMBLER"
+        "target": "ELM-APP-COMP-RESULT-ASSEMBLER",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-WORKSPACE-USES-RESULT-ASSEMBLER-INTERFACE",
@@ -2512,7 +2861,13 @@
           }
         ],
         "source": "ELM-APP-COMP-RESULT-ASSEMBLER",
-        "target": "ELM-APP-COMP-OPENCODE-THREAT-WORKSPACE"
+        "target": "ELM-APP-COMP-OPENCODE-THREAT-WORKSPACE",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-RESULT-ASSEMBLER-INTERFACE-ACCESS-TASK009",
@@ -2523,7 +2878,13 @@
           }
         ],
         "source": "ELM-APP-IF-RESULT-ASSEMBLER",
-        "target": "ELM-DATAOBJ-TASK009-RESULT"
+        "target": "ELM-DATAOBJ-TASK009-RESULT",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-RESULT-ASSEMBLER-INTERFACE-ACCESS-EVENT",
@@ -2534,7 +2895,13 @@
           }
         ],
         "source": "ELM-APP-IF-RESULT-ASSEMBLER",
-        "target": "ELM-DATAOBJ-NORMALIZED-EVENT-CONTEXT"
+        "target": "ELM-DATAOBJ-NORMALIZED-EVENT-CONTEXT",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-RESULT-ASSEMBLER-INTERFACE-ACCESS-EVIDENCE",
@@ -2545,7 +2912,13 @@
           }
         ],
         "source": "ELM-APP-IF-RESULT-ASSEMBLER",
-        "target": "ELM-DATAOBJ-STIX-EVIDENCE-BUNDLE"
+        "target": "ELM-DATAOBJ-STIX-EVIDENCE-BUNDLE",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-RESULT-ASSEMBLER-INTERFACE-ACCESS-COLLAB",
@@ -2556,7 +2929,13 @@
           }
         ],
         "source": "ELM-APP-IF-RESULT-ASSEMBLER",
-        "target": "ELM-DATAOBJ-COLLABORATION-OUTPUT"
+        "target": "ELM-DATAOBJ-COLLABORATION-OUTPUT",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-ASSEMBLE-FUNC-ACCESS-EVENT",
@@ -2567,7 +2946,13 @@
           }
         ],
         "source": "ELM-FUNC-ASSEMBLE-STRUCTURED-RESULT",
-        "target": "ELM-DATAOBJ-NORMALIZED-EVENT-CONTEXT"
+        "target": "ELM-DATAOBJ-NORMALIZED-EVENT-CONTEXT",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-ASSEMBLE-FUNC-ACCESS-FINDINGS",
@@ -2578,7 +2963,13 @@
           }
         ],
         "source": "ELM-FUNC-ASSEMBLE-STRUCTURED-RESULT",
-        "target": "ELM-DATAOBJ-STIX-ANALYST-FINDINGS"
+        "target": "ELM-DATAOBJ-STIX-ANALYST-FINDINGS",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-ASSEMBLE-FUNC-ACCESS-EVIDENCE",
@@ -2589,7 +2980,13 @@
           }
         ],
         "source": "ELM-FUNC-ASSEMBLE-STRUCTURED-RESULT",
-        "target": "ELM-DATAOBJ-STIX-EVIDENCE-BUNDLE"
+        "target": "ELM-DATAOBJ-STIX-EVIDENCE-BUNDLE",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-ASSEMBLE-FUNC-ACCESS-COLLAB",
@@ -2600,7 +2997,13 @@
           }
         ],
         "source": "ELM-FUNC-ASSEMBLE-STRUCTURED-RESULT",
-        "target": "ELM-DATAOBJ-COLLABORATION-OUTPUT"
+        "target": "ELM-DATAOBJ-COLLABORATION-OUTPUT",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-ASSEMBLE-FUNC-ACCESS-TASK009",
@@ -2611,7 +3014,13 @@
           }
         ],
         "source": "ELM-FUNC-ASSEMBLE-STRUCTURED-RESULT",
-        "target": "ELM-DATAOBJ-TASK009-RESULT"
+        "target": "ELM-DATAOBJ-TASK009-RESULT",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-VALIDATE-FUNC-ACCESS-TASK009",
@@ -2622,7 +3031,13 @@
           }
         ],
         "source": "ELM-FUNC-VALIDATE-RESULT-CONTRACT",
-        "target": "ELM-DATAOBJ-TASK009-RESULT"
+        "target": "ELM-DATAOBJ-TASK009-RESULT",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-CONTRACTS-FUNC-ACCESS-SCHEMA-ARTIFACT",
@@ -2633,7 +3048,13 @@
           }
         ],
         "source": "ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS",
-        "target": "ELM-ARTIFACT-ANALYSIS-RESULT-SCHEMA-JSON"
+        "target": "ELM-ARTIFACT-ANALYSIS-RESULT-SCHEMA-JSON",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-ASSEMBLER-REALIZED-BY-PACKAGE-API",
@@ -2644,7 +3065,13 @@
           }
         ],
         "source": "ELM-ARTIFACT-RESULT-ASSEMBLER-PACKAGE-API",
-        "target": "ELM-APP-IF-RESULT-ASSEMBLER"
+        "target": "ELM-APP-IF-RESULT-ASSEMBLER",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-ASSEMBLER-MODULE-REALIZES-ASSEMBLE-FUNC",
@@ -2655,7 +3082,13 @@
           }
         ],
         "source": "ELM-ARTIFACT-RESULT-ASSEMBLER-MODULE",
-        "target": "ELM-FUNC-ASSEMBLE-STRUCTURED-RESULT"
+        "target": "ELM-FUNC-ASSEMBLE-STRUCTURED-RESULT",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-ASSEMBLER-MODULE-REALIZES-VALIDATE-FUNC",
@@ -2666,7 +3099,13 @@
           }
         ],
         "source": "ELM-ARTIFACT-RESULT-ASSEMBLER-MODULE",
-        "target": "ELM-FUNC-VALIDATE-RESULT-CONTRACT"
+        "target": "ELM-FUNC-VALIDATE-RESULT-CONTRACT",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-SCHEMA-MODULE-REALIZES-CONTRACT-FUNC",
@@ -2677,7 +3116,13 @@
           }
         ],
         "source": "ELM-ARTIFACT-RESULT-ASSEMBLER-SCHEMA-MODULE",
-        "target": "ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS"
+        "target": "ELM-FUNC-GENERATE-SCHEMA-DERIVED-PYTHON-CONTRACTS",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-SCHEMA-JSON-REALIZES-TASK009-DATAOBJ",
@@ -2688,7 +3133,13 @@
           }
         ],
         "source": "ELM-ARTIFACT-ANALYSIS-RESULT-SCHEMA-JSON",
-        "target": "ELM-DATAOBJ-TASK009-RESULT"
+        "target": "ELM-DATAOBJ-TASK009-RESULT",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-ASSEMBLER-ACCESSES-SCHEMA-MODULE",
@@ -2699,7 +3150,13 @@
           }
         ],
         "source": "ELM-APP-COMP-RESULT-ASSEMBLER",
-        "target": "ELM-ARTIFACT-RESULT-ASSEMBLER-SCHEMA-MODULE"
+        "target": "ELM-ARTIFACT-RESULT-ASSEMBLER-SCHEMA-MODULE",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-ASSEMBLER-ACCESSES-ASSEMBLER-MODULE",
@@ -2710,7 +3167,13 @@
           }
         ],
         "source": "ELM-APP-COMP-RESULT-ASSEMBLER",
-        "target": "ELM-ARTIFACT-RESULT-ASSEMBLER-MODULE"
+        "target": "ELM-ARTIFACT-RESULT-ASSEMBLER-MODULE",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-ASSEMBLER-ACCESSES-PACKAGE-API",
@@ -2721,7 +3184,13 @@
           }
         ],
         "source": "ELM-APP-COMP-RESULT-ASSEMBLER",
-        "target": "ELM-ARTIFACT-RESULT-ASSEMBLER-PACKAGE-API"
+        "target": "ELM-ARTIFACT-RESULT-ASSEMBLER-PACKAGE-API",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
       },
       {
         "identifier": "REL-ASSEMBLER-ACCESSES-SCHEMA-JSON",
@@ -2732,7 +3201,104 @@
           }
         ],
         "source": "ELM-APP-COMP-RESULT-ASSEMBLER",
-        "target": "ELM-ARTIFACT-ANALYSIS-RESULT-SCHEMA-JSON"
+        "target": "ELM-ARTIFACT-ANALYSIS-RESULT-SCHEMA-JSON",
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ]
+      },
+      {
+        "identifier": "{86B9F319-5435-4c53-B522-29AD1E7E39DC}",
+        "type": "Assignment",
+        "source": "ELM-APP-COMP-STIX-CLI",
+        "target": "{E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC}",
+        "name": [
+          {
+            "value": "(unnamed)",
+            "lang": "en"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{01E791A4-414F-4cef-8871-C731FF439649}",
+        "type": "Access",
+        "source": "{E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC}",
+        "target": "ELM-TECHNOLOGY-NODE",
+        "name": [
+          {
+            "value": "(unnamed)",
+            "lang": "en"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{5AB891B0-C08F-4de8-9D32-A433D0FA11B5}",
+        "type": "Serving",
+        "source": "{1CFA011B-787D-4e43-BE86-0AC04FE53394}",
+        "target": "ELM-APP-COMP-STIX-CLI",
+        "name": [
+          {
+            "value": "(unnamed)",
+            "lang": "en"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "REL-PROJECT-TASK-001",
+        "type": "Aggregation",
+        "name": [
+          {
+            "value": "Project aggregates TASK-001"
+          }
+        ],
+        "source": "PROJECT-CURRENT",
+        "target": "TASK-001",
+        "documentation": [
+          {
+            "value": "Runtime task relationship managed by OpenCode runtime."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "ProjectTaskLink"
+          }
+        }
       }
     ]
   },
