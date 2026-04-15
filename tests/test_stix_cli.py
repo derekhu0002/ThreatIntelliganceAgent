@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import pytest
@@ -78,7 +79,9 @@ def test_advanced_filter_rejects_unknown_fields() -> None:
         advanced_filter(bundle, {"guessed_field": "APT28"})
 
 
-def test_clean_neo4j_value_flattens_nodes_relationships_and_records() -> None:
+# @ArchitectureID: ELM-APP-COMP-STIX-CLI
+# @ArchitectureID: {E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC}
+def test_clean_neo4j_value_returns_clean_json_for_record_node_and_relationship_payloads() -> None:
     node_type = type(
         "Node",
         (),
@@ -128,6 +131,7 @@ def test_clean_neo4j_value_flattens_nodes_relationships_and_records() -> None:
     )
 
     cleaned = clean_neo4j_value(record)
+    cleaned_json = json.dumps(cleaned, sort_keys=True)
 
     assert cleaned == {
         "n": {
@@ -141,11 +145,17 @@ def test_clean_neo4j_value_flattens_nodes_relationships_and_records() -> None:
             "properties": {"confidence": 80},
         },
     }
-    assert "element_id" not in str(cleaned)
-    assert "<Record" not in str(cleaned)
+    assert set(cleaned["n"]) == {"kind", "labels", "properties"}
+    assert set(cleaned["r"]) == {"kind", "type", "properties"}
+    assert "element_id" not in cleaned_json
+    assert "start_node" not in cleaned_json
+    assert "end_node" not in cleaned_json
+    assert "<Record" not in cleaned_json
 
 
-def test_clean_neo4j_value_flattens_paths_without_driver_wrappers() -> None:
+# @ArchitectureID: ELM-APP-COMP-STIX-CLI
+# @ArchitectureID: {E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC}
+def test_clean_neo4j_value_returns_clean_json_for_path_payloads() -> None:
     node_type = type(
         "Node",
         (),
@@ -187,8 +197,14 @@ def test_clean_neo4j_value_flattens_paths_without_driver_wrappers() -> None:
     )
 
     cleaned = clean_neo4j_value(path)
+    cleaned_json = json.dumps(cleaned, sort_keys=True)
 
     assert cleaned["kind"] == "path"
     assert cleaned["length"] == 1
     assert cleaned["nodes"][0]["properties"]["name"] == "alpha"
     assert cleaned["relationships"][0]["type"] == "CONNECTED_TO"
+    assert set(cleaned["nodes"][0]) == {"kind", "labels", "properties"}
+    assert set(cleaned["relationships"][0]) == {"kind", "type", "properties"}
+    assert "element_id" not in cleaned_json
+    assert "start_node" not in cleaned_json
+    assert "end_node" not in cleaned_json
