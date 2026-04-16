@@ -151,19 +151,25 @@ def test_stix_query_tool_allows_analyst_agents() -> None:
 def test_db_schema_explorer_tool_allows_analyst_agents() -> None:
     # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
     # @ArchitectureID: ELM-TECH-ARTIFACT-AGENT-DEFS
+    # @ArchitectureID: ELM-APP-FUNC-PUBLISH-SEMANTIC-SCHEMA-MENU
     tool_path = WORKSPACE_ROOT / "tools/db_schema_explorer.js"
 
     completed = _run_tool_module(tool_path, {}, agent="ThreatIntelAnalyst")
 
     assert completed.returncode == 0, completed.stderr
     payload = json.loads(completed.stdout)
+    # `db_schema_explorer` output is rooted in `.opencode/schema/**`; the returned structure is menu-oriented rather than only bundle-summary-oriented; the payload preserves enough entity/property/relationship detail for query planning; analyst-only scope controls remain intact.
     assert payload["schema_authority"]["source"] == ".opencode/schema/**"
+    # `db_schema_explorer` output is rooted in `.opencode/schema/**`; the returned structure is menu-oriented rather than only bundle-summary-oriented; the payload preserves enough entity/property/relationship detail for query planning; analyst-only scope controls remain intact.
     assert payload["schema_authority"]["bundle_summary_authority"] == "supplemental-only"
+    # `db_schema_explorer` output is rooted in `.opencode/schema/**`; the returned structure is menu-oriented rather than only bundle-summary-oriented; the payload preserves enough entity/property/relationship detail for query planning; analyst-only scope controls remain intact.
     assert payload["menu"]["entities"]
     assert any(item["entity_type"] == "incident" for item in payload["menu"]["entities"])
     incident_menu = next(item for item in payload["menu"]["entities"] if item["entity_type"] == "incident")
+    # `db_schema_explorer` output is rooted in `.opencode/schema/**`; the returned structure is menu-oriented rather than only bundle-summary-oriented; the payload preserves enough entity/property/relationship detail for query planning; analyst-only scope controls remain intact.
     assert "name" in incident_menu["required_properties"]
     assert any(prop["name"] == "name" for prop in incident_menu["property_options"])
+    # `db_schema_explorer` output is rooted in `.opencode/schema/**`; the returned structure is menu-oriented rather than only bundle-summary-oriented; the payload preserves enough entity/property/relationship detail for query planning; analyst-only scope controls remain intact.
     assert payload["menu"]["relationships"]
     assert "supported_query_fields" in payload
     assert any(item["entity_type"] == "vulnerability" for item in payload["entity_types"])
@@ -367,8 +373,10 @@ def test_workspace_docs_capture_canonical_collaboration_contract(skill_path: Pat
 def test_canonical_agent_descriptors_expose_traceable_role_intent() -> None:
     # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
     # @ArchitectureID: ELM-TECH-ARTIFACT-AGENT-DEFS
+    # @ArchitectureID: ELM-APP-FUNC-CANONICALIZE-THREAT-ANALYST-CONTRACT
     primary_text = (AGENTS_DIR / "ThreatIntelPrimary.md").read_text(encoding="utf-8")
     analyst_text = (AGENTS_DIR / "ThreatIntelAnalyst.md").read_text(encoding="utf-8")
+    specialist_text = (AGENTS_DIR / "STIX_EvidenceSpecialist.md").read_text(encoding="utf-8")
     secops_text = (AGENTS_DIR / "ThreatIntelSecOps.md").read_text(encoding="utf-8")
 
     assert _has_trace_tag(primary_text, REQ_TAG, REQ_ID)
@@ -377,11 +385,25 @@ def test_canonical_agent_descriptors_expose_traceable_role_intent() -> None:
 
     assert _has_trace_tag(analyst_text, REQ_TAG, REQ_ID)
     assert _has_trace_tag(analyst_text, ARCH_TAG, AGENT_DEFS_ID)
+    # `ThreatIntelAnalyst` and `STIX_EvidenceSpecialist` no longer describe `stix_query` as the canonical analyst tool; collaboration rules state the analyst uses `db_schema_explorer` and `neo4j_query`; analyst responsibilities explicitly include incident-driven extraction and database writeback initiation; final-result assembly remains owned by `ThreatIntelPrimary`.
     assert "neo4j_query" in analyst_text
+    # `ThreatIntelAnalyst` and `STIX_EvidenceSpecialist` no longer describe `stix_query` as the canonical analyst tool; collaboration rules state the analyst uses `db_schema_explorer` and `neo4j_query`; analyst responsibilities explicitly include incident-driven extraction and database writeback initiation; final-result assembly remains owned by `ThreatIntelPrimary`.
     assert "db_schema_explorer" in analyst_text
+    # `ThreatIntelAnalyst` and `STIX_EvidenceSpecialist` no longer describe `stix_query` as the canonical analyst tool; collaboration rules state the analyst uses `db_schema_explorer` and `neo4j_query`; analyst responsibilities explicitly include incident-driven extraction and database writeback initiation; final-result assembly remains owned by `ThreatIntelPrimary`.
     assert "must call `db_schema_explorer` first" in analyst_text
+    # `ThreatIntelAnalyst` and `STIX_EvidenceSpecialist` no longer describe `stix_query` as the canonical analyst tool; collaboration rules state the analyst uses `db_schema_explorer` and `neo4j_query`; analyst responsibilities explicitly include incident-driven extraction and database writeback initiation; final-result assembly remains owned by `ThreatIntelPrimary`.
     assert "incident-driven extraction" in analyst_text
+    # `ThreatIntelAnalyst` and `STIX_EvidenceSpecialist` no longer describe `stix_query` as the canonical analyst tool; collaboration rules state the analyst uses `db_schema_explorer` and `neo4j_query`; analyst responsibilities explicitly include incident-driven extraction and database writeback initiation; final-result assembly remains owned by `ThreatIntelPrimary`.
     assert "Do not assemble the final TASK-009 result" in analyst_text
+
+    assert _has_trace_tag(specialist_text, REQ_TAG, REQ_ID)
+    assert _has_trace_tag(specialist_text, ARCH_TAG, AGENT_DEFS_ID)
+    # `ThreatIntelAnalyst` and `STIX_EvidenceSpecialist` no longer describe `stix_query` as the canonical analyst tool; collaboration rules state the analyst uses `db_schema_explorer` and `neo4j_query`; analyst responsibilities explicitly include incident-driven extraction and database writeback initiation; final-result assembly remains owned by `ThreatIntelPrimary`.
+    assert "db_schema_explorer" in specialist_text
+    # `ThreatIntelAnalyst` and `STIX_EvidenceSpecialist` no longer describe `stix_query` as the canonical analyst tool; collaboration rules state the analyst uses `db_schema_explorer` and `neo4j_query`; analyst responsibilities explicitly include incident-driven extraction and database writeback initiation; final-result assembly remains owned by `ThreatIntelPrimary`.
+    assert "neo4j_query" in specialist_text
+    # `ThreatIntelAnalyst` and `STIX_EvidenceSpecialist` no longer describe `stix_query` as the canonical analyst tool; collaboration rules state the analyst uses `db_schema_explorer` and `neo4j_query`; analyst responsibilities explicitly include incident-driven extraction and database writeback initiation; final-result assembly remains owned by `ThreatIntelPrimary`.
+    assert "stix_query` may remain callable only for compatibility; it is no longer the canonical analyst contract" in specialist_text
 
     assert _has_trace_tag(secops_text, REQ_TAG, REQ_ID)
     assert _has_trace_tag(secops_text, ARCH_TAG, AGENT_DEFS_ID)
@@ -391,12 +413,16 @@ def test_canonical_agent_descriptors_expose_traceable_role_intent() -> None:
 def test_collaboration_skill_exposes_traceable_delegation_contract() -> None:
     # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
     # @ArchitectureID: ELM-APP-PROC-THREAT-COLLAB-SKILL
+    # @ArchitectureID: ELM-APP-FUNC-CANONICALIZE-THREAT-ANALYST-CONTRACT
     skill_text = (WORKSPACE_ROOT / "skills/threat-intel-collaboration/SKILL.md").read_text(encoding="utf-8")
 
     assert _has_trace_tag(skill_text, REQ_TAG, REQ_ID)
     assert _has_trace_tag(skill_text, ARCH_TAG, COLLAB_SKILL_ID)
+    # `ThreatIntelAnalyst` and `STIX_EvidenceSpecialist` no longer describe `stix_query` as the canonical analyst tool; collaboration rules state the analyst uses `db_schema_explorer` and `neo4j_query`; analyst responsibilities explicitly include incident-driven extraction and database writeback initiation; final-result assembly remains owned by `ThreatIntelPrimary`.
     assert "ThreatIntelAnalyst` must follow the Schema-First principle" in skill_text
+    # `ThreatIntelAnalyst` and `STIX_EvidenceSpecialist` no longer describe `stix_query` as the canonical analyst tool; collaboration rules state the analyst uses `db_schema_explorer` and `neo4j_query`; analyst responsibilities explicitly include incident-driven extraction and database writeback initiation; final-result assembly remains owned by `ThreatIntelPrimary`.
     assert "db_schema_explorer` and the native `neo4j_query` tool" in skill_text
+    # `ThreatIntelAnalyst` and `STIX_EvidenceSpecialist` no longer describe `stix_query` as the canonical analyst tool; collaboration rules state the analyst uses `db_schema_explorer` and `neo4j_query`; analyst responsibilities explicitly include incident-driven extraction and database writeback initiation; final-result assembly remains owned by `ThreatIntelPrimary`.
     assert "final TASK-009 assembly ownership" in skill_text
     assert "Primary -> Analyst -> SecOps -> Primary" in skill_text
     assert "final assembly was performed by the remote Primary role" in skill_text

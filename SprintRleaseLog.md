@@ -1,48 +1,45 @@
 # Sprint Release Log
 
-- Release scope commit: `05d14a419e925bc9e7f59afff983daa3a1c42323`
-- Original implementation commit: `86b3f4501d6a8529b72a736bb18f8dff59d52034`
-- Rework commit: `05d14a419e925bc9e7f59afff983daa3a1c42323`
+- Release scope commit: `e7e2d21b46b7ac75ff2269be0ad91fb85b9aafc0`
+- Traceability matrix scope alias: `e7e2d21`
+- Lane: `full-model`
 - Release status: Completed
 
 ## Scope Summary
 
-- Finalized the validated Neo4j batch release around the rework commit `05d14a419e925bc9e7f59afff983daa3a1c42323`.
-- Closed `TASK-001` (planning/escalation record) and `TASK-002` (intent-tagged QA coverage repair).
-- Marked `ISSUE-001` resolved after QA pass and architecture audit pass.
+- Finalized the successfully validated full-model batch for `TASK-003`, `TASK-004`, and `TASK-005`.
+- Canonical analyst DB contract moved from `stix_query` to `neo4j_query`.
+- `ThreatIntelAnalyst` responsibilities now cover incident-driven extraction plus idempotent writeback initiation.
+- `db_schema_explorer` now publishes the workspace semantic schema menu from `.opencode/schema/**`.
+- `neo4j_query` now exposes traceable writeback summary counters.
 
 ## Completed Runtime Tasks
 
-- `TASK-001` — Fast-track implementation of the human-architect-approved Neo4j chain: add Execute Neo4j Cypher and Neo4j Query Native T
-- `TASK-002` — Add intent-tagged QA coverage for Execute Neo4j Cypher in STIX Semantic Query CLI
+- `TASK-003` — Refine ThreatIntelAnalyst and compatibility contracts to use `neo4j_query` and support incident writeback
+- `TASK-004` — Refactor `db_schema_explorer` to publish workspace semantic schema menu from `.opencode/schema`
+- `TASK-005` — Harden `neo4j_query` as the canonical analyst read/write flow with traceable writeback summaries
 
 ## Resolved Issues
 
-- `ISSUE-001` — Resolved
+- `ISSUE-002` — Resolved by successful re-audit; prior failed audit was superseded as stale.
 
 ## Validation Status
 
-- QA: Passed on `05d14a419e925bc9e7f59afff983daa3a1c42323`
-- Audit: Passed on `05d14a419e925bc9e7f59afff983daa3a1c42323`
-
-## Key Artifacts
-
-- STIX CLI implementation: `agent_app/opencode_app/tools/stix_cli/semantic_query.py`
-- STIX CLI QA coverage: `tests/test_stix_cli.py`
-- Neo4j query tool: `agent_app/opencode_app/.opencode/tools/neo4j_query.js`
-- Neo4j query tool tests: `tests/test_neo4j_query_tool.py`
+- QA: Passed for commit `e7e2d21b46b7ac75ff2269be0ad91fb85b9aafc0`
+- Audit: Passed on rerun for commit `e7e2d21b46b7ac75ff2269be0ad91fb85b9aafc0`
 
 ## Verification Statement
 
-Full intent verification was not achieved in the generated traceability matrix because one or more rows remain marked `❌ No`. This release completed QA and audit successfully, but the release package contains traceability verification gaps for non-testable planning scope represented in the matrix.
+100% of the intended sprint scope represented in the generated traceability matrix was verified by tests. Every matrix row is marked `✅ Yes`, so full intent verification was achieved for this release scope.
 
 ## Intent Traceability Matrix
 
 # Traceability Matrix
 
-Scope: commit 05d14a419e925bc9e7f59afff983daa3a1c42323
+Scope: commit e7e2d21
 
 | Requirement (Intent) | Architecture Component (Design) | Implemented Task | Source Files (Reality) | Verified by Tests? |
 | --- | --- | --- | --- | --- |
-| N/A | N/A | TASK-001 Fast-track implementation of the human-architect-approved Neo4j chain: add Execute Neo4j Cypher and Neo4j Query Native T (05d14a419e925bc9e7f59afff983daa3a1c42323) | N/A | ❌ No |
-| N/A | {E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC} Execute Neo4j Cypher | TASK-002 Add intent-tagged QA coverage for Execute Neo4j Cypher in STIX Semantic Query CLI (05d14a419e925bc9e7f59afff983daa3a1c42323) | agent_app/opencode_app/tools/stix_cli/semantic_query.py<br>tests/test_stix_cli.py | ✅ Yes |
+| N/A | ELM-APP-FUNC-CANONICALIZE-THREAT-ANALYST-CONTRACT Canonicalize ThreatIntelAnalyst Neo4j Contract | TASK-003 Refine ThreatIntelAnalyst and compatibility contracts to use neo4j_query and support incident writeback (e7e2d21) | agent_app/opencode_app/.opencode/agents/STIX_EvidenceSpecialist.md<br>agent_app/opencode_app/.opencode/agents/ThreatIntelAnalyst.md<br>agent_app/opencode_app/.opencode/skills/stix-evidence-review/SKILL.md<br>agent_app/opencode_app/.opencode/skills/threat-intel-collaboration/SKILL.md<br>tests/test_opencode_workspace_config.py | ✅ Yes |
+| N/A | ELM-APP-FUNC-PUBLISH-SEMANTIC-SCHEMA-MENU Publish Semantic Schema Menu | TASK-004 Refactor db_schema_explorer to publish workspace semantic schema menu from .opencode/schema (e7e2d21) | agent_app/opencode_app/.opencode/tools/db_schema_explorer.js<br>tests/test_opencode_workspace_config.py | ✅ Yes |
+| N/A | ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW Execute Analyst Neo4j Read and Write Flow | TASK-005 Harden neo4j_query as the canonical analyst read/write flow with traceable writeback summaries (e7e2d21) | agent_app/opencode_app/.opencode/tools/neo4j_query.js<br>agent_app/opencode_app/tools/stix_cli/semantic_query.py<br>tests/test_neo4j_query_tool.py | ✅ Yes |
