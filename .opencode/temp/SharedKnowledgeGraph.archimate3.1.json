@@ -610,7 +610,8 @@
         ],
         "documentation": [
           {
-            "value": "Physical module: `agent_app/opencode_app/.opencode/tools/db_schema_explorer.js`. OpenCode native tool that enforces analyst-only scope, runs the Python `tools.stix_cli schema-summary` command against the local STIX bundle, and validates the returned schema-summary payload for schema-first query construction."
+            "value": "Physical module: `agent_app/opencode_app/.opencode/tools/db_schema_explorer.js`. OpenCode native tool that enforces analyst-only scope, runs the Python `tools.stix_cli schema-summary` command against the local STIX bundle, and validates the returned schema-summary payload for schema-first query construction.\r\nTODO:请从agent_app\\opencode_app\\.opencode\\schema中获取semantic schema作为“菜单”提供给AGENT来“点菜”。",
+            "lang": "en"
           }
         ]
       },
@@ -778,7 +779,8 @@
         ],
         "documentation": [
           {
-            "value": "Source: `agent_app/opencode_app/.opencode/agents/ThreatIntelAnalyst.md`. Canonical analyst callable interface. Requires schema-first flow using `db_schema_explorer` before `stix_query`. Output payload contains `role`, `summary`, `supporting_evidence_refs`, `matched_entities`, `relationship_findings`, and `confidence_notes`."
+            "value": "Source: `agent_app/opencode_app/.opencode/agents/ThreatIntelAnalyst.md`. Canonical analyst callable interface. Requires schema-first flow using `db_schema_explorer` before `stix_query`. Output payload contains `role`, `summary`, `supporting_evidence_refs`, `matched_entities`, `relationship_findings`, and `confidence_notes`.\r\nISSUE：ThreatIntelAnalyst Agent的定义和SKILL中都没有提及要使用工具neo4j_query，请用neo4j_query替换掉stix_query\r\nISSUE：该AGENT的职责不仅仅是查询收集情报，如果用户发了一个安全事件相关信息，它也要负责提取出这个事件中的威胁情报，并调用工具写入数据库中；",
+            "lang": "en"
           }
         ]
       },
@@ -932,7 +934,7 @@
         ],
         "documentation": [
           {
-            "value": "Source contracts: `ThreatIntelAnalyst.md`, `stix-evidence-review/SKILL.md`, `threat-intel-collaboration/SKILL.md`. Core fields: `role`, `summary`, `supporting_evidence_refs`, `matched_entities`, `relationship_findings`, `confidence_notes`.\r\nSSSSS",
+            "value": "Source contracts: `ThreatIntelAnalyst.md`, `stix-evidence-review/SKILL.md`, `threat-intel-collaboration/SKILL.md`. Core fields: `role`, `summary`, `supporting_evidence_refs`, `matched_entities`, `relationship_findings`, `confidence_notes`.",
             "lang": "en"
           }
         ]
@@ -1124,7 +1126,7 @@
         ],
         "documentation": [
           {
-            "value": "- **[Input]**: 接收 Agent 传入的 JSON 参数 `{ \"cypher\": \"<合法的 Cypher 语句>\" }`。- **[Processing]**：作为 Agent 的调用入口，通过 `child_process` 唤起 Python STIX CLI，将 Cypher 语句透传，并捕获 stdout。- **[Output]**: 返回解析后的纯净 JSON 数据给 Agent。- **[Acceptance Criteria]**: Tool 必须在 OpenCode 中",
+            "value": "- **[Input]**: 接收 Agent 传入的 JSON 参数 `{ \"cypher\": \"&lt;合法的 Cypher 语句&gt;\" }`。- **[Processing]**：作为 Agent 的调用入口，通过 `child_process` 唤起 Python STIX CLI，将 Cypher 语句透传，并捕获 stdout。- **[Output]**: 返回解析后的纯净 JSON 数据给 Agent。- **[Acceptance Criteria]**: Tool 必须在 OpenCode 中\r\n代码路径：agent_app\\opencode_app\\.opencode\\tools\\neo4j_query.js",
             "lang": "en"
           }
         ],
@@ -3430,6 +3432,98 @@
           "ai4pb": {
             "managedBy": "opencode-runtime",
             "kind": "TaskArchitectureTrace"
+          }
+        }
+      },
+      {
+        "identifier": "{D44803E4-009D-47d7-AE2C-31BAC5C5A615}",
+        "type": "Association",
+        "source": "ELM-APP-IF-THREAT-PRIMARY",
+        "target": "ELM-APP-IF-THREAT-ANALYST",
+        "name": [
+          {
+            "value": "Delegate",
+            "lang": "en"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{CAAAD328-FECA-40bb-894F-B8CE1167C828}",
+        "type": "Association",
+        "source": "ELM-APP-IF-THREAT-PRIMARY",
+        "target": "ELM-APP-IF-THREAT-SECOPS",
+        "name": [
+          {
+            "value": "Delegate",
+            "lang": "en"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{B2F60824-EEFA-4f1c-8A23-FB3449E338E0}",
+        "type": "Association",
+        "source": "ELM-APP-IF-THREAT-ANALYST",
+        "target": "ELM-APP-COMP-SCHEMA-EXPLORER",
+        "name": [
+          {
+            "value": "获取semantic schema",
+            "lang": "en"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
+          }
+        }
+      },
+      {
+        "identifier": "{46459CF9-78D9-4804-AD32-541A4F61DF39}",
+        "type": "Association",
+        "source": "ELM-APP-IF-THREAT-ANALYST",
+        "target": "{1CFA011B-787D-4e43-BE86-0AC04FE53394}",
+        "name": [
+          {
+            "value": "semantic data qurey & manipulate",
+            "lang": "en"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "(no documentation)",
+            "lang": "en"
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "human-architect"
           }
         }
       }
