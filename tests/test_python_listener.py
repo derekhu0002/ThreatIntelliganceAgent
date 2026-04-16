@@ -26,6 +26,24 @@ def _is_live_environment_ready() -> bool:
     return os.environ.get("live_environment_ready", "").strip().lower() in {"1", "true", "yes", "y"}
 
 
+# @ArchitectureID: {1CFA011B-787D-4e43-BE86-0AC04FE53394}
+# @ArchitectureID: ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW
+def _resolve_live_remote_timeout_seconds() -> float:
+    configured_timeout = os.environ.get("THREAT_INTEL_REMOTE_TIMEOUT_SECONDS", "").strip()
+    if not configured_timeout:
+        return 120.0
+
+    try:
+        timeout_seconds = float(configured_timeout)
+    except ValueError as exc:
+        raise AssertionError("THREAT_INTEL_REMOTE_TIMEOUT_SECONDS must be a positive number when set.") from exc
+
+    if timeout_seconds <= 0:
+        raise AssertionError("THREAT_INTEL_REMOTE_TIMEOUT_SECONDS must be a positive number when set.")
+
+    return timeout_seconds
+
+
 def _load_graph_derived_neo4j_settings(graph_path: Path = SHARED_GRAPH_PATH) -> dict[str, str]:
     graph_payload = json.loads(graph_path.read_text(encoding="utf-8"))
     elements_payload = graph_payload.get("elements", [])
@@ -255,6 +273,31 @@ def test_load_graph_derived_neo4j_settings_supports_archimate_exchange_model_sha
     }
 
 
+def test_resolve_live_remote_timeout_seconds_defaults_to_extended_timeout(monkeypatch: pytest.MonkeyPatch) -> None:
+    # @ArchitectureID: {1CFA011B-787D-4e43-BE86-0AC04FE53394}
+    # @ArchitectureID: ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW
+    monkeypatch.delenv("THREAT_INTEL_REMOTE_TIMEOUT_SECONDS", raising=False)
+
+    assert _resolve_live_remote_timeout_seconds() == 120.0
+
+
+def test_resolve_live_remote_timeout_seconds_accepts_positive_env_override(monkeypatch: pytest.MonkeyPatch) -> None:
+    # @ArchitectureID: {1CFA011B-787D-4e43-BE86-0AC04FE53394}
+    # @ArchitectureID: ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW
+    monkeypatch.setenv("THREAT_INTEL_REMOTE_TIMEOUT_SECONDS", "75")
+
+    assert _resolve_live_remote_timeout_seconds() == 75.0
+
+
+def test_resolve_live_remote_timeout_seconds_rejects_invalid_env_override(monkeypatch: pytest.MonkeyPatch) -> None:
+    # @ArchitectureID: {1CFA011B-787D-4e43-BE86-0AC04FE53394}
+    # @ArchitectureID: ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW
+    monkeypatch.setenv("THREAT_INTEL_REMOTE_TIMEOUT_SECONDS", "0")
+
+    with pytest.raises(AssertionError, match="THREAT_INTEL_REMOTE_TIMEOUT_SECONDS must be a positive number"):
+        _resolve_live_remote_timeout_seconds()
+
+
 def test_live_threatintelprimary_e2e_request_uses_graph_derived_neo4j_contract_and_structured_validation() -> None:
     # @ArchitectureID: {1CFA011B-787D-4e43-BE86-0AC04FE53394}
     # @ArchitectureID: ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW
@@ -267,7 +310,13 @@ def test_live_threatintelprimary_e2e_request_uses_graph_derived_neo4j_contract_a
     if not remote_server_url:
         pytest.skip("Set THREAT_INTEL_REMOTE_SERVER_URL after the human confirms live_environment_ready.")
 
-    listener = ThreatIntelListener(remote_server_url=remote_server_url)
+    listener = ThreatIntelListener(
+        remote_server_url=remote_server_url,
+        remote_client=RemoteOpencodeClient(
+            remote_server_url,
+            timeout_seconds=_resolve_live_remote_timeout_seconds(),
+        ),
+    )
     request_payload = _build_live_remote_request(listener, remote_server_url=remote_server_url)
 
     prompt_text = str(request_payload["prompt_text"])
