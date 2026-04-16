@@ -1,7 +1,7 @@
 import json
 import os
 import subprocess
-import sys
+import stat
 from pathlib import Path
 
 import pytest
@@ -74,21 +74,16 @@ def _has_trace_tag(text: str, tag: str, value: str) -> bool:
     return f"{tag}: {value}" in text
 
 
-def _write_fake_python_executable(tmp_path: Path, stdout_text: str) -> Path:
-    tools_dir = tmp_path / "tools"
-    tools_dir.mkdir()
-    (tools_dir / "__init__.py").write_text("", encoding="utf-8")
-    (tools_dir / "stix_cli.py").write_text(
-        "import sys\n"
-        f"sys.stdout.write({stdout_text!r})\n",
+def _write_fake_python_executable(tmp_path: Path, stdout_text: str, exit_code: int = 0) -> Path:
+    script_path = tmp_path / "fake-python"
+    script_path.write_text(
+        "#!/bin/sh\n"
+        f"printf '%s' {stdout_text!r}\n"
+        f"exit {exit_code}\n",
         encoding="utf-8",
     )
-    (tmp_path / "sitecustomize.py").write_text(
-        "import sys\n"
-        f"sys.path.insert(0, {str(tmp_path)!r})\n",
-        encoding="utf-8",
-    )
-    return tmp_path
+    script_path.chmod(script_path.stat().st_mode | stat.S_IEXEC)
+    return script_path
 
 
 def test_opencode_workspace_config_declares_canonical_roles_and_aliases() -> None:
@@ -162,6 +157,14 @@ def test_db_schema_explorer_tool_allows_analyst_agents() -> None:
 
     assert completed.returncode == 0, completed.stderr
     payload = json.loads(completed.stdout)
+    assert payload["schema_authority"]["source"] == ".opencode/schema/**"
+    assert payload["schema_authority"]["bundle_summary_authority"] == "supplemental-only"
+    assert payload["menu"]["entities"]
+    assert any(item["entity_type"] == "incident" for item in payload["menu"]["entities"])
+    incident_menu = next(item for item in payload["menu"]["entities"] if item["entity_type"] == "incident")
+    assert "name" in incident_menu["required_properties"]
+    assert any(prop["name"] == "name" for prop in incident_menu["property_options"])
+    assert payload["menu"]["relationships"]
     assert "supported_query_fields" in payload
     assert any(item["entity_type"] == "vulnerability" for item in payload["entity_types"])
 
@@ -233,7 +236,7 @@ def test_stix_query_tool_rejects_unknown_advanced_filter_fields() -> None:
     assert "Unsupported filter fields" in completed.stderr
 
 
-def test_stix_query_tool_rejects_invalid_json_stdout(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_stix_query_tool_rejects_invalid_json_stdout(tmp_path: Path) -> None:
     # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
     # @ArchitectureID: ELM-001
     # @ArchitectureID: ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT
@@ -241,12 +244,11 @@ def test_stix_query_tool_rejects_invalid_json_stdout(tmp_path: Path, monkeypatch
         pytest.skip("Windows cannot reliably shadow python -m tools.stix_cli for invalid-stdout injection in this harness.")
 
     tool_path = WORKSPACE_ROOT / "tools/stix_query.js"
-    fake_python_path = _write_fake_python_executable(tmp_path, "not-json")
-    monkeypatch.setenv("PYTHONPATH", f"{fake_python_path}{os.pathsep}{os.environ.get('PYTHONPATH', '')}")
+    fake_python = _write_fake_python_executable(tmp_path, "not-json")
 
     completed = _run_tool_module(
         tool_path,
-        {"command": "search", "query": "APT28", "pythonBin": sys.executable},
+        {"command": "search", "query": "APT28", "pythonBin": str(fake_python)},
         agent="ThreatIntelAnalyst",
     )
 
@@ -254,7 +256,7 @@ def test_stix_query_tool_rejects_invalid_json_stdout(tmp_path: Path, monkeypatch
     assert "invalid JSON" in completed.stderr
 
 
-def test_stix_query_tool_rejects_invalid_search_payload_shape(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_stix_query_tool_rejects_invalid_search_payload_shape(tmp_path: Path) -> None:
     # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
     # @ArchitectureID: ELM-001
     # @ArchitectureID: ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT
@@ -262,15 +264,14 @@ def test_stix_query_tool_rejects_invalid_search_payload_shape(tmp_path: Path, mo
         pytest.skip("Windows cannot reliably shadow python -m tools.stix_cli for invalid-payload injection in this harness.")
 
     tool_path = WORKSPACE_ROOT / "tools/stix_query.js"
-    fake_python_path = _write_fake_python_executable(
+    fake_python = _write_fake_python_executable(
         tmp_path,
         '{"query":"APT28","match_count":"one","matches":[]}',
     )
-    monkeypatch.setenv("PYTHONPATH", f"{fake_python_path}{os.pathsep}{os.environ.get('PYTHONPATH', '')}")
 
     completed = _run_tool_module(
         tool_path,
-        {"command": "search", "query": "APT28", "pythonBin": sys.executable},
+        {"command": "search", "query": "APT28", "pythonBin": str(fake_python)},
         agent="ThreatIntelAnalyst",
     )
 
@@ -376,9 +377,10 @@ def test_canonical_agent_descriptors_expose_traceable_role_intent() -> None:
 
     assert _has_trace_tag(analyst_text, REQ_TAG, REQ_ID)
     assert _has_trace_tag(analyst_text, ARCH_TAG, AGENT_DEFS_ID)
-    assert "stix_query" in analyst_text
+    assert "neo4j_query" in analyst_text
     assert "db_schema_explorer" in analyst_text
     assert "must call `db_schema_explorer` first" in analyst_text
+    assert "incident-driven extraction" in analyst_text
     assert "Do not assemble the final TASK-009 result" in analyst_text
 
     assert _has_trace_tag(secops_text, REQ_TAG, REQ_ID)
@@ -394,6 +396,7 @@ def test_collaboration_skill_exposes_traceable_delegation_contract() -> None:
     assert _has_trace_tag(skill_text, REQ_TAG, REQ_ID)
     assert _has_trace_tag(skill_text, ARCH_TAG, COLLAB_SKILL_ID)
     assert "ThreatIntelAnalyst` must follow the Schema-First principle" in skill_text
-    assert "db_schema_explorer` and the native `stix_query` tool" in skill_text
+    assert "db_schema_explorer` and the native `neo4j_query` tool" in skill_text
+    assert "final TASK-009 assembly ownership" in skill_text
     assert "Primary -> Analyst -> SecOps -> Primary" in skill_text
     assert "final assembly was performed by the remote Primary role" in skill_text

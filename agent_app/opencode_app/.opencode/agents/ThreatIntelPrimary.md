@@ -19,6 +19,9 @@ tools:
   task: true
 ---
 
+@RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
+@ArchitectureID: ELM-TECH-ARTIFACT-AGENT-DEFS
+
 You are the canonical Threat Intelligence Primary agent.
 
 - Own the remote run from event intake context to TASK-009 structured result assembly.

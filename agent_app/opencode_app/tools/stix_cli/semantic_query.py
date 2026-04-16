@@ -57,6 +57,20 @@ NEO4J_COUNTER_FIELDS = (
     "relationships_deleted",
     "system_updates",
 )
+NEO4J_WRITE_COUNTER_FIELDS = (
+    "constraints_added",
+    "constraints_removed",
+    "indexes_added",
+    "indexes_removed",
+    "labels_added",
+    "labels_removed",
+    "nodes_created",
+    "nodes_deleted",
+    "properties_set",
+    "relationships_created",
+    "relationships_deleted",
+    "system_updates",
+)
 
 
 def load_bundle(bundle_path: str | Path) -> dict[str, Any]:
@@ -193,6 +207,31 @@ def _clean_neo4j_summary(summary: Any) -> dict[str, Any]:
     }
 
 
+# @ArchitectureID: ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW
+def _build_writeback_summary(summary: dict[str, Any], records: list[Any]) -> dict[str, Any] | None:
+    counters = summary.get("counters", {})
+    query_type = str(summary.get("query_type") or "").lower()
+    total_updates = sum(int(counters.get(field, 0)) for field in NEO4J_WRITE_COUNTER_FIELDS)
+    contains_updates = total_updates > 0 or bool(counters.get("contains_updates")) or bool(counters.get("contains_system_updates"))
+
+    if not contains_updates and query_type not in {"w", "rw"}:
+        return None
+
+    operation_mode = "read_write" if records else "write"
+    if query_type == "w":
+        operation_mode = "write"
+    elif query_type == "rw":
+        operation_mode = "read_write"
+
+    return {
+        "attempted": True,
+        "operation_mode": operation_mode,
+        "persistence_outcome": "updated" if total_updates > 0 else "idempotent_noop",
+        "total_updates": total_updates,
+        "counters": {key: int(value) for key, value in counters.items()},
+    }
+
+
 def execute_neo4j_cypher(cypher: str) -> dict[str, Any]:
     settings = _resolve_neo4j_settings()
     graph_database = _load_neo4j_driver()
@@ -209,10 +248,15 @@ def execute_neo4j_cypher(cypher: str) -> dict[str, Any]:
     finally:
         driver.close()
 
-    return {
+    payload = {
         "records": records,
         "summary": summary,
     }
+    writeback_summary = _build_writeback_summary(summary, records)
+    if writeback_summary is not None:
+        payload["writeback_summary"] = writeback_summary
+
+    return payload
 
 
 def _summary_for_object(stix_object: dict[str, Any]) -> dict[str, Any]:

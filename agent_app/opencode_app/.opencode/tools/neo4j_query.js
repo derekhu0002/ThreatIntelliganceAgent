@@ -1,4 +1,5 @@
 // @ArchitectureID: {1CFA011B-787D-4e43-BE86-0AC04FE53394}
+// @ArchitectureID: ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW
 
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
@@ -10,6 +11,8 @@ import { z } from "zod";
 
 const FILE_DIR = path.dirname(fileURLToPath(import.meta.url));
 const LOCAL_WORKSPACE_ROOT = path.resolve(FILE_DIR, "..", "..");
+const ANALYST_AGENTS = new Set(["ThreatIntelAnalyst", "STIX_EvidenceSpecialist"]);
+const SECOPS_AGENTS = new Set(["ThreatIntelSecOps", "TARA_analyst"]);
 const nonEmptyString = z.string().trim().min(1);
 const jsonScalarSchema = z.union([z.string(), z.number().finite(), z.boolean(), z.null()]);
 const jsonValueSchema = z.lazy(() => z.union([
@@ -26,6 +29,13 @@ const neo4jResultSchema = z.object({
     result_available_after_ms: z.number().int().nonnegative().nullable().optional(),
     result_consumed_after_ms: z.number().int().nonnegative().nullable().optional(),
   }).passthrough(),
+  writeback_summary: z.object({
+    attempted: z.boolean(),
+    operation_mode: z.enum(["write", "read_write"]),
+    persistence_outcome: z.enum(["updated", "idempotent_noop"]),
+    total_updates: z.number().int().nonnegative(),
+    counters: z.record(z.string(), z.number().int().nonnegative()),
+  }).strict().optional(),
 }).strict();
 
 function resolveRepoRoot(context) {
@@ -58,6 +68,35 @@ function resolvePythonCandidates(args) {
   return process.platform === "win32"
     ? ["python", "python3"]
     : ["python3", "python"];
+}
+
+function resolveAgentName(context) {
+  return String(
+    context.agent || process.env.OPENCODE_AGENT_NAME || process.env.THREAT_INTEL_AGENT_ROLE || "",
+  ).trim();
+}
+
+function buildScopeHandoff(agentName) {
+  return [
+    "neo4j_query is reserved for ThreatIntelAnalyst compatibility scope.",
+    `Current agent: ${agentName || "<unset>"}.`,
+    "ThreatIntelSecOps must use analyst-provided evidence and writeback summaries rather than calling neo4j_query directly.",
+    "If additional graph lookup or persistence is required, delegate back to ThreatIntelAnalyst instead of calling this tool directly.",
+  ].join("\n");
+}
+
+function enforceAgentScope(context) {
+  const agentName = resolveAgentName(context);
+  if (ANALYST_AGENTS.has(agentName)) {
+    return { agentName, handoff: null };
+  }
+  if (SECOPS_AGENTS.has(agentName)) {
+    return { agentName, handoff: buildScopeHandoff(agentName) };
+  }
+
+  throw new Error(
+    `neo4j_query is restricted to ThreatIntelAnalyst compatibility scope; received agent ${agentName || "<unset>"}.`,
+  );
 }
 
 async function runCommand(command, commandArgs, context, cwd) {
@@ -129,16 +168,49 @@ function parseValidatedCliOutput(stdout) {
     );
   }
 
-  return validated.data;
+  const payloadWithSummary = ensureWritebackSummary(validated.data);
+  return payloadWithSummary;
+}
+
+function ensureWritebackSummary(payload) {
+  if (payload.writeback_summary) {
+    return payload;
+  }
+
+  const queryType = String(payload.summary?.query_type || "").toLowerCase();
+  if (!queryType || !["w", "rw"].includes(queryType)) {
+    return payload;
+  }
+
+  const counters = Object.fromEntries(
+    Object.entries(payload.summary?.counters || {}).map(([key, value]) => [key, Number.parseInt(String(value), 10) || 0]),
+  );
+  const totalUpdates = Object.values(counters).reduce((sum, value) => sum + value, 0);
+
+  return {
+    ...payload,
+    writeback_summary: {
+      attempted: true,
+      operation_mode: queryType === "rw" ? "read_write" : "write",
+      persistence_outcome: totalUpdates > 0 ? "updated" : "idempotent_noop",
+      total_updates: totalUpdates,
+      counters,
+    },
+  };
 }
 
 export default tool({
-  description: "Execute native Neo4j Cypher and return clean JSON.",
+  description: "Execute the canonical analyst Neo4j read/write flow.",
   args: {
     cypher: tool.schema.string(),
     pythonBin: tool.schema.string().optional(),
   },
   async execute(args, context) {
+    const scope = enforceAgentScope(context);
+    if (scope.handoff) {
+      return scope.handoff;
+    }
+
     const cypher = nonEmptyString.parse(args.cypher);
     const repoRoot = resolveRepoRoot(context);
     const pythonCandidates = resolvePythonCandidates(args);
@@ -147,6 +219,7 @@ export default tool({
     context.metadata({
       title: "neo4j_query",
       metadata: {
+        agent: scope.agentName,
         repoRoot,
         pythonBin: pythonCandidates[0],
       },
