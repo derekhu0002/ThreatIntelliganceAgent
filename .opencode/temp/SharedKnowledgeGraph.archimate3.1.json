@@ -261,7 +261,8 @@
         ],
         "documentation": [
           {
-            "value": "Describe the element as a node: a computational or physical resource that hosts, executes, or supports technology and application behavior. In this architecture, Core Technology Runtime is the runtime environment that hosts and executes the technology and application behavior required for Current Product Goal."
+            "value": "Neo4j Graph Database is our backend database used for storing our intelligence data.\r\nit will running in docker container,\r\n\r\nUse these URLs after starting the compose stack:\r\n\r\nNeo4j Browser: http://localhost:7474\r\nBolt connection: bolt://localhost:7687\r\nCredentials:\r\n\r\nUsername: neo4j\r\nPassword: 11111111",
+            "lang": "en"
           }
         ],
         "extensions": {
@@ -615,7 +616,7 @@
         ],
         "documentation": [
           {
-            "value": "Physical module: `agent_app/opencode_app/.opencode/tools/db_schema_explorer.js`. OpenCode native tool that enforces analyst-only scope, runs the Python `tools.stix_cli schema-summary` command against the local STIX bundle, and validates the returned schema-summary payload for schema-first query construction.\r\nTODO:请从agent_app\\opencode_app\\.opencode\\schema中获取semantic schema作为“菜单”提供给AGENT来“点菜”。",
+            "value": "Physical module: `agent_app/opencode_app/.opencode/tools/db_schema_explorer.js`. OpenCode native tool that enforces analyst-only scope, runs the Python `tools.stix_cli schema-summary` command against the local STIX bundle, and validates the returned schema-summary payload for schema-first query construction.",
             "lang": "en"
           }
         ]
@@ -784,7 +785,7 @@
         ],
         "documentation": [
           {
-            "value": "Source: `agent_app/opencode_app/.opencode/agents/ThreatIntelAnalyst.md`. Canonical analyst callable interface. Requires schema-first flow using `db_schema_explorer` before `stix_query`. Output payload contains `role`, `summary`, `supporting_evidence_refs`, `matched_entities`, `relationship_findings`, and `confidence_notes`.\r\nISSUE：ThreatIntelAnalyst Agent的定义和SKILL中都没有提及要使用工具neo4j_query，请用neo4j_query替换掉stix_query\r\nISSUE：该AGENT的职责不仅仅是查询收集情报，如果用户发了一个安全事件相关信息，它也要负责提取出这个事件中的威胁情报，并调用工具写入数据库中；",
+            "value": "Source: `agent_app/opencode_app/.opencode/agents/ThreatIntelAnalyst.md`. Canonical analyst callable interface. Requires schema-first flow using `db_schema_explorer` before `stix_query`. Output payload contains `role`, `summary`, `supporting_evidence_refs`, `matched_entities`, `relationship_findings`, and `confidence_notes`.",
             "lang": "en"
           }
         ]
@@ -1251,7 +1252,8 @@
         ],
         "documentation": [
           {
-            "value": "An ApplicationFunction represents automated behavior grouped by required application resources or competencies. In this architecture, Execute Analyst Neo4j Read and Write Flow governs the canonical analyst-side database interaction path for evidence lookup and idempotent persistence.\n- [Input]: Schema-guided Cypher statements produced for evidence lookup or idempotent threat-intelligence writeback, plus runtime Neo4j connection settings.\n- [Processing]: Validate the analyst-facing Neo4j request boundary, execute Cypher through the existing Python CLI path, preserve clean JSON output, and return counters and summaries that distinguish read activity from writeback side effects.\n- [Output]: Validated `neo4j_query` results containing records and execution summary counters suitable for evidence use and persistence traceability.\n- [Acceptance Criteria]: The canonical analyst DB flow uses `neo4j_query`; successful writeback responses expose summary counters for nodes, relationships, and properties affected; clean JSON compatibility is preserved for read queries; the contract explicitly supports both lookup and idempotent persistence semantics."
+            "value": "An ApplicationFunction represents automated behavior grouped by required application resources or competencies. In this architecture, Execute Analyst Neo4j Read and Write Flow governs the canonical analyst-side database interaction path for evidence lookup and idempotent persistence. - [Input]: Schema-guided Cypher statements produced for evidence lookup or idempotent threat-intelligence writeback, plus runtime Neo4j connection settings. - [Processing]: Validate the analyst-facing Neo4j request boundary, execute Cypher through the existing Python CLI path, preserve clean JSON output, and return counters and summaries that distinguish read activity from writeback side effects. - [Output]: Validated `neo4j_query` results containing records and execution summary counters suitable for evidence use and persistence traceability. - [Acceptance Criteria]: The canonical analyst DB flow uses `neo4j_query`; successful writeback responses expose summary counters for nodes, relationships, and properties affected; clean JSON compatibility is preserved for read queries; the contract explicitly supports both lookup and idempotent persistence semantics.\r\nTODO: [E2E 实弹测试] \r\n请完成一次端到端集成测试。\r\n要求：\r\n1. 测试需要模拟真实用户向后台opencode server的ThreatIntelPrimary primary agent发送真实自然语言请求（需包括漏洞分析、安全事件分析的实战模拟内容）。\r\n2. 数据库的真实连接 URL、用户名和密码，必须从 `ELM-TECHNOLOGY-NODE` (Neo4j Graph Database) 节点的图谱描述中动态解析。\r\n3. 由于我们是和后台服务中的AI交互，AI交互返回的结果存在不确定性，你需要找到一种业界通用的验证方法，比如是验证返回的消息结构是否正确等。\r\n4. 【环境声明】@QualityAssurance 在执行此测试前，必须向人类指挥官确认 `live_environment_ready`。",
+            "lang": "en"
           }
         ],
         "extensions": {
