@@ -28,7 +28,11 @@ def _is_live_environment_ready() -> bool:
 
 def _load_graph_derived_neo4j_settings(graph_path: Path = SHARED_GRAPH_PATH) -> dict[str, str]:
     graph_payload = json.loads(graph_path.read_text(encoding="utf-8"))
-    elements = graph_payload.get("elements", [])
+    elements_payload = graph_payload.get("elements", [])
+    if isinstance(elements_payload, dict):
+        elements = elements_payload.get("element", [])
+    else:
+        elements = elements_payload
 
     technology_node = next(
         (
@@ -214,6 +218,41 @@ def test_legacy_alias_resolution_has_deterministic_fallback_without_workspace_al
     )
 
     assert resolve_main_agent_alias("ThreatIntelligenceCommander", REPO_ROOT) == "ThreatIntelPrimary"
+
+
+def test_load_graph_derived_neo4j_settings_supports_archimate_exchange_model_shape(tmp_path: Path) -> None:
+    # @ArchitectureID: {1CFA011B-787D-4e43-BE86-0AC04FE53394}
+    # @ArchitectureID: ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW
+    graph_path = tmp_path / "SharedKnowledgeGraph.archimate3.1.json"
+    graph_path.write_text(
+        json.dumps(
+            {
+                "elements": {
+                    "element": [
+                        {
+                            "identifier": "ELM-TECHNOLOGY-NODE",
+                            "documentation": [
+                                {
+                                    "value": (
+                                        "Bolt connection: bolt://127.0.0.1:7687\n"
+                                        "Username: neo4j\n"
+                                        "Password: secret"
+                                    )
+                                }
+                            ],
+                        }
+                    ]
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    assert _load_graph_derived_neo4j_settings(graph_path) == {
+        "uri": "bolt://127.0.0.1:7687",
+        "username": "neo4j",
+        "password": "secret",
+    }
 
 
 def test_live_threatintelprimary_e2e_request_uses_graph_derived_neo4j_contract_and_structured_validation() -> None:
