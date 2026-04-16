@@ -1,4 +1,4 @@
-{
+﻿{
   "identifier": "ai4pb-shared-knowledge-graph",
   "version": "1.0.0",
   "name": [
@@ -932,7 +932,8 @@
         ],
         "documentation": [
           {
-            "value": "Source contracts: `ThreatIntelAnalyst.md`, `stix-evidence-review/SKILL.md`, `threat-intel-collaboration/SKILL.md`. Core fields: `role`, `summary`, `supporting_evidence_refs`, `matched_entities`, `relationship_findings`, `confidence_notes`."
+            "value": "Source contracts: `ThreatIntelAnalyst.md`, `stix-evidence-review/SKILL.md`, `threat-intel-collaboration/SKILL.md`. Core fields: `role`, `summary`, `supporting_evidence_refs`, `matched_entities`, `relationship_findings`, `confidence_notes`.\r\nSSSSS",
+            "lang": "en"
           }
         ]
       },
@@ -1102,7 +1103,7 @@
         ],
         "documentation": [
           {
-            "value": "- **[Input]**: 接收原生的 Cypher 查询语句字符串。- **[Processing]**: 使用 neo4j 官方 Driver 连接数据库执行 Cypher。核心防腐逻辑：必须清洗结果，剔除 Neo4j 底层的系统元数据（如内部 node ID、`<Record>` 包装类等），将其扁平化序列化为纯净的 JSON 字典。- **[Output]**: 打印纯净的 JSON 字符串到 stdout。- **[Acceptance Criteria]**: 无论查询节点还是关系，返回的 ",
+            "value": "- **[Input]**: 接收原生的 Cypher 查询语句字符串。- **[Processing]**: 使用 neo4j 官方 Driver 连接数据库执行 Cypher。核心防腐逻辑：必须清洗结果，剔除 Neo4j 底层的系统元数据（如内部 node ID、`<Record>` 包装类等），将其扁平化序列化为纯净的 JSON 字典。- **[Output]**: 打印纯净的 JSON 字符串到 stdout。- **[Acceptance Criteria]**: 无论查询节点还是关系，返回的",
             "lang": "en"
           }
         ],
