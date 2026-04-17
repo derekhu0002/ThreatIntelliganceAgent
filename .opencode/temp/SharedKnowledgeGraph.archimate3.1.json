@@ -31,10 +31,10 @@
         "validations": {
           "qa": {
             "status": "failed",
-            "summary": "QA failed for commit 6328126ff473f3a40f6a3ecc06bb0ba6fb82d05a while revalidating TASK-006 with live_environment_ready=true and THREAT_INTEL_REMOTE_SERVER_URL=http://127.0.0.1:8124 explicitly set. The live E2E pytest target tests/test_python_listener.py::test_live_threatintelprimary_e2e_request_uses_graph_derived_neo4j_contract_and_structured_validation actually ran and reached the remote dispatch path for REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001 / ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW / {1CFA011B-787D-4e43-BE86-0AC04FE53394}, but full end-to-end completion failed because the POST to /session/{id}/message timed out after 120.0s with RemoteDispatchError.",
-            "details": "QA failed for commit 6328126ff473f3a40f6a3ecc06bb0ba6fb82d05a while revalidating TASK-006 with live_environment_ready=true and THREAT_INTEL_REMOTE_SERVER_URL=http://127.0.0.1:8124 explicitly set. The live E2E pytest target tests/test_python_listener.py::test_live_threatintelprimary_e2e_request_uses_graph_derived_neo4j_contract_and_structured_validation actually ran and reached the remote dispatch path for REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001 / ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW / {1CFA011B-787D-4e43-BE86-0AC04FE53394}, but full end-to-end completion failed because the POST to /session/{id}/message timed out after 120.0s with RemoteDispatchError.",
-            "commitId": "6328126ff473f3a40f6a3ecc06bb0ba6fb82d05a",
-            "updatedAt": "2026-04-16T23:31:36.784Z"
+            "summary": "QA failed for TASK-006 on commit 6aeb91d81fa848dd951a4a9e344475774a3785f4. Tagged local automated coverage passed for REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001, ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW, and {1CFA011B-787D-4e43-BE86-0AC04FE53394} in detached worktree validation, including live-environment readiness handling and structured-result contract checks. Live E2E validation actually ran with LIVE_ENVIRONMENT_READY=true and THREAT_INTEL_REMOTE_SERVER_URL=http://127.0.0.1:8124, but tests/test_python_listener.py::test_live_threatintelprimary_e2e_request_uses_graph_derived_neo4j_contract_and_structured_validation failed because POST /session/{id}/message timed out after 120.0s with RemoteDispatchError, so end-to-end completion remains unverified.",
+            "details": "QA failed for TASK-006 on commit 6aeb91d81fa848dd951a4a9e344475774a3785f4. Tagged local automated coverage passed for REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001, ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW, and {1CFA011B-787D-4e43-BE86-0AC04FE53394} in detached worktree validation, including live-environment readiness handling and structured-result contract checks. Live E2E validation actually ran with LIVE_ENVIRONMENT_READY=true and THREAT_INTEL_REMOTE_SERVER_URL=http://127.0.0.1:8124, but tests/test_python_listener.py::test_live_threatintelprimary_e2e_request_uses_graph_derived_neo4j_contract_and_structured_validation failed because POST /session/{id}/message timed out after 120.0s with RemoteDispatchError, so end-to-end completion remains unverified.",
+            "commitId": "6aeb91d81fa848dd951a4a9e344475774a3785f4",
+            "updatedAt": "2026-04-17T00:51:09.339Z"
           },
           "audit": {
             "status": "passed",
@@ -49,7 +49,7 @@
           "summary": "Release not prepared for the current goal.",
           "updatedAt": "2026-04-16T14:21:14.768Z"
         },
-        "updatedAt": "2026-04-16T23:31:36.785Z"
+        "updatedAt": "2026-04-17T00:51:09.411Z"
       }
     }
   },
@@ -1288,7 +1288,7 @@
         ],
         "documentation": [
           {
-            "value": "Circuit breaker opened after repeated QA failures for TASK-006. Latest live validation on commit 6328126ff473f3a40f6a3ecc06bb0ba6fb82d05a reached the real remote dispatch path with THREAT_INTEL_REMOTE_SERVER_URL=http://127.0.0.1:8124, but POST /session/{id}/message timed out after 120.0s with RemoteDispatchError. Automatic routing stopped because retryCount exceeded the maximum of 3."
+            "value": "Human-fix validation still failed for TASK-006 on commit 6aeb91d81fa848dd951a4a9e344475774a3785f4. Live E2E actually ran against http://127.0.0.1:8124, but tests/test_python_listener.py::test_live_threatintelprimary_e2e_request_uses_graph_derived_neo4j_contract_and_structured_validation timed out on POST /session/{id}/message after 120.0s. Task remains blocked and automatic routing is stopped pending explicit human recovery choice."
           }
         ],
         "extensions": {
@@ -1299,12 +1299,36 @@
             "status": "Blocked",
             "retryCount": 4,
             "assignee": "SystemArchitect",
-            "summary": "Circuit breaker opened after repeated QA failures for TASK-006. Latest live validation on commit 6328126ff473f3a40f6a3ecc06bb0ba6fb82d05a reached the real remote dispatch path with THREAT_INTEL_REMOTE_SERVER_URL=http://127.0.0.1:8124, but POST /session/{id}/message timed out after 120.0s with RemoteDispatchError. Automatic routing stopped because retryCount exceeded the maximum of 3.",
-            "commitId": "6328126ff473f3a40f6a3ecc06bb0ba6fb82d05a",
+            "summary": "Human-fix validation still failed for TASK-006 on commit 6aeb91d81fa848dd951a4a9e344475774a3785f4. Live E2E actually ran against http://127.0.0.1:8124, but tests/test_python_listener.py::test_live_threatintelprimary_e2e_request_uses_graph_derived_neo4j_contract_and_structured_validation timed out on POST /session/{id}/message after 120.0s. Task remains blocked and automatic routing is stopped pending explicit human recovery choice.",
+            "commitId": "6aeb91d81fa848dd951a4a9e344475774a3785f4",
             "softwareUnitId": "",
             "softwareUnitTitle": "",
             "architectureElementId": "",
-            "updatedAt": "2026-04-16T23:32:02.670Z"
+            "updatedAt": "2026-04-17T00:51:44.522Z"
+          }
+        }
+      },
+      {
+        "identifier": "ISSUE-003",
+        "type": "BusinessObject",
+        "name": [
+          {
+            "value": "TASK-006 live E2E remote message timed out at 120s"
+          }
+        ],
+        "documentation": [
+          {
+            "value": "Validation of commit 6aeb91d81fa848dd951a4a9e344475774a3785f4 reproduced a live-environment defect for TASK-006. The live pytest target tests/test_python_listener.py::test_live_threatintelprimary_e2e_request_uses_graph_derived_neo4j_contract_and_structured_validation ran against THREAT_INTEL_REMOTE_SERVER_URL=http://127.0.0.1:8124 with live environment readiness confirmed, reached the remote dispatch path, then failed because POST /session/{id}/message timed out after 120.0s. Local tagged contract tests passed, so the remaining defect is remote end-to-end completion under the live server path for REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001 / ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW / {1CFA011B-787D-4e43-BE86-0AC04FE53394}."
+          }
+        ],
+        "extensions": {
+          "ai4pb": {
+            "managedBy": "opencode-runtime",
+            "kind": "Issue",
+            "issueType": "BugReport",
+            "status": "Open",
+            "reporter": "OpenCode",
+            "category": "BugReport"
           }
         }
       }
