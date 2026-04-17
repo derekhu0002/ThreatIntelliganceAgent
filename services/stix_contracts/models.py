@@ -29,7 +29,13 @@ NonEmptyString = Annotated[str, StringConstraints(strip_whitespace=True, min_len
 
 
 class StrictContractModel(BaseModel):
-    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True, validate_assignment=True)
+    model_config = ConfigDict(
+        extra="forbid",
+        str_strip_whitespace=True,
+        validate_assignment=True,
+        populate_by_name=True,
+        serialize_by_alias=True,
+    )
 
     def to_dict(self) -> dict[str, Any]:
         return self.model_dump(mode="python")
@@ -162,7 +168,7 @@ class CollaborationRoleOutput(StrictContractModel):
 
 
 class AssemblyContract(StrictContractModel):
-    schema: Literal["TASK-009"]
+    schema_name: Literal["TASK-009"] = Field(alias="schema")
     assembled_by: NonEmptyString
     assembly_location: Literal["remote-primary"]
     contract_source: NonEmptyString

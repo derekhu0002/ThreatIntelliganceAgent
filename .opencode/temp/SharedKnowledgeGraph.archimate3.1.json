@@ -1,4 +1,4 @@
-﻿{
+{
   "identifier": "ai4pb-shared-knowledge-graph",
   "version": "1.0.0",
   "name": [
@@ -8,7 +8,7 @@
   ],
   "documentation": [
     {
-      "value": "Issue-driven full-model refinement for ThreatIntelAnalyst. Canonical analyst flow is updated from `stix_query` to `neo4j_query`; `db_schema_explorer` is refined so its schema authority comes from `agent_app/opencode_app/.opencode/schema/**` as a semantic menu for agent-guided query construction; and the analyst boundary is expanded from query-only evidence lookup to incident-driven threat-intelligence extraction plus idempotent, traceable database writeback. Existing software units remain the correct ownership seams: OpenCode Threat Intelligence Workspace for agent/skill contracts, STIX Schema Explorer Native Tool for schema-menu exposure, and Neo4j Query Native Tool for analyst database interaction. `stix_query` is retained only as transitional compatibility and is no longer the canonical analyst contract."
+      "value": "Issue-driven full-model refinement for TASK-006. No redesign is required. The mandatory TODO injected into ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW is implemented as an executable runtime-validation contract on the existing architecture. Existing ownership remains unchanged: ApplicationFunction ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW stays assigned to software unit {1CFA011B-787D-4e43-BE86-0AC04FE53394} / Neo4j Query Native Tool, while implementation may extend the existing repository test harness and listener/result-validation seams to execute one live end-to-end OPENCODE-server request through ThreatIntelPrimary, dynamically parse Neo4j credentials from ELM-TECHNOLOGY-NODE documentation, and validate nondeterministic AI output using structure/contract validation. QA execution remains gated by explicit human confirmation of live_environment_ready."
     }
   ],
   "metadata": {
@@ -19,43 +19,37 @@
     "ai4pb": {
       "managedBy": "opencode",
       "counters": {},
-      "designSummary": "Issue-driven full-model refinement for ThreatIntelAnalyst. Canonical analyst flow is updated from `stix_query` to `neo4j_query`; `db_schema_explorer` is refined so its schema authority comes from `agent_app/opencode_app/.opencode/schema/**` as a semantic menu for agent-guided query construction; and the analyst boundary is expanded from query-only evidence lookup to incident-driven threat-intelligence extraction plus idempotent, traceable database writeback. Existing software units remain the correct ownership seams: OpenCode Threat Intelligence Workspace for agent/skill contracts, STIX Schema Explorer Native Tool for schema-menu exposure, and Neo4j Query Native Tool for analyst database interaction. `stix_query` is retained only as transitional compatibility and is no longer the canonical analyst contract.",
+      "designSummary": "Issue-driven full-model refinement for TASK-006. No redesign is required. The mandatory TODO injected into ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW is implemented as an executable runtime-validation contract on the existing architecture. Existing ownership remains unchanged: ApplicationFunction ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW stays assigned to software unit {1CFA011B-787D-4e43-BE86-0AC04FE53394} / Neo4j Query Native Tool, while implementation may extend the existing repository test harness and listener/result-validation seams to execute one live end-to-end OPENCODE-server request through ThreatIntelPrimary, dynamically parse Neo4j credentials from ELM-TECHNOLOGY-NODE documentation, and validate nondeterministic AI output using structure/contract validation. QA execution remains gated by explicit human confirmation of live_environment_ready.",
       "designDecisions": [
-        "ADR: Preserve the human-authored Neo4j architecture unchanged for ISSUE-001. The approved ApplicationFunction {E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC} and ApplicationComponent {1CFA011B-787D-4e43-BE86-0AC04FE53394} remain authoritative; the issue is traceability/task-contract completeness, not a design defect.",
-        "ADR: Accept existing software unit ELM-APP-COMP-STIX-CLI (STIX Semantic Query CLI) as the implementation owner for Execute Neo4j Cypher because the realized behavior already exists in agent_app/opencode_app/tools/stix_cli/semantic_query.py and __main__.py, and the graph already contains the Assignment from ELM-APP-COMP-STIX-CLI to {E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC}.",
-        "ADR: Reject introducing a new Neo4j-specific software unit or moving ownership into the tool wrapper. The JS tool file agent_app/opencode_app/.opencode/tools/neo4j_query.js correctly remains the agent-facing ApplicationComponent {1CFA011B-787D-4e43-BE86-0AC04FE53394}; it already has tagged tests. The missing QA intent coverage is specifically at ApplicationFunction {E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC}, so the minimal repair is tagged tests and task routing anchored to the existing Python CLI unit.",
-        "ADR: Do not invent or backfill a Requirement ID for the Neo4j batch because no authoritative requirement element was recoverable from the runtime graph. Route implementation rework using architecture-element traceability and preserve the absence of a requirement link as a known upstream metadata gap rather than fabricating motivation semantics.",
-        "ADR: Do not introduce new software units for this mission. Extend existing modules `agent_app/opencode_app/.opencode/agents|skills`, `agent_app/opencode_app/.opencode/tools/db_schema_explorer.js`, and `agent_app/opencode_app/.opencode/tools/neo4j_query.js` because the repository already contains the correct ownership boundaries for analyst contracts, schema exploration, and Neo4j access.",
-        "ADR: Promote `neo4j_query` to the canonical ThreatIntelAnalyst database interaction boundary and demote `stix_query` to compatibility-only status. The analyst interface, alias interface, and collaboration skill must no longer require `stix_query` as the primary callable contract.",
-        "ADR: Change `db_schema_explorer` schema authority from bundle-derived summary alone to workspace semantic catalog authority sourced from `agent_app/opencode_app/.opencode/schema/**`. Bundle-observed hints may remain supplemental, but the agent-facing menu must be rooted in the repository schema catalog.",
-        "ADR: Expand ThreatIntelAnalyst responsibility from read-only evidence lookup to incident-driven extraction plus idempotent, traceable writeback. ThreatIntelSecOps remains downstream assessment-only and must not assume schema lookup or persistence ownership.",
-        "ModelUpdated: No architecture-model refinement is required for TASK-003 and TASK-004 after audit triage on commit e7e2d21b46b7ac75ff2269be0ad91fb85b9aafc0. Current repository reality shows intent-tagged verification for ELM-APP-FUNC-PUBLISH-SEMANTIC-SCHEMA-MENU in tests/test_opencode_workspace_config.py line 154 and for ELM-APP-FUNC-CANONICALIZE-THREAT-ANALYST-CONTRACT in lines 376 and 416, while the approved ApplicationFunction contracts and software-unit ownership remain unchanged. Treat the failed audit as a stale validation-timing/traceability snapshot and rerun Audit against current code reality before any further implementation rework."
+        "ADR: Preserve the approved architecture unchanged for TASK-006. The injected TODO on ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW creates a runtime validation obligation, not a need for new ArchiMate structure or new software units.",
+        "ADR: Reuse existing software unit {1CFA011B-787D-4e43-BE86-0AC04FE53394} / Neo4j Query Native Tool as the primary task owner because the mandatory TODO is attached to its assigned ApplicationFunction. Permit implementation to extend existing test seams in tests/, services/python_listener/, and services/result_assembler/ as supporting realization surfaces rather than introducing a separate QA-only software unit.",
+        "ADR: Validate the live OPENCODE-server response with industry-standard structure/contract checks instead of exact-text matching. Reuse the repository's existing json_schema request format and validate_structured_result-based result validation path as the canonical nondeterministic-output acceptance boundary.",
+        "ADR: The live end-to-end test execution is architecturally blocked until @QualityAssurance obtains explicit human confirmation of live_environment_ready. This gate constrains test execution only, not implementation of the test harness itself."
       ],
       "runtime": {
-        "activeGoal": "Fast-track implementation of the human-architect-approved Neo4j chain: add Execute Neo4j Cypher and Neo4j Query Native T",
+        "activeGoal": "Execute the mandatory TODO contract injected into ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW: perform one end-to-end live i",
         "validations": {
           "qa": {
-            "status": "passed",
-            "summary": "Validated full-model batch for TASK-003/TASK-004/TASK-005 with local-only checks. Added targeted traceable QA coverage in tests/test_opencode_workspace_config.py for ELM-APP-FUNC-CANONICALIZE-THREAT-ANALYST-CONTRACT and ELM-APP-FUNC-PUBLISH-SEMANTIC-SCHEMA-MENU, then re-ran focused validation successfully: PYTHONPATH=. pytest tests/test_opencode_workspace_config.py tests/test_neo4j_query_tool.py tests/test_stix_cli.py -q (35 passed) and python3 -m py_compile agent_app/opencode_app/tools/stix_cli/semantic_query.py tests/test_opencode_workspace_config.py tests/test_neo4j_query_tool.py tests/test_stix_cli.py. Covered tagged intent IDs: ELM-APP-FUNC-CANONICALIZE-THREAT-ANALYST-CONTRACT, ELM-APP-FUNC-PUBLISH-SEMANTIC-SCHEMA-MENU, ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW, ELM-APP-PROC-THREAT-COLLAB-SKILL, ELM-TECH-ARTIFACT-AGENT-DEFS, ELM-TECH-ARTIFACT-OPENCODE-WORKSPACE, {1CFA011B-787D-4e43-BE86-0AC04FE53394}, {E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC}, REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001. 跳过了真实环境验证; no live DB/server readiness was provided and validation stayed local Mock/AST/unit/compile only.",
-            "details": "Validated full-model batch for TASK-003/TASK-004/TASK-005 with local-only checks. Added targeted traceable QA coverage in tests/test_opencode_workspace_config.py for ELM-APP-FUNC-CANONICALIZE-THREAT-ANALYST-CONTRACT and ELM-APP-FUNC-PUBLISH-SEMANTIC-SCHEMA-MENU, then re-ran focused validation successfully: PYTHONPATH=. pytest tests/test_opencode_workspace_config.py tests/test_neo4j_query_tool.py tests/test_stix_cli.py -q (35 passed) and python3 -m py_compile agent_app/opencode_app/tools/stix_cli/semantic_query.py tests/test_opencode_workspace_config.py tests/test_neo4j_query_tool.py tests/test_stix_cli.py. Covered tagged intent IDs: ELM-APP-FUNC-CANONICALIZE-THREAT-ANALYST-CONTRACT, ELM-APP-FUNC-PUBLISH-SEMANTIC-SCHEMA-MENU, ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW, ELM-APP-PROC-THREAT-COLLAB-SKILL, ELM-TECH-ARTIFACT-AGENT-DEFS, ELM-TECH-ARTIFACT-OPENCODE-WORKSPACE, {1CFA011B-787D-4e43-BE86-0AC04FE53394}, {E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC}, REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001. 跳过了真实环境验证; no live DB/server readiness was provided and validation stayed local Mock/AST/unit/compile only.",
-            "commitId": "e7e2d21b46b7ac75ff2269be0ad91fb85b9aafc0",
-            "updatedAt": "2026-04-16T10:00:38.702Z"
+            "status": "failed",
+            "summary": "QA failed for commit 6328126ff473f3a40f6a3ecc06bb0ba6fb82d05a while revalidating TASK-006 with live_environment_ready=true and THREAT_INTEL_REMOTE_SERVER_URL=http://127.0.0.1:8124 explicitly set. The live E2E pytest target tests/test_python_listener.py::test_live_threatintelprimary_e2e_request_uses_graph_derived_neo4j_contract_and_structured_validation actually ran and reached the remote dispatch path for REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001 / ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW / {1CFA011B-787D-4e43-BE86-0AC04FE53394}, but full end-to-end completion failed because the POST to /session/{id}/message timed out after 120.0s with RemoteDispatchError.",
+            "details": "QA failed for commit 6328126ff473f3a40f6a3ecc06bb0ba6fb82d05a while revalidating TASK-006 with live_environment_ready=true and THREAT_INTEL_REMOTE_SERVER_URL=http://127.0.0.1:8124 explicitly set. The live E2E pytest target tests/test_python_listener.py::test_live_threatintelprimary_e2e_request_uses_graph_derived_neo4j_contract_and_structured_validation actually ran and reached the remote dispatch path for REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001 / ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW / {1CFA011B-787D-4e43-BE86-0AC04FE53394}, but full end-to-end completion failed because the POST to /session/{id}/message timed out after 120.0s with RemoteDispatchError.",
+            "commitId": "6328126ff473f3a40f6a3ecc06bb0ba6fb82d05a",
+            "updatedAt": "2026-04-16T23:31:36.784Z"
           },
           "audit": {
             "status": "passed",
-            "summary": "Architecture compliance audit PASSED on rerun for baseline commit e7e2d21b46b7ac75ff2269be0ad91fb85b9aafc0 against current repository reality in full-model lane. Intent model remains sufficient with no core-layer gap. Current reality confirms architecture alignment for TASK-003/TASK-004/TASK-005: analyst contracts canonicalize to schema-first neo4j_query usage with incident-driven writeback semantics; db_schema_explorer publishes the workspace semantic schema menu from agent_app/opencode_app/.opencode/schema/**; neo4j_query remains the canonical analyst read/write boundary with traceable writeback summaries. Automated tagged verification is now present for intended architecture IDs ELM-APP-FUNC-PUBLISH-SEMANTIC-SCHEMA-MENU (tests/test_opencode_workspace_config.py line 154), ELM-APP-FUNC-CANONICALIZE-THREAT-ANALYST-CONTRACT (lines 376 and 416), and ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW. This supersedes the prior failed audit result as a stale validation-timing/traceability snapshot rather than a design gap.",
-            "details": "Architecture compliance audit PASSED on rerun for baseline commit e7e2d21b46b7ac75ff2269be0ad91fb85b9aafc0 against current repository reality in full-model lane. Intent model remains sufficient with no core-layer gap. Current reality confirms architecture alignment for TASK-003/TASK-004/TASK-005: analyst contracts canonicalize to schema-first neo4j_query usage with incident-driven writeback semantics; db_schema_explorer publishes the workspace semantic schema menu from agent_app/opencode_app/.opencode/schema/**; neo4j_query remains the canonical analyst read/write boundary with traceable writeback summaries. Automated tagged verification is now present for intended architecture IDs ELM-APP-FUNC-PUBLISH-SEMANTIC-SCHEMA-MENU (tests/test_opencode_workspace_config.py line 154), ELM-APP-FUNC-CANONICALIZE-THREAT-ANALYST-CONTRACT (lines 376 and 416), and ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW. This supersedes the prior failed audit result as a stale validation-timing/traceability snapshot rather than a design gap.",
-            "commitId": "e7e2d21b46b7ac75ff2269be0ad91fb85b9aafc0",
-            "updatedAt": "2026-04-16T10:12:36.891Z"
+            "summary": "TASK-006 full-model rework audit passed for commit 6328126ff473f3a40f6a3ecc06bb0ba6fb82d05a. Intent model is sufficient with all core layers present and cross-layer relationships established. Reviewed commit stays within existing architecture by changing only tests/test_python_listener.py to extend live E2E timeout tolerance through _resolve_live_remote_timeout_seconds while preserving explicit live_environment_ready gating, graph-derived Neo4j credential loading from ELM-TECHNOLOGY-NODE documentation, ThreatIntelPrimary live request construction, and validate_structured_result-based nondeterministic output validation. Explicit architecture trace evidence remains present for ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW and {1CFA011B-787D-4e43-BE86-0AC04FE53394} in the affected tests, and requirement trace REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001 remains tagged in the same test module. No architecture drift or missing intent-verification evidence was identified in the reviewed scope.",
+            "details": "TASK-006 full-model rework audit passed for commit 6328126ff473f3a40f6a3ecc06bb0ba6fb82d05a. Intent model is sufficient with all core layers present and cross-layer relationships established. Reviewed commit stays within existing architecture by changing only tests/test_python_listener.py to extend live E2E timeout tolerance through _resolve_live_remote_timeout_seconds while preserving explicit live_environment_ready gating, graph-derived Neo4j credential loading from ELM-TECHNOLOGY-NODE documentation, ThreatIntelPrimary live request construction, and validate_structured_result-based nondeterministic output validation. Explicit architecture trace evidence remains present for ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW and {1CFA011B-787D-4e43-BE86-0AC04FE53394} in the affected tests, and requirement trace REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001 remains tagged in the same test module. No architecture drift or missing intent-verification evidence was identified in the reviewed scope.",
+            "commitId": "6328126ff473f3a40f6a3ecc06bb0ba6fb82d05a",
+            "updatedAt": "2026-04-16T17:11:39.220Z"
           }
         },
         "release": {
-          "status": "completed",
-          "summary": "Release scope commit: e7e2d21b46b7ac75ff2269be0ad91fb85b9aafc0\nLane: full-model\nTasks: TASK-003, TASK-004, TASK-005\nResolved issue: ISSUE-002\nQA: passed\nAudit: passed on rerun; prior failed audit superseded as stale\nVerification: 100% of intended sprint scope represented in the traceability matrix verified by tests.\nRelease log: /mnt/d/projects/ThreatIntelliganceAgent/SprintRleaseLog.md",
-          "releaseLogPath": "SprintRleaseLog.md",
-          "updatedAt": "2026-04-16T10:18:39.194Z"
+          "status": "not_started",
+          "summary": "Release not prepared for the current goal.",
+          "updatedAt": "2026-04-16T14:21:14.768Z"
         },
-        "updatedAt": "2026-04-16T10:13:38.317Z"
+        "updatedAt": "2026-04-16T23:31:36.785Z"
       }
     }
   },
@@ -261,8 +255,7 @@
         ],
         "documentation": [
           {
-            "value": "Neo4j Graph Database is our backend database used for storing our intelligence data.\r\nit will running in docker container,\r\n\r\nUse these URLs after starting the compose stack:\r\n\r\nNeo4j Browser: http://localhost:7474\r\nBolt connection: bolt://localhost:7687\r\nCredentials:\r\n\r\nUsername: neo4j\r\nPassword: 11111111",
-            "lang": "en"
+            "value": "Describe the element as a node: a computational or physical resource that hosts, executes, or supports technology and application behavior. In this architecture, Neo4j Graph Database defines, constrains, or supports traceable solution intent within the managed model. Neo4j Graph Database is our backend database used for storing our intelligence data.\r\nit will running in docker container,\r\n\r\nUse these URLs after starting the compose stack:\r\n\r\nNeo4j Browser: http://localhost:7474\r\nBolt connection: bolt://localhost:7687\r\nCredentials:\r\n\r\nUsername: neo4j\r\nPassword: 11111111."
           }
         ],
         "extensions": {
@@ -1268,34 +1261,34 @@
         "type": "WorkPackage",
         "name": [
           {
-            "value": "Fast-track implementation of the human-architect-approved Neo4j chain: add Execute Neo4j Cypher and Neo4j Query Native T"
+            "value": "Execute the mandatory TODO contract injected into ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW: perform one end-to-end live i"
           }
         ],
         "documentation": [
           {
-            "value": "Issue-driven full-model refinement for ThreatIntelAnalyst. Canonical analyst flow is updated from `stix_query` to `neo4j_query`; `db_schema_explorer` is refined so its schema authority comes from `agent_app/opencode_app/.opencode/schema/**` as a semantic menu for agent-guided query construction; and the analyst boundary is expanded from query-only evidence lookup to incident-driven threat-intelligence extraction plus idempotent, traceable database writeback. Existing software units remain the correct ownership seams: OpenCode Threat Intelligence Workspace for agent/skill contracts, STIX Schema Explorer Native Tool for schema-menu exposure, and Neo4j Query Native Tool for analyst database interaction. `stix_query` is retained only as transitional compatibility and is no longer the canonical analyst contract."
+            "value": "Issue-driven full-model refinement for TASK-006. No redesign is required. The mandatory TODO injected into ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW is implemented as an executable runtime-validation contract on the existing architecture. Existing ownership remains unchanged: ApplicationFunction ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW stays assigned to software unit {1CFA011B-787D-4e43-BE86-0AC04FE53394} / Neo4j Query Native Tool, while implementation may extend the existing repository test harness and listener/result-validation seams to execute one live end-to-end OPENCODE-server request through ThreatIntelPrimary, dynamically parse Neo4j credentials from ELM-TECHNOLOGY-NODE documentation, and validate nondeterministic AI output using structure/contract validation. QA execution remains gated by explicit human confirmation of live_environment_ready."
           }
         ],
         "extensions": {
           "ai4pb": {
             "managedBy": "opencode-runtime",
             "kind": "Project",
-            "rawRequirement": "Fast-track implementation of the human-architect-approved Neo4j chain: add Execute Neo4j Cypher and Neo4j Query Native T",
+            "rawRequirement": "Execute the mandatory TODO contract injected into ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW: perform one end-to-end live i",
             "status": "InProgress"
           }
         }
       },
       {
-        "identifier": "TASK-001",
+        "identifier": "TASK-006",
         "type": "WorkPackage",
         "name": [
           {
-            "value": "Fast-track implementation of the human-architect-approved Neo4j chain: add Execute Neo4j Cypher and Neo4j Query Native T"
+            "value": "Execute the mandatory TODO contract injected into ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW: perform one end-to-end live i"
           }
         ],
         "documentation": [
           {
-            "value": "Planning/escalation record closed after architect traceability repair (TASK-002), QA pass, and Audit pass on commit 05d14a419e925bc9e7f59afff983daa3a1c42323."
+            "value": "Circuit breaker opened after repeated QA failures for TASK-006. Latest live validation on commit 6328126ff473f3a40f6a3ecc06bb0ba6fb82d05a reached the real remote dispatch path with THREAT_INTEL_REMOTE_SERVER_URL=http://127.0.0.1:8124, but POST /session/{id}/message timed out after 120.0s with RemoteDispatchError. Automatic routing stopped because retryCount exceeded the maximum of 3."
           }
         ],
         "extensions": {
@@ -1303,207 +1296,15 @@
             "managedBy": "opencode-runtime",
             "kind": "Task",
             "taskKind": "planning",
-            "status": "Done",
-            "retryCount": 1,
+            "status": "Blocked",
+            "retryCount": 4,
             "assignee": "SystemArchitect",
-            "summary": "Planning/escalation record closed after architect traceability repair (TASK-002), QA pass, and Audit pass on commit 05d14a419e925bc9e7f59afff983daa3a1c42323.",
-            "commitId": "05d14a419e925bc9e7f59afff983daa3a1c42323",
+            "summary": "Circuit breaker opened after repeated QA failures for TASK-006. Latest live validation on commit 6328126ff473f3a40f6a3ecc06bb0ba6fb82d05a reached the real remote dispatch path with THREAT_INTEL_REMOTE_SERVER_URL=http://127.0.0.1:8124, but POST /session/{id}/message timed out after 120.0s with RemoteDispatchError. Automatic routing stopped because retryCount exceeded the maximum of 3.",
+            "commitId": "6328126ff473f3a40f6a3ecc06bb0ba6fb82d05a",
             "softwareUnitId": "",
             "softwareUnitTitle": "",
             "architectureElementId": "",
-            "updatedAt": "2026-04-15T23:39:48.108Z"
-          }
-        }
-      },
-      {
-        "identifier": "TASK-002",
-        "type": "WorkPackage",
-        "name": [
-          {
-            "value": "Add intent-tagged QA coverage for Execute Neo4j Cypher in STIX Semantic Query CLI"
-          }
-        ],
-        "documentation": [
-          {
-            "value": "Completed localized QA rework for STIX Semantic Query CLI. Added intent-tagged tests in tests/test_stix_cli.py for clean_neo4j_value record/node/relationship/path JSON output, explicitly tracing to softwareUnitId ELM-APP-COMP-STIX-CLI and architectureElementId {E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC}. Focused validation passed with PYTHONPATH=. pytest tests/test_stix_cli.py -q."
-          }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "Task",
-            "taskKind": "implementation",
-            "status": "Done",
-            "retryCount": 0,
-            "assignee": "Implementation",
-            "summary": "Completed localized QA rework for STIX Semantic Query CLI. Added intent-tagged tests in tests/test_stix_cli.py for clean_neo4j_value record/node/relationship/path JSON output, explicitly tracing to softwareUnitId ELM-APP-COMP-STIX-CLI and architectureElementId {E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC}. Focused validation passed with PYTHONPATH=. pytest tests/test_stix_cli.py -q.",
-            "commitId": "05d14a419e925bc9e7f59afff983daa3a1c42323",
-            "softwareUnitId": "ELM-APP-COMP-STIX-CLI",
-            "softwareUnitTitle": "STIX Semantic Query CLI",
-            "architectureElementId": "{E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC}",
-            "updatedAt": "2026-04-15T23:29:02.693Z"
-          }
-        }
-      },
-      {
-        "identifier": "TASK-003",
-        "type": "WorkPackage",
-        "name": [
-          {
-            "value": "Refine ThreatIntelAnalyst and compatibility contracts to use neo4j_query and support incident writeback"
-          }
-        ],
-        "documentation": [
-          {
-            "value": "Retry count incremented after Audit failure on commit e7e2d21b46b7ac75ff2269be0ad91fb85b9aafc0. Failure summary: missing tagged automated verification for architecture intent ELM-APP-FUNC-CANONICALIZE-THREAT-ANALYST-CONTRACT."
-          }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "Task",
-            "taskKind": "implementation",
-            "status": "Done",
-            "retryCount": 1,
-            "assignee": "Implementation",
-            "summary": "Retry count incremented after Audit failure on commit e7e2d21b46b7ac75ff2269be0ad91fb85b9aafc0. Failure summary: missing tagged automated verification for architecture intent ELM-APP-FUNC-CANONICALIZE-THREAT-ANALYST-CONTRACT.",
-            "commitId": "e7e2d21",
-            "softwareUnitId": "ELM-APP-COMP-OPENCODE-THREAT-WORKSPACE",
-            "softwareUnitTitle": "OpenCode Threat Intelligence Workspace",
-            "architectureElementId": "ELM-APP-FUNC-CANONICALIZE-THREAT-ANALYST-CONTRACT",
-            "updatedAt": "2026-04-16T10:03:23.081Z"
-          }
-        }
-      },
-      {
-        "identifier": "TASK-004",
-        "type": "WorkPackage",
-        "name": [
-          {
-            "value": "Refactor db_schema_explorer to publish workspace semantic schema menu from .opencode/schema"
-          }
-        ],
-        "documentation": [
-          {
-            "value": "Retry count incremented after Audit failure on commit e7e2d21b46b7ac75ff2269be0ad91fb85b9aafc0. Failure summary: missing tagged automated verification for architecture intent ELM-APP-FUNC-PUBLISH-SEMANTIC-SCHEMA-MENU."
-          }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "Task",
-            "taskKind": "implementation",
-            "status": "Done",
-            "retryCount": 1,
-            "assignee": "Implementation",
-            "summary": "Retry count incremented after Audit failure on commit e7e2d21b46b7ac75ff2269be0ad91fb85b9aafc0. Failure summary: missing tagged automated verification for architecture intent ELM-APP-FUNC-PUBLISH-SEMANTIC-SCHEMA-MENU.",
-            "commitId": "e7e2d21",
-            "softwareUnitId": "ELM-APP-COMP-SCHEMA-EXPLORER",
-            "softwareUnitTitle": "STIX Schema Explorer Native Tool",
-            "architectureElementId": "ELM-APP-FUNC-PUBLISH-SEMANTIC-SCHEMA-MENU",
-            "updatedAt": "2026-04-16T10:03:23.162Z"
-          }
-        }
-      },
-      {
-        "identifier": "TASK-005",
-        "type": "WorkPackage",
-        "name": [
-          {
-            "value": "Harden neo4j_query as the canonical analyst read/write flow with traceable writeback summaries"
-          }
-        ],
-        "documentation": [
-          {
-            "value": "Completed neo4j_query hardening. Canonical analyst DB flow now enforces analyst scope, validates read/write payloads, and exposes traceable writeback summaries with counters and idempotent persistence semantics; focused tests updated and passing."
-          }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "Task",
-            "taskKind": "implementation",
-            "status": "Done",
-            "retryCount": 0,
-            "assignee": "Implementation",
-            "summary": "Completed neo4j_query hardening. Canonical analyst DB flow now enforces analyst scope, validates read/write payloads, and exposes traceable writeback summaries with counters and idempotent persistence semantics; focused tests updated and passing.",
-            "commitId": "e7e2d21",
-            "softwareUnitId": "{1CFA011B-787D-4e43-BE86-0AC04FE53394}",
-            "softwareUnitTitle": "Neo4j Query Native Tool",
-            "architectureElementId": "ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW",
-            "updatedAt": "2026-04-16T09:21:52.604Z"
-          }
-        }
-      },
-      {
-        "identifier": "ISSUE-001",
-        "type": "BusinessObject",
-        "name": [
-          {
-            "value": "TASK-001 QA traceability gap for Neo4j fast-track batch [Resolved]"
-          }
-        ],
-        "documentation": [
-          {
-            "value": "Resolved by successful rework commit 05d14a419e925bc9e7f59afff983daa3a1c42323"
-          }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "Issue",
-            "issueType": "BugReport",
-            "status": "Resolved",
-            "reporter": "OpenCode",
-            "category": "BugReport"
-          }
-        }
-      },
-      {
-        "identifier": "ISSUE-002",
-        "type": "BusinessObject",
-        "name": [
-          {
-            "value": "IntentNotVerified for full-model Neo4j analyst batch on commit e7e2d21 [Resolved]"
-          }
-        ],
-        "documentation": [
-          {
-            "value": "Resolved by successful re-audit on commit e7e2d21b46b7ac75ff2269be0ad91fb85b9aafc0. Stale audit failure superseded after current repository reality verified tagged intent coverage for TASK-003 and TASK-004."
-          }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "Issue",
-            "issueType": "ArchGap",
-            "status": "Resolved",
-            "reporter": "OpenCode",
-            "category": "ArchitectureGap"
-          }
-        }
-      },
-      {
-        "identifier": "RELEASE-LOG",
-        "type": "Artifact",
-        "name": [
-          {
-            "value": "SprintReleaseLog"
-          }
-        ],
-        "documentation": [
-          {
-            "value": "Release scope commit: e7e2d21b46b7ac75ff2269be0ad91fb85b9aafc0\nLane: full-model\nTasks: TASK-003, TASK-004, TASK-005\nResolved issue: ISSUE-002\nQA: passed\nAudit: passed on rerun; prior failed audit superseded as stale\nVerification: 100% of intended sprint scope represented in the traceability matrix verified by tests.\nRelease log: /mnt/d/projects/ThreatIntelliganceAgent/SprintRleaseLog.md"
-          }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "ReleaseLog",
-            "version": "1.0.0",
-            "content": "Release scope commit: e7e2d21b46b7ac75ff2269be0ad91fb85b9aafc0\nLane: full-model\nTasks: TASK-003, TASK-004, TASK-005\nResolved issue: ISSUE-002\nQA: passed\nAudit: passed on rerun; prior failed audit superseded as stale\nVerification: 100% of intended sprint scope represented in the traceability matrix verified by tests.\nRelease log: /mnt/d/projects/ThreatIntelliganceAgent/SprintRleaseLog.md",
-            "timestamp": "2026-04-16T10:18:39.194Z",
-            "path": "SprintRleaseLog.md"
+            "updatedAt": "2026-04-16T23:32:02.670Z"
           }
         }
       }
@@ -3895,15 +3696,15 @@
         ]
       },
       {
-        "identifier": "REL-PROJECT-TASK-001",
+        "identifier": "REL-PROJECT-TASK-006",
         "type": "Aggregation",
         "name": [
           {
-            "value": "Project aggregates TASK-001"
+            "value": "Project aggregates TASK-006"
           }
         ],
         "source": "PROJECT-CURRENT",
-        "target": "TASK-001",
+        "target": "TASK-006",
         "documentation": [
           {
             "value": "Runtime task relationship managed by OpenCode runtime."
@@ -3913,182 +3714,6 @@
           "ai4pb": {
             "managedBy": "opencode-runtime",
             "kind": "ProjectTaskLink"
-          }
-        }
-      },
-      {
-        "identifier": "REL-PROJECT-TASK-002",
-        "type": "Aggregation",
-        "name": [
-          {
-            "value": "Project aggregates TASK-002"
-          }
-        ],
-        "source": "PROJECT-CURRENT",
-        "target": "TASK-002",
-        "documentation": [
-          {
-            "value": "Runtime task relationship managed by OpenCode runtime."
-          }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "ProjectTaskLink"
-          }
-        }
-      },
-      {
-        "identifier": "REL-TASK-002-ARCH",
-        "type": "Association",
-        "name": [
-          {
-            "value": "TASK-002 traces to {E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC}"
-          }
-        ],
-        "source": "TASK-002",
-        "target": "{E1A3F02C-9F97-464c-9247-DE4EBB2BB5CC}",
-        "documentation": [
-          {
-            "value": "Runtime task traceability relationship managed by OpenCode runtime."
-          }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "TaskArchitectureTrace"
-          }
-        }
-      },
-      {
-        "identifier": "REL-PROJECT-TASK-003",
-        "type": "Aggregation",
-        "name": [
-          {
-            "value": "Project aggregates TASK-003"
-          }
-        ],
-        "source": "PROJECT-CURRENT",
-        "target": "TASK-003",
-        "documentation": [
-          {
-            "value": "Runtime task relationship managed by OpenCode runtime."
-          }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "ProjectTaskLink"
-          }
-        }
-      },
-      {
-        "identifier": "REL-TASK-003-ARCH",
-        "type": "Association",
-        "name": [
-          {
-            "value": "TASK-003 traces to ELM-APP-FUNC-CANONICALIZE-THREAT-ANALYST-CONTRACT"
-          }
-        ],
-        "source": "TASK-003",
-        "target": "ELM-APP-FUNC-CANONICALIZE-THREAT-ANALYST-CONTRACT",
-        "documentation": [
-          {
-            "value": "Runtime task traceability relationship managed by OpenCode runtime."
-          }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "TaskArchitectureTrace"
-          }
-        }
-      },
-      {
-        "identifier": "REL-PROJECT-TASK-004",
-        "type": "Aggregation",
-        "name": [
-          {
-            "value": "Project aggregates TASK-004"
-          }
-        ],
-        "source": "PROJECT-CURRENT",
-        "target": "TASK-004",
-        "documentation": [
-          {
-            "value": "Runtime task relationship managed by OpenCode runtime."
-          }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "ProjectTaskLink"
-          }
-        }
-      },
-      {
-        "identifier": "REL-TASK-004-ARCH",
-        "type": "Association",
-        "name": [
-          {
-            "value": "TASK-004 traces to ELM-APP-FUNC-PUBLISH-SEMANTIC-SCHEMA-MENU"
-          }
-        ],
-        "source": "TASK-004",
-        "target": "ELM-APP-FUNC-PUBLISH-SEMANTIC-SCHEMA-MENU",
-        "documentation": [
-          {
-            "value": "Runtime task traceability relationship managed by OpenCode runtime."
-          }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "TaskArchitectureTrace"
-          }
-        }
-      },
-      {
-        "identifier": "REL-PROJECT-TASK-005",
-        "type": "Aggregation",
-        "name": [
-          {
-            "value": "Project aggregates TASK-005"
-          }
-        ],
-        "source": "PROJECT-CURRENT",
-        "target": "TASK-005",
-        "documentation": [
-          {
-            "value": "Runtime task relationship managed by OpenCode runtime."
-          }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "ProjectTaskLink"
-          }
-        }
-      },
-      {
-        "identifier": "REL-TASK-005-ARCH",
-        "type": "Association",
-        "name": [
-          {
-            "value": "TASK-005 traces to ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW"
-          }
-        ],
-        "source": "TASK-005",
-        "target": "ELM-APP-FUNC-EXECUTE-ANALYST-NEO4J-FLOW",
-        "documentation": [
-          {
-            "value": "Runtime task traceability relationship managed by OpenCode runtime."
-          }
-        ],
-        "extensions": {
-          "ai4pb": {
-            "managedBy": "opencode-runtime",
-            "kind": "TaskArchitectureTrace"
           }
         }
       }

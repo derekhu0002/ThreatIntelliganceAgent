@@ -201,6 +201,18 @@ pytest tests/test_stix_cli.py
 pytest tests/test_minimal_closed_loop_script.py
 ```
 
+运行 live E2E listener 测试前，需要显式提供环境变量：
+
+```bash
+live_environment_ready=true THREAT_INTEL_REMOTE_SERVER_URL=http://127.0.0.1:8124 python3 -m pytest tests/test_python_listener.py::test_live_threatintelprimary_e2e_request_uses_graph_derived_neo4j_contract_and_structured_validation -vv
+```
+
+也支持使用更常见的大写环境变量名：
+
+```bash
+LIVE_ENVIRONMENT_READY=true THREAT_INTEL_REMOTE_SERVER_URL=http://127.0.0.1:8124 python3 -m pytest tests/test_python_listener.py::test_live_threatintelprimary_e2e_request_uses_graph_derived_neo4j_contract_and_structured_validation -vv
+```
+
 测试覆盖重点：
 
 - Mock OPENCTI 事件契约与规范化

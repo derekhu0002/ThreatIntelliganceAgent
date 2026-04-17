@@ -23,7 +23,11 @@ SHARED_GRAPH_PATH = REPO_ROOT / ".opencode/temp/SharedKnowledgeGraph.archimate3.
 
 
 def _is_live_environment_ready() -> bool:
-    return os.environ.get("live_environment_ready", "").strip().lower() in {"1", "true", "yes", "y"}
+    configured_value = os.environ.get("live_environment_ready")
+    if configured_value is None:
+        configured_value = os.environ.get("LIVE_ENVIRONMENT_READY", "")
+
+    return configured_value.strip().lower() in {"1", "true", "yes", "y"}
 
 
 # @ArchitectureID: {1CFA011B-787D-4e43-BE86-0AC04FE53394}
@@ -296,6 +300,13 @@ def test_resolve_live_remote_timeout_seconds_rejects_invalid_env_override(monkey
 
     with pytest.raises(AssertionError, match="THREAT_INTEL_REMOTE_TIMEOUT_SECONDS must be a positive number"):
         _resolve_live_remote_timeout_seconds()
+
+
+def test_is_live_environment_ready_accepts_uppercase_env_name(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("live_environment_ready", raising=False)
+    monkeypatch.setenv("LIVE_ENVIRONMENT_READY", "true")
+
+    assert _is_live_environment_ready() is True
 
 
 def test_live_threatintelprimary_e2e_request_uses_graph_derived_neo4j_contract_and_structured_validation() -> None:
