@@ -1,0 +1,233 @@
+@startuml
+
+package "domain/contracts" {
+  class "StrictContractModel" as StrictContractModel <<ValueObject>> {
+  }
+  class "AssemblyContract" as AssemblyContract <<ValueObject>> {
+  }
+  class "ContractCatalogError" as ContractCatalogError <<Entity>> {
+  }
+}
+
+package "domain/events" {
+  class "EventEntity" as EventEntity <<Entity>> {
+  }
+  class "EventObservable" as EventObservable <<Entity>> {
+  }
+  class "NormalizedMockOpenCTIEvent" as NormalizedMockOpenCTIEvent <<Entity>> {
+  }
+  class "EventContractError" as EventContractError <<ValueObject>> {
+  }
+}
+
+package "domain/stix" {
+  class "StixObjectSummary" as StixObjectSummary <<ValueObject>> {
+  }
+  class "StixSearchResult" as StixSearchResult <<ValueObject>> {
+  }
+  class "StixNeighborRelationship" as StixNeighborRelationship <<ValueObject>> {
+  }
+  class "StixNeighborsResult" as StixNeighborsResult <<ValueObject>> {
+  }
+  class "StixAdvancedFilterRelationship" as StixAdvancedFilterRelationship <<ValueObject>> {
+  }
+  class "StixAdvancedFilterResult" as StixAdvancedFilterResult <<ValueObject>> {
+  }
+  class "StixEntitySchemaSummary" as StixEntitySchemaSummary <<ValueObject>> {
+  }
+  class "StixSchemaSummary" as StixSchemaSummary <<ValueObject>> {
+  }
+}
+
+package "domain/analysis" {
+  class "EvidenceQueryBasis" as EvidenceQueryBasis <<ValueObject>> {
+  }
+  class "AnalysisConclusion" as AnalysisConclusion <<ValueObject>> {
+  }
+  class "AnalysisResultEvent" as AnalysisResultEvent <<ValueObject>> {
+  }
+  class "ThreatAnalysisResult" as ThreatAnalysisResult <<ValueObject>> {
+  }
+}
+
+package "domain/collaboration" {
+  class "CollaborationRoleOutput" as CollaborationRoleOutput <<ValueObject>> {
+  }
+  class "CollaborationTrace" as CollaborationTrace <<ValueObject>> {
+  }
+}
+
+package "services/stix_contracts" {
+  class "services/stix_contracts/models" as services_stix_contracts_models <<Utility>> {
+  }
+  class "services/stix_contracts/catalog" as services_stix_contracts_catalog <<Service>> {
+  }
+}
+
+package "tests/stix_contracts" {
+  class "tests/test_stix_contracts" as tests_test_stix_contracts <<Test>> {
+  }
+}
+
+package "domain/remote" {
+  class "MockRemoteServerHandle" as MockRemoteServerHandle <<ValueObject>> {
+  }
+  class "RemoteDispatchError" as RemoteDispatchError <<ValueObject>> {
+  }
+}
+
+package "services/mock_server" {
+  class "_MockRemoteServer" as _MockRemoteServer <<Adapter>> {
+  }
+  class "services/remote_opencode_server/mock_server" as services_remote_opencode_server_mock_server <<Service>> {
+  }
+}
+
+package "tests/stix_cli" {
+  class "tests/test_stix_cli" as tests_test_stix_cli <<Test>> {
+  }
+}
+
+package "tests/result_assembler" {
+  class "tests/test_result_assembler" as tests_test_result_assembler <<Test>> {
+  }
+}
+
+package "tests/python_listener" {
+  class "tests/test_python_listener" as tests_test_python_listener <<Test>> {
+  }
+}
+
+package "tests/workspace_config" {
+  class "tests/test_opencode_workspace_config" as tests_test_opencode_workspace_config <<Test>> {
+  }
+}
+
+package "tests/neo4j" {
+  class "tests/test_neo4j_query_tool" as tests_test_neo4j_query_tool <<Utility>> {
+  }
+}
+
+package "tests/mock_opencti" {
+  class "tests/test_mock_opencti_adapter" as tests_test_mock_opencti_adapter <<Utility>> {
+  }
+}
+
+package "tests/closed_loop" {
+  class "tests/test_minimal_closed_loop_script" as tests_test_minimal_closed_loop_script <<Utility>> {
+  }
+}
+
+package "scripts/closed_loop" {
+  class "scripts/run_minimal_closed_loop" as scripts_run_minimal_closed_loop <<Controller>> {
+  }
+}
+
+package "services/remote_client" {
+  class "RemoteOpencodeClient" as RemoteOpencodeClient <<Gateway>> {
+  }
+}
+
+package "services/python_listener" {
+  class "services/python_listener/remote_client" as services_python_listener_remote_client <<Utility>> {
+  }
+  class "services/python_listener/__main__" as services_python_listener___main__ <<Controller>> {
+  }
+}
+
+package "services/threat_listener" {
+  class "ThreatIntelListener" as ThreatIntelListener <<Service>> {
+  }
+}
+
+package "services/mock_opencti" {
+  class "services/mock_opencti_adapter/adapter" as services_mock_opencti_adapter_adapter <<Adapter>> {
+  }
+}
+
+package "services/result_assembler" {
+  class "services/result_assembler/schema" as services_result_assembler_schema <<Utility>> {
+  }
+  class "services/result_assembler/assembler" as services_result_assembler_assembler <<Service>> {
+  }
+}
+
+package "tools/stix_cli" {
+  class "agent_app/opencode_app/tools/stix_cli/__main__" as agent_app_opencode_app_tools_stix_cli___main__ <<Controller>> {
+  }
+  class "agent_app/opencode_app/tools/stix_cli/semantic_query" as agent_app_opencode_app_tools_stix_cli_semantic_query <<Service>> {
+  }
+}
+
+package "tools/stix" {
+  class "agent_app/opencode_app/.opencode/tools/stix_query" as agent_app_opencode_app__opencode_tools_stix_query <<Utility>> {
+  }
+}
+
+package "tools/neo4j" {
+  class "agent_app/opencode_app/.opencode/tools/neo4j_query" as agent_app_opencode_app__opencode_tools_neo4j_query <<Utility>> {
+  }
+}
+
+package "tools/db_schema" {
+  class "agent_app/opencode_app/.opencode/tools/db_schema_explorer" as agent_app_opencode_app__opencode_tools_db_schema_explorer <<Utility>> {
+  }
+}
+
+note right of StrictContractModel : Defines a strict data model with validation and serialization rules.
+note right of EventEntity : Represents an event entity with mandatory identification and type fields.
+note right of EventObservable : Represents an observable tied to an event with type and value.
+note right of NormalizedMockOpenCTIEvent : Models a normalized OpenCTI event with metadata, entity, and observables.
+note right of StixObjectSummary : Summarizes a STIX object with optional descriptive fields.
+note right of StixSearchResult : Represents the result of a STIX object search with validation on match counts.
+note right of StixNeighborRelationship : Defines a relationship between STIX objects with directionality.
+note right of StixNeighborsResult : Represents STIX object neighbors with validation on relationship counts.
+note right of StixAdvancedFilterRelationship : Defines a relationship between STIX objects for advanced filtering.
+note right of StixAdvancedFilterResult : Represents advanced filtering results with validation on counts.
+note right of StixEntitySchemaSummary : Summarizes schema details for a STIX entity type.
+note right of StixSchemaSummary : Summarizes the STIX schema with supported fields and entity types.
+note right of EvidenceQueryBasis : Represents the basis for evidence queries with searches and relationships.
+note right of AnalysisConclusion : Represents the conclusion of an analysis with a summary and confidence.
+note right of CollaborationRoleOutput : Represents the output of a collaboration role with legacy compatibility.
+note right of AssemblyContract : Defines a contract schema for assembly tasks.
+note right of CollaborationTrace : Represents traceability and collaboration details for an assembly contract.
+note right of AnalysisResultEvent : Encapsulates details of an analysis result event.
+note right of ThreatAnalysisResult : Holds the result of a threat analysis, including evidence and recommendations.
+note right of services_stix_contracts_models : Provides utilities for parsing and building analysis result schemas.
+note right of ContractCatalogError : Represents an error when resolving contract catalog schemas.
+note right of services_stix_contracts_catalog : Manages loading and resolving contract schemas.
+note right of tests_test_stix_contracts : Tests schema resolution and validation for STIX contracts.
+note right of MockRemoteServerHandle : Represents a handle for interacting with a mock remote server.
+note right of _MockRemoteServer : Implements a mock HTTP server for testing remote interactions.
+note right of services_remote_opencode_server_mock_server : Provides mock server utilities for remote request handling.
+note right of tests_test_stix_cli : Tests STIX CLI tools for entity and relationship queries.
+note right of tests_test_result_assembler : Tests the assembly of structured results for threat analysis.
+note right of tests_test_python_listener : Tests the Python listener for live environment readiness and remote requests.
+note right of tests_test_opencode_workspace_config : Tests the configuration of the OpenCode workspace.
+note right of tests_test_neo4j_query_tool : Tests the execution of Neo4j Cypher queries and validates JSON payloads.
+note right of tests_test_mock_opencti_adapter : Tests normalization and validation of mock OpenCTI events.
+note right of tests_test_minimal_closed_loop_script : Tests the execution and output of a minimal closed-loop script.
+note right of scripts_run_minimal_closed_loop : Runs a minimal closed-loop script for event validation and analysis.
+note right of RemoteDispatchError : Represents errors during remote server communication.
+note right of RemoteOpencodeClient : Handles communication with a remote OpenCode server for analysis.
+note right of services_python_listener_remote_client : Loads and resolves workspace configuration for agents.
+note right of ThreatIntelListener : Processes events and dispatches analysis requests to a remote server.
+note right of EventContractError : Represents errors in the mock OpenCTI event contract.
+note right of services_mock_opencti_adapter_adapter : Normalizes and validates mock OpenCTI events.
+note right of services_python_listener___main__ : Runs the Threat Intelligence Agent listener flow.
+note right of services_result_assembler_schema : Builds the JSON schema for analysis results.
+note right of services_result_assembler_assembler : Assembles and validates structured analysis results.
+note right of agent_app_opencode_app_tools_stix_cli___main__ : Provides a CLI for local STIX 2.1 semantic queries.
+note right of agent_app_opencode_app_tools_stix_cli_semantic_query : Executes semantic queries and processes STIX data.
+note right of agent_app_opencode_app__opencode_tools_stix_query : Handles CLI command execution and validates output for agent-specific operations.
+note right of agent_app_opencode_app__opencode_tools_neo4j_query : Manages Neo4j query execution and ensures writeback summaries.
+note right of agent_app_opencode_app__opencode_tools_db_schema_explorer : Explores and processes database schema files to build menus and relationships.
+
+agent_app_opencode_app__opencode_tools_stix_query --> agent_app_opencode_app__opencode_tools_neo4j_query
+agent_app_opencode_app__opencode_tools_stix_query --> agent_app_opencode_app__opencode_tools_db_schema_explorer
+agent_app_opencode_app__opencode_tools_neo4j_query --> agent_app_opencode_app__opencode_tools_stix_query
+agent_app_opencode_app__opencode_tools_neo4j_query --> agent_app_opencode_app__opencode_tools_db_schema_explorer
+agent_app_opencode_app__opencode_tools_db_schema_explorer --> agent_app_opencode_app__opencode_tools_stix_query
+agent_app_opencode_app__opencode_tools_db_schema_explorer --> agent_app_opencode_app__opencode_tools_neo4j_query
+
+@enduml

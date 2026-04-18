@@ -1,0 +1,4 @@
+{
+  "argo.plantuml.validationMode": "java-jar",
+  "argo.plantuml.jarPath": "D:\\projects\\PlantUML-Interactive-Editor\\dependency\\plantuml-1.2026.2.jar"
+}
