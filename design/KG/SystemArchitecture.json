@@ -1,0 +1,140 @@
+{
+"name": "System",
+"description": "",
+"elements": [
+{
+"id": "1716",
+"name": "StrategyLayerAndMotivationAspect"
+,"type": "ArchiMate_Assessment"
+,"subdiagram_views": [
+{
+"view_id": "178",
+"view_name": "StrategyLayerAndMotivationAspect"
+}
+]
+},
+{
+"id": "1717",
+"name": "BusinessLayer"
+,"type": "ArchiMate_Assessment"
+,"subdiagram_views": [
+{
+"view_id": "179",
+"view_name": "BusinessLayer"
+}
+]
+},
+{
+"id": "1718",
+"name": "ApplicationLayer"
+,"type": "ArchiMate_Assessment"
+,"subdiagram_views": [
+{
+"view_id": "180",
+"view_name": "ApplicationLayer"
+}
+]
+},
+{
+"id": "1719",
+"name": "TechnologyLayer"
+,"type": "ArchiMate_Assessment"
+,"subdiagram_views": [
+{
+"view_id": "181",
+"view_name": "TechnologyLayer"
+}
+]
+},
+{
+"id": "1720",
+"name": "ProjectManagement"
+,"type": "ArchiMate_Assessment"
+,"subdiagram_views": [
+{
+"view_id": "182",
+"view_name": "ProjectManagement"
+}
+]
+}
+],
+"relationships": [
+
+],
+"views": [
+{
+"view_id": "178",
+"view_name": "StrategyLayerAndMotivationAspect"
+,"parent_element_id": "1716"
+,"parent_element_name": "StrategyLayerAndMotivationAspect"
+,"included_elements": [
+
+]
+,"included_relationships": [
+
+]
+},
+{
+"view_id": "179",
+"view_name": "BusinessLayer"
+,"parent_element_id": "1717"
+,"parent_element_name": "BusinessLayer"
+,"included_elements": [
+
+]
+,"included_relationships": [
+
+]
+},
+{
+"view_id": "180",
+"view_name": "ApplicationLayer"
+,"parent_element_id": "1718"
+,"parent_element_name": "ApplicationLayer"
+,"included_elements": [
+
+]
+,"included_relationships": [
+
+]
+},
+{
+"view_id": "181",
+"view_name": "TechnologyLayer"
+,"parent_element_id": "1719"
+,"parent_element_name": "TechnologyLayer"
+,"included_elements": [
+
+]
+,"included_relationships": [
+
+]
+},
+{
+"view_id": "182",
+"view_name": "ProjectManagement"
+,"parent_element_id": "1720"
+,"parent_element_name": "ProjectManagement"
+,"included_elements": [
+
+]
+,"included_relationships": [
+
+]
+},
+{
+"view_id": "177",
+"view_name": "SystemArchitecture"
+,"included_elements": [
+"1716",
+"1717",
+"1718",
+"1719",
+"1720"
+]
+,"included_relationships": [
+
+]
+}
+]
+}
