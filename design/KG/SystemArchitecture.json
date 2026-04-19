@@ -56,19 +56,235 @@
 "view_name": "ProjectManagement"
 }
 ]
+},
+{
+"id": "1726",
+"name": "Listener 收到 Mock 事件到后端生成结构化预警并落盘"
+,"type": "ArchiMate_BusinessService"
+,"testcases": [
+{
+"name": "[SMOKING TEST]标准高危威胁事件闭环分析",
+"description": "前置条件：\r\n1、Listener 服务可运行\r\n2、远端 OPENCODE Server 可访问\r\n3、输出目录可写\r\n4、默认 STIX 样本数据可用\r\n输入：\r\n1、Mock 事件文件：mock_opencti_push_event.json\r\n2、opencode server地址：http://127.0.0.1:8124\r\n3、远端NEO4J 服务地址：neo4j://127.0.0.1:7698\r\n4、输出路径：opencti-push-001-analysis.json\r\n期望输出：\r\n1、生成结构化 JSON 预警结果文件\r\n2、返回内容包含事件信息、分析结论、证据基础、建议动作、协作轨迹\r\n通过标准：\r\n1、输出文件存在\r\n2、JSON 可正常解析\r\n3、analysis_conclusion.summary 非空\r\n4、recommended_actions 至少 1 条\r\n5、collaboration_trace.participants 至少 2 个角色\r\n6、event.event_id 与输入事件一致\r\n7、NEO4J中有落盘数据；",
+"acceptanceCriteria": ""
+}
+]
+},
+{
+"id": "1727",
+"name": "人类通过前台与 OPENCODE Server 交互，返回威胁分析与 PIA 分析"
+,"type": "ArchiMate_BusinessService"
+,"testcases": [
+{
+"name": "用户提交基础方案并返回 Threat Analysis 与 PIA Analysis",
+"description": "",
+"acceptanceCriteria": ""
+}
+]
+},
+{
+"id": "1728",
+"name": "业务和数据分离原则"
+,"type": "ArchiMate_Principle"
+,"subdiagram_views": [
+{
+"view_id": "185",
+"view_name": "架构原则1"
+}
+]
+},
+{
+"id": "1731",
+"name": "扩展前端"
+,"type": "Class"
+},
+{
+"id": "1732",
+"name": "OPENCODE SERVER后台"
+,"type": "Class"
+},
+{
+"id": "1733",
+"name": "后台数据服务"
+,"type": "Class"
+},
+{
+"id": "1734",
+"name": "PUSH Listener"
+,"type": "Class"
+},
+{
+"id": "1735",
+"name": "AGENT"
+,"type": "Class"
+,"description": "根据获取的SCHEMA指导当前图数据库中有哪些数据和关系，并结合当前目标自动形成CYPHER查询语句，然后调用工具进查询或操作后台NEO4J数据库"
+},
+{
+"id": "1736",
+"name": "TOOL"
+,"type": "Class"
+},
+{
+"id": "1737",
+"name": "STIX SCHEMA"
+,"type": "Class"
+},
+{
+"id": "1738",
+"name": "Agents"
+,"type": "ArchiMate_ApplicationComponent"
+},
+{
+"id": "1739",
+"name": "Tools"
+,"type": "ArchiMate_ApplicationComponent"
+},
+{
+"id": "1740",
+"name": "SCHEMA"
+,"type": "ArchiMate_DataObject"
+,"description": "agent_app\\opencode_app\\.opencode\\schema"
+},
+{
+"id": "1743",
+"name": "neo4j SERVER"
+,"type": "ArchiMate_TechnologyService"
+,"description": "<font color=\"#020202\">neo4j://127.0.0.1:7698</font>\r\n"
+},
+{
+"id": "1744",
+"name": "OPENCODE RUNTIME"
+,"type": "ArchiMate_Node"
 }
 ],
 "relationships": [
-
+{
+"id":"1773"
+,"statement":"扩展前端 --(和对话交互)--> OPENCODE SERVER后台"
+,"name":"和对话交互"
+,"source_id":"1731"
+,"target_id":"1732"
+,"source_name":"扩展前端"
+,"target_name":"OPENCODE SERVER后台"
+},
+{
+"id":"1774"
+,"statement":"TOOL --(访问数据)--> 后台数据服务"
+,"name":"访问数据"
+,"source_id":"1736"
+,"target_id":"1733"
+,"source_name":"TOOL"
+,"target_name":"后台数据服务"
+},
+{
+"id":"1775"
+,"statement":"PUSH Listener --(推送情报信息)--> OPENCODE SERVER后台"
+,"name":"推送情报信息"
+,"source_id":"1734"
+,"target_id":"1732"
+,"source_name":"PUSH Listener"
+,"target_name":"OPENCODE SERVER后台"
+},
+{
+"id":"1776"
+,"statement":"AGENT --(aggregates)--> OPENCODE SERVER后台"
+,"name":"aggregates"
+,"source_id":"1735"
+,"target_id":"1732"
+,"source_name":"AGENT"
+,"target_name":"OPENCODE SERVER后台"
+},
+{
+"id":"1777"
+,"statement":"AGENT --(获取语义)--> STIX SCHEMA"
+,"name":"获取语义"
+,"source_id":"1735"
+,"target_id":"1737"
+,"source_name":"AGENT"
+,"target_name":"STIX SCHEMA"
+},
+{
+"id":"1778"
+,"statement":"AGENT --(查询数据)--> TOOL"
+,"name":"查询数据"
+,"source_id":"1735"
+,"target_id":"1736"
+,"source_name":"AGENT"
+,"target_name":"TOOL"
+},
+{
+"id":"1779"
+,"statement":"Agents --(ArchiMate_Access)--> SCHEMA"
+,"name":"ArchiMate_Access"
+,"description": "获取数据语义“菜单”"
+,"super_type": "ArchiMate_Access"
+,"source_id":"1738"
+,"target_id":"1740"
+,"source_name":"Agents"
+,"target_name":"SCHEMA"
+},
+{
+"id":"1780"
+,"statement":"Agents --(use)--> Tools"
+,"name":"use"
+,"description": "访问后台数据"
+,"super_type": "ArchiMate_Association"
+,"source_id":"1738"
+,"target_id":"1739"
+,"source_name":"Agents"
+,"target_name":"Tools"
+},
+{
+"id":"1781"
+,"statement":"neo4j SERVER --(ArchiMate_Serving)--> Tools"
+,"name":"ArchiMate_Serving"
+,"super_type": "ArchiMate_Serving"
+,"source_id":"1743"
+,"target_id":"1739"
+,"source_name":"neo4j SERVER"
+,"target_name":"Tools"
+},
+{
+"id":"1782"
+,"statement":"OPENCODE RUNTIME --(ArchiMate_Serving)--> Agents"
+,"name":"ArchiMate_Serving"
+,"super_type": "ArchiMate_Serving"
+,"source_id":"1744"
+,"target_id":"1738"
+,"source_name":"OPENCODE RUNTIME"
+,"target_name":"Agents"
+}
 ],
 "views": [
+{
+"view_id": "185",
+"view_name": "架构原则1"
+,"parent_element_id": "1728"
+,"parent_element_name": "业务和数据分离原则"
+,"included_elements": [
+"1731",
+"1732",
+"1733",
+"1734",
+"1735",
+"1736",
+"1737"
+]
+,"included_relationships": [
+"1773",
+"1774",
+"1775",
+"1776",
+"1777",
+"1778"
+]
+},
 {
 "view_id": "178",
 "view_name": "StrategyLayerAndMotivationAspect"
 ,"parent_element_id": "1716"
 ,"parent_element_name": "StrategyLayerAndMotivationAspect"
 ,"included_elements": [
-
+"1728"
 ]
 ,"included_relationships": [
 
@@ -80,7 +296,8 @@
 ,"parent_element_id": "1717"
 ,"parent_element_name": "BusinessLayer"
 ,"included_elements": [
-
+"1726",
+"1727"
 ]
 ,"included_relationships": [
 
@@ -92,10 +309,17 @@
 ,"parent_element_id": "1718"
 ,"parent_element_name": "ApplicationLayer"
 ,"included_elements": [
-
+"1738",
+"1739",
+"1740",
+"1743",
+"1744"
 ]
 ,"included_relationships": [
-
+"1779",
+"1780",
+"1781",
+"1782"
 ]
 },
 {
@@ -104,7 +328,8 @@
 ,"parent_element_id": "1719"
 ,"parent_element_name": "TechnologyLayer"
 ,"included_elements": [
-
+"1743",
+"1744"
 ]
 ,"included_relationships": [
 
