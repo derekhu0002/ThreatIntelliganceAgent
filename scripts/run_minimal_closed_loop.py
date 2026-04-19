@@ -1,4 +1,4 @@
-"""Run and verify the Threat Intelligence Agent V1 minimal closed loop."""
+"""Run the Threat Intelligence Agent V1 closed-loop acceptance case."""
 
 # @ArchitectureID: ELM-TECH-ARTIFACT-REPO-ASSETS
 
@@ -15,55 +15,122 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from services.neo4j_validation import (
+    ensure_neo4j_validation_container,
+    load_validation_projection,
+    neo4j_validation_environment,
+    reset_validation_projection,
+)
+from services.python_listener.remote_client import DEFAULT_OPENCODE_BASE_URL
 from services.remote_opencode_server import start_mock_remote_server
 
 
+ACCEPTANCE_CASE_ID = "1726"
+ACCEPTANCE_CASE_NAME = "[闭环验收/集成验收]标准高危威胁事件闭环分析"
+ACCEPTANCE_CASE_TYPE = "closed-loop-acceptance"
+ACCEPTANCE_SUMMARY_PATH = Path("artifacts/runtime/opencti-push-001-acceptance-summary.json")
+USE_MOCK_REMOTE_SERVER_ENV = "THREAT_INTEL_USE_MOCK_REMOTE_SERVER"
+
+
+def _is_truthy_env(value: str | None) -> bool:
+    return (value or "").strip().lower() in {"1", "true", "yes", "y", "on"}
+
+
 def _resolve_remote_server(repo_root: Path):
+    if _is_truthy_env(os.environ.get(USE_MOCK_REMOTE_SERVER_ENV)):
+        stix_bundle_path = repo_root / "agent_app/opencode_app/data/stix_samples/threat_intel_bundle.json"
+        return None, start_mock_remote_server(stix_data_path=stix_bundle_path)
+
     configured_remote_server_url = os.environ.get("THREAT_INTEL_REMOTE_SERVER_URL", "").strip()
     if configured_remote_server_url:
+        os.environ.setdefault("THREAT_INTEL_REMOTE_TIMEOUT_SECONDS", "120")
         return configured_remote_server_url, nullcontext()
 
-    stix_bundle_path = repo_root / "agent_app/opencode_app/data/stix_samples/threat_intel_bundle.json"
-    return None, start_mock_remote_server(stix_data_path=stix_bundle_path)
+    os.environ.setdefault("THREAT_INTEL_REMOTE_TIMEOUT_SECONDS", "120")
+    return DEFAULT_OPENCODE_BASE_URL, nullcontext()
+
+
+def _is_retryable_listener_failure(stderr_text: str) -> bool:
+    normalized = stderr_text.casefold()
+    return "remote server request timed out" in normalized or "remote server returned invalid json" in normalized
+
+
+def _emit_acceptance_summary(repo_root: Path, summary: dict[str, object]) -> None:
+    summary_path = repo_root / ACCEPTANCE_SUMMARY_PATH
+    summary_path.parent.mkdir(parents=True, exist_ok=True)
+    summary_path.write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")
+    print(json.dumps(summary, indent=2, ensure_ascii=False))
 
 
 def main() -> None:
     repo_root = REPO_ROOT
     output_path = repo_root / "artifacts/runtime/opencti-push-001-analysis.json"
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    event_id = "opencti-push-001"
+    neo4j_settings = ensure_neo4j_validation_container(repo_root)
+    reset_validation_projection(event_id, settings=neo4j_settings)
     remote_server_url, remote_server_context = _resolve_remote_server(repo_root)
 
-    with remote_server_context as server:
+    with neo4j_validation_environment(neo4j_settings), remote_server_context as server:
         resolved_remote_server_url = remote_server_url or server.base_url
+        listener_command = [
+            sys.executable,
+            "-m",
+            "services.python_listener",
+            "--event",
+            "data/mock_events/mock_opencti_push_event.json",
+            "--output",
+            str(output_path),
+            "--remote-server-url",
+            resolved_remote_server_url,
+        ]
+        max_attempts = 2 if remote_server_url else 1
 
-        try:
-            completed = subprocess.run(
-                [
-                    sys.executable,
-                    "-m",
-                    "services.python_listener",
-                    "--event",
-                    "data/mock_events/mock_opencti_push_event.json",
-                    "--output",
-                    str(output_path),
-                    "--remote-server-url",
-                    resolved_remote_server_url,
-                ],
-                cwd=repo_root,
-                check=True,
-                capture_output=True,
-                text=True,
-            )
-        except subprocess.CalledProcessError as exc:
+        for attempt in range(1, max_attempts + 1):
+            try:
+                completed = subprocess.run(
+                    listener_command,
+                    cwd=repo_root,
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                )
+                break
+            except subprocess.CalledProcessError as exc:
+                if attempt < max_attempts and _is_retryable_listener_failure(exc.stderr):
+                    continue
+
+                verification_summary = {
+                    "acceptance_case": {
+                        "id": ACCEPTANCE_CASE_ID,
+                        "name": ACCEPTANCE_CASE_NAME,
+                        "type": ACCEPTANCE_CASE_TYPE,
+                    },
+                    "status": "failed",
+                    "output_path": str(output_path.relative_to(repo_root)),
+                    "acceptance_summary_path": ACCEPTANCE_SUMMARY_PATH.as_posix(),
+                    "remote_endpoint": resolved_remote_server_url,
+                    "return_code": exc.returncode,
+                    "stderr": exc.stderr.strip(),
+                }
+                _emit_acceptance_summary(repo_root, verification_summary)
+                raise SystemExit(exc.returncode) from exc
+        else:
             verification_summary = {
+                "acceptance_case": {
+                    "id": ACCEPTANCE_CASE_ID,
+                    "name": ACCEPTANCE_CASE_NAME,
+                    "type": ACCEPTANCE_CASE_TYPE,
+                },
                 "status": "failed",
                 "output_path": str(output_path.relative_to(repo_root)),
+                "acceptance_summary_path": ACCEPTANCE_SUMMARY_PATH.as_posix(),
                 "remote_endpoint": resolved_remote_server_url,
-                "return_code": exc.returncode,
-                "stderr": exc.stderr.strip(),
+                "return_code": 1,
+                "stderr": "Listener subprocess failed without producing a result.",
             }
-            print(json.dumps(verification_summary, indent=2, ensure_ascii=False))
-            raise SystemExit(exc.returncode) from exc
+            _emit_acceptance_summary(repo_root, verification_summary)
+            raise SystemExit(1)
 
     result = json.loads(completed.stdout)
     participants = result["collaboration_trace"]["participants"]
@@ -82,15 +149,36 @@ def main() -> None:
     if int(writeback_summary.get("total_updates", 0)) <= 0:
         raise SystemExit("Validation failed: Neo4j writeback summary reported no persisted updates.")
 
+    validation_snapshot = load_validation_projection(
+        run_id=result["run_id"],
+        event_id=result["event"]["event_id"],
+        settings=neo4j_settings,
+    )
+    if int(validation_snapshot.get("participant_count", 0)) < 2:
+        raise SystemExit("Validation failed: Neo4j persisted fewer than two participant roles.")
+    if int(validation_snapshot.get("recommended_action_count", 0)) < 1:
+        raise SystemExit("Validation failed: Neo4j persisted no recommended actions.")
+    if not str(validation_snapshot.get("conclusion_summary", "")).strip():
+        raise SystemExit("Validation failed: Neo4j persisted no conclusion summary.")
+
     verification_summary = {
+        "acceptance_case": {
+            "id": ACCEPTANCE_CASE_ID,
+            "name": ACCEPTANCE_CASE_NAME,
+            "type": ACCEPTANCE_CASE_TYPE,
+        },
         "status": "passed",
         "output_path": str(output_path.relative_to(repo_root)),
+        "acceptance_summary_path": ACCEPTANCE_SUMMARY_PATH.as_posix(),
         "remote_endpoint": resolved_remote_server_url,
+        "neo4j_uri": neo4j_settings["uri"],
         "participant_count": len(participants),
         "recommended_action_count": len(result.get("recommended_actions", [])),
         "neo4j_writeback_total_updates": int(writeback_summary.get("total_updates", 0)),
+        "neo4j_persisted_participant_count": int(validation_snapshot.get("participant_count", 0)),
+        "neo4j_persisted_recommended_action_count": int(validation_snapshot.get("recommended_action_count", 0)),
     }
-    print(json.dumps(verification_summary, indent=2, ensure_ascii=False))
+    _emit_acceptance_summary(repo_root, verification_summary)
 
 
 if __name__ == "__main__":

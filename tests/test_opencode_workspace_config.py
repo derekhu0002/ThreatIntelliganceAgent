@@ -9,6 +9,7 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 WORKSPACE_ROOT = REPO_ROOT / "agent_app/opencode_app/.opencode"
+WORKSPACE_CONTRACT_PATH = WORKSPACE_ROOT / "workspace.contract.json"
 AGENTS_DIR = WORKSPACE_ROOT / "agents"
 REQ_ID = "REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001"
 AGENT_DEFS_ID = "ELM-TECH-ARTIFACT-AGENT-DEFS"
@@ -101,16 +102,17 @@ def test_opencode_workspace_config_declares_canonical_roles_and_aliases() -> Non
     # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
     # @ArchitectureID: ELM-TECH-ARTIFACT-OPENCODE-WORKSPACE
     config = json.loads((WORKSPACE_ROOT / "opencode.json").read_text(encoding="utf-8"))
+    workspace_contract = json.loads(WORKSPACE_CONTRACT_PATH.read_text(encoding="utf-8"))
 
-    assert config["workspace"]["root"] == "agent_app/opencode_app/.opencode"
-    assert config["workspace"]["control_plane_root"] == ".opencode"
     assert config["default_agent"] == "ThreatIntelPrimary"
-    assert config["agent_roles"] == {
+    assert workspace_contract["workspace"]["root"] == "agent_app/opencode_app/.opencode"
+    assert workspace_contract["workspace"]["control_plane_root"] == ".opencode"
+    assert workspace_contract["agent_roles"] == {
         "primary": "ThreatIntelPrimary",
         "analyst": "ThreatIntelAnalyst",
         "secops": "ThreatIntelSecOps",
     }
-    assert config["agent_aliases"] == {
+    assert workspace_contract["agent_aliases"] == {
         "ThreatIntelligenceCommander": "ThreatIntelPrimary",
         "STIX_EvidenceSpecialist": "ThreatIntelAnalyst",
         "TARA_analyst": "ThreatIntelSecOps",
@@ -319,10 +321,10 @@ def test_stix_query_boundary_and_workspace_retain_schema_catalog_traceability() 
     # @ArchitectureID: ELM-001
     # @ArchitectureID: ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT
     # @ArchitectureID: ELM-DATA-STIX-ARGO-SCHEMA
-    config = json.loads((WORKSPACE_ROOT / "opencode.json").read_text(encoding="utf-8"))
+    workspace_contract = json.loads(WORKSPACE_CONTRACT_PATH.read_text(encoding="utf-8"))
     tool_text = (WORKSPACE_ROOT / "tools/stix_query.js").read_text(encoding="utf-8")
 
-    assert config["workspace"]["root"] == "agent_app/opencode_app/.opencode"
+    assert workspace_contract["workspace"]["root"] == "agent_app/opencode_app/.opencode"
     assert (WORKSPACE_ROOT / "schema" / "common" / "core.json").is_file()
     assert "ELM-FUNC-VALIDATE-STIX-QUERY-CLI-OUTPUT" in tool_text
 
@@ -365,6 +367,44 @@ def test_threat_intel_orchestrator_tool_exports_valid_custom_tool() -> None:
     assert result["participants"] == ["ThreatIntelPrimary", "ThreatIntelAnalyst", "ThreatIntelSecOps"]
     assert result["final_assessment"]["assembled_by"] == "ThreatIntelPrimary"
     assert result["traceability"]["role_aliases"]["ThreatIntelAnalyst"] == "STIX_EvidenceSpecialist"
+
+
+def test_threat_intel_orchestrator_tool_supports_structured_remote_request_mode() -> None:
+    tool_path = WORKSPACE_ROOT / "tools/threat_intel_orchestrator.js"
+    payload = {
+        "request_contract_version": "threat-intelligence-agent.remote-request.v2",
+        "run_context": {
+            "run_id": "ti-run-opencti-push-001-20260419T000000Z",
+            "created_at": "2026-04-19T00:00:00+00:00",
+            "event_id": "opencti-push-001",
+            "source": "mock-opencti",
+        },
+        "event": {
+            "event_id": "opencti-push-001",
+            "source": "mock-opencti",
+            "event_type": "opencti.push.indicator",
+            "triggered_at": "2026-04-09T12:00:00Z",
+            "summary": "Indicator tied to suspicious outbound traffic.",
+            "entity": {
+                "id": "indicator--55555555-5555-4555-8555-555555555555",
+                "type": "indicator",
+                "name": "Suspicious IP 203.0.113.10",
+            },
+            "observables": [{"type": "ipv4-addr", "value": "203.0.113.10"}],
+            "labels": ["apt28", "credential-access", "phishing"],
+            "severity": "high",
+        },
+    }
+
+    completed = _run_tool_module(tool_path, {"inputJson": json.dumps(payload)}, agent="ThreatIntelPrimary")
+
+    assert completed.returncode == 0, completed.stderr
+    result = json.loads(completed.stdout)
+    assert result["schema_version"] == "threat-intelligence-agent.v1"
+    assert result["event"]["event_id"] == "opencti-push-001"
+    assert result["analysis_conclusion"]["summary"]
+    assert len(result["collaboration_trace"]["participants"]) >= 2
+    assert result["collaboration_trace"]["assembly_contract"]["schema"] == "TASK-009"
 
 
 @pytest.mark.parametrize(

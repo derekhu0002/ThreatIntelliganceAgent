@@ -30,6 +30,40 @@ def _canonical_role_name(role_name: str) -> str:
 
 
 REQUEST_CONTEXT_BLOCK_PATTERN = re.compile(r"REQUEST_CONTEXT_JSON:\s*```json\s*(.*?)\s*```", re.DOTALL)
+REQUEST_CONTEXT_PATH_PATTERN = re.compile(r"REQUEST_CONTEXT_PATH:\s*(?P<path>\S+)")
+
+
+def _extract_request_context_from_text(text: str) -> dict[str, Any] | None:
+    path_match = REQUEST_CONTEXT_PATH_PATTERN.search(text)
+    if path_match is not None:
+        request_path = Path(path_match.group("path"))
+        candidate = request_path if request_path.is_absolute() else Path.cwd() / request_path
+        request_context = json.loads(candidate.read_text(encoding="utf-8"))
+        if not isinstance(request_context, dict):
+            raise ValueError("Parsed request context must be a JSON object.")
+        return request_context
+
+    match = REQUEST_CONTEXT_BLOCK_PATTERN.search(text)
+    if match is not None:
+        request_context = json.loads(match.group(1))
+        if not isinstance(request_context, dict):
+            raise ValueError("Parsed request context must be a JSON object.")
+        return request_context
+
+    marker = "REQUEST_CONTEXT_JSON:"
+    marker_index = text.find(marker)
+    if marker_index < 0:
+        return None
+
+    payload_text = text[marker_index + len(marker):].lstrip()
+    if not payload_text:
+        return None
+
+    decoder = json.JSONDecoder()
+    request_context, _ = decoder.raw_decode(payload_text)
+    if not isinstance(request_context, dict):
+        raise ValueError("Parsed request context must be a JSON object.")
+    return request_context
 
 
 def _extract_request_context_from_message(message_payload: dict[str, Any]) -> dict[str, Any]:
@@ -43,12 +77,9 @@ def _extract_request_context_from_message(message_payload: dict[str, Any]) -> di
         text = part.get("text")
         if not isinstance(text, str):
             continue
-        match = REQUEST_CONTEXT_BLOCK_PATTERN.search(text)
-        if match is None:
+        request_context = _extract_request_context_from_text(text)
+        if request_context is None:
             continue
-        request_context = json.loads(match.group(1))
-        if not isinstance(request_context, dict):
-            raise ValueError("Parsed request context must be a JSON object.")
         return request_context
 
     raise ValueError("Unable to extract REQUEST_CONTEXT_JSON from mock remote message payload.")

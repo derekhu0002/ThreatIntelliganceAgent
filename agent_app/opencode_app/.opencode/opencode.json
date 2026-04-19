@@ -20,21 +20,7 @@
       }
     }
   },
-  "workspace": {
-    "root": "agent_app/opencode_app/.opencode",
-    "control_plane_root": ".opencode"
-  },
   "default_agent": "ThreatIntelPrimary",
-  "agent_roles": {
-    "primary": "ThreatIntelPrimary",
-    "analyst": "ThreatIntelAnalyst",
-    "secops": "ThreatIntelSecOps"
-  },
-  "agent_aliases": {
-    "ThreatIntelligenceCommander": "ThreatIntelPrimary",
-    "STIX_EvidenceSpecialist": "ThreatIntelAnalyst",
-    "TARA_analyst": "ThreatIntelSecOps"
-  },
   "instructions": [
     "AGENTS.md"
   ],

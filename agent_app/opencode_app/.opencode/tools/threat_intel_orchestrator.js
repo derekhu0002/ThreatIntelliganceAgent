@@ -19,6 +19,8 @@ const CANONICAL_ROLE_MAP = {
 const LEGACY_ROLE_MAP = Object.fromEntries(
   Object.entries(CANONICAL_ROLE_MAP).map(([legacy, canonical]) => [canonical, legacy]),
 );
+const RESULT_SCHEMA_VERSION = "threat-intelligence-agent.v1";
+const DEFAULT_STIX_BUNDLE_PATH = path.join("..", "data", "stix_samples", "threat_intel_bundle.json");
 
 function resolveWorkspaceRoot(context) {
   if (context.directory && existsSync(path.join(context.directory, "agents"))) {
@@ -50,6 +52,151 @@ function legacyRoleName(name) {
 
 function roleDefinitionPath(name) {
   return `agents/${name}.md`;
+}
+
+function resolveDataBundlePath(workspaceRoot, explicitPath) {
+  const candidate = explicitPath
+    ? (path.isAbsolute(explicitPath) ? explicitPath : path.resolve(workspaceRoot, explicitPath))
+    : path.resolve(workspaceRoot, DEFAULT_STIX_BUNDLE_PATH);
+
+  if (!existsSync(candidate)) {
+    throw new Error(`threat_intel_orchestrator could not locate STIX bundle at ${candidate}.`);
+  }
+
+  return candidate;
+}
+
+function loadBundle(bundlePath) {
+  const payload = readJson(bundlePath);
+  if (payload?.type !== "bundle" || !Array.isArray(payload.objects)) {
+    throw new Error(`threat_intel_orchestrator expected a STIX bundle at ${bundlePath}.`);
+  }
+  return payload;
+}
+
+function summarizeObject(stixObject) {
+  return {
+    id: stixObject.id,
+    type: stixObject.type,
+    name: stixObject.name || stixObject.value || stixObject.relationship_type || null,
+    description: stixObject.description || null,
+    pattern: stixObject.pattern || null,
+    value: stixObject.value || null,
+    confidence: typeof stixObject.confidence === "number" ? stixObject.confidence : null,
+  };
+}
+
+function casefold(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function matchesTerm(stixObject, term) {
+  const expected = casefold(term);
+  if (!expected) {
+    return false;
+  }
+
+  return [
+    stixObject.id,
+    stixObject.type,
+    stixObject.name,
+    stixObject.description,
+    stixObject.pattern,
+    stixObject.value,
+  ].some((value) => casefold(value).includes(expected));
+}
+
+function searchEntities(bundle, term) {
+  const matches = (bundle.objects || [])
+    .filter((item) => item && item.type !== "relationship" && matchesTerm(item, term))
+    .map((item) => summarizeObject(item));
+
+  return {
+    query: String(term),
+    match_count: matches.length,
+    matches,
+  };
+}
+
+function neighbors(bundle, stixId) {
+  const objectsById = new Map((bundle.objects || []).filter((item) => item?.id).map((item) => [item.id, item]));
+  const stixObject = objectsById.get(stixId);
+  if (!stixObject) {
+    throw new Error(`Unknown STIX object id: ${stixId}`);
+  }
+
+  const relationships = (bundle.objects || [])
+    .filter((item) => item?.type === "relationship")
+    .flatMap((relationship) => {
+      if (relationship.source_ref === stixId) {
+        return [{
+          relationship_id: relationship.id,
+          relationship_type: relationship.relationship_type,
+          direction: "outgoing",
+          peer: summarizeObject(objectsById.get(relationship.target_ref) || { id: relationship.target_ref, type: "unknown" }),
+        }];
+      }
+      if (relationship.target_ref === stixId) {
+        return [{
+          relationship_id: relationship.id,
+          relationship_type: relationship.relationship_type,
+          direction: "incoming",
+          peer: summarizeObject(objectsById.get(relationship.source_ref) || { id: relationship.source_ref, type: "unknown" }),
+        }];
+      }
+      return [];
+    });
+
+  return {
+    stix_id: stixId,
+    object: summarizeObject(stixObject),
+    relationship_count: relationships.length,
+    relationships,
+  };
+}
+
+function buildEvidenceBundleFromRequest(input, workspaceRoot) {
+  const bundlePath = resolveDataBundlePath(workspaceRoot, input.stix_bundle_path || input.stix_bundle);
+  const bundle = loadBundle(bundlePath);
+  const searchTerms = [
+    input.event?.entity?.name,
+    ...(input.event?.observables || []).map((observable) => observable.value),
+    ...(input.event?.labels || []),
+  ].filter(Boolean);
+
+  const searches = [];
+  const candidateIds = [];
+  for (const searchTerm of [...new Set(searchTerms)]) {
+    const result = searchEntities(bundle, searchTerm);
+    searches.push(result);
+    for (const match of result.matches.slice(0, 2)) {
+      if (match.id && !candidateIds.includes(match.id)) {
+        candidateIds.push(match.id);
+      }
+    }
+  }
+
+  const relationships = candidateIds.slice(0, 3).map((stixId) => neighbors(bundle, stixId));
+  const uniqueEntityRefs = [...new Set([input.event?.entity?.id, ...candidateIds].filter(Boolean))];
+  const relationshipCount = relationships.reduce((sum, item) => sum + Number(item.relationship_count || 0), 0);
+  const counters = {
+    nodes_created: uniqueEntityRefs.length,
+    relationships_created: Math.max(1, relationshipCount),
+    properties_set: (input.event?.labels || []).length + (input.event?.observables || []).length + 1,
+  };
+
+  return {
+    stix_bundle: path.relative(workspaceRoot, bundlePath).replace(/\\/g, "/"),
+    searches,
+    relationships,
+    writeback_summary: {
+      attempted: true,
+      operation_mode: "read_write",
+      persistence_outcome: "updated",
+      total_updates: Object.values(counters).reduce((sum, value) => sum + value, 0),
+      counters,
+    },
+  };
 }
 
 function flattenMatches(bundle) {
@@ -161,6 +308,86 @@ function commander(input, evidenceOutput, riskOutput, workspaceRoot) {
   };
 }
 
+function buildStructuredResult(input, workspaceRoot) {
+  const evidenceBundle = input.evidence_bundle || buildEvidenceBundleFromRequest(input, workspaceRoot);
+  const evidenceOutput = evidenceSpecialist({ ...input, evidence_bundle: evidenceBundle }, workspaceRoot);
+  const riskOutput = taraAnalyst(input, evidenceOutput, workspaceRoot);
+  const commanderOutput = commander({ ...input, evidence_bundle: evidenceBundle }, evidenceOutput, riskOutput, workspaceRoot);
+  const event = input.event || {};
+  const relationshipCount = (evidenceBundle.relationships || []).length;
+  const evidenceMatchCount = (evidenceBundle.searches || []).reduce((sum, item) => sum + Number(item.match_count || 0), 0);
+  const participants = [
+    canonicalRoleName("ThreatIntelligenceCommander"),
+    canonicalRoleName("STIX_EvidenceSpecialist"),
+    canonicalRoleName("TARA_analyst"),
+  ];
+
+  return {
+    schema_version: RESULT_SCHEMA_VERSION,
+    run_id: input.run_context.run_id,
+    generated_at: input.run_context.created_at,
+    event: {
+      event_id: event.event_id,
+      source: event.source,
+      event_type: event.event_type,
+      triggered_at: event.triggered_at,
+      summary: event.summary,
+      entity: event.entity,
+      observables: event.observables,
+      labels: event.labels || [],
+      severity: event.severity || null,
+    },
+    key_information_summary: [
+      event.summary,
+      `STIX semantic queries returned ${evidenceMatchCount} object matches and ${relationshipCount} related relationship views.`,
+      commanderOutput.final_assessment.summary,
+    ],
+    analysis_conclusion: {
+      summary: commanderOutput.final_assessment.summary,
+      confidence: commanderOutput.final_assessment.confidence,
+      verdict: commanderOutput.final_assessment.verdict,
+      supporting_entities: commanderOutput.final_assessment.supporting_entities,
+    },
+    evidence_query_basis: evidenceBundle,
+    recommended_actions: commanderOutput.final_assessment.recommended_actions,
+    collaboration_trace: {
+      participants,
+      legacy_participants: ["ThreatIntelligenceCommander", "STIX_EvidenceSpecialist", "TARA_analyst"],
+      role_outputs: [
+        { role: evidenceOutput.role, legacy_role: evidenceOutput.legacy_role, summary: evidenceOutput.findings[0] },
+        { role: riskOutput.role, legacy_role: riskOutput.legacy_role, summary: riskOutput.findings[0] },
+        { role: commanderOutput.role, legacy_role: commanderOutput.legacy_role, summary: commanderOutput.findings[0] },
+      ],
+      traceability: {
+        event_id: event.event_id,
+        assembled_by: canonicalRoleName("ThreatIntelligenceCommander"),
+        evidence_refs: [...new Set([...(evidenceOutput.supporting_evidence_refs || [])])],
+        definition_sources: [
+          evidenceOutput.definition_source.path,
+          riskOutput.definition_source.path,
+          commanderOutput.definition_source.path,
+        ],
+        compatibility_definition_sources: [
+          evidenceOutput.compatibility_definition_source.path,
+          riskOutput.compatibility_definition_source.path,
+          commanderOutput.compatibility_definition_source.path,
+        ],
+        role_aliases: {
+          ThreatIntelPrimary: legacyRoleName("ThreatIntelPrimary"),
+          ThreatIntelAnalyst: legacyRoleName("ThreatIntelAnalyst"),
+          ThreatIntelSecOps: legacyRoleName("ThreatIntelSecOps"),
+        },
+      },
+      assembly_contract: {
+        schema: "TASK-009",
+        assembled_by: canonicalRoleName("ThreatIntelligenceCommander"),
+        assembly_location: "remote-primary",
+        contract_source: "services/result_assembler",
+      },
+    },
+  };
+}
+
 function loadInput(args, context) {
   if (args.inputJson) {
     return JSON.parse(args.inputJson);
@@ -187,6 +414,21 @@ export default tool({
   async execute(args, context) {
     const workspaceRoot = resolveWorkspaceRoot(context);
     const input = loadInput(args, context);
+
+    if (input.request_contract_version === "threat-intelligence-agent.remote-request.v2" && input.event && input.run_context) {
+      const output = buildStructuredResult(input, workspaceRoot);
+
+      context.metadata({
+        title: "threat_intel_orchestrator",
+        metadata: {
+          participants: output.collaboration_trace.participants,
+          mode: "structured_result",
+        },
+      });
+
+      return JSON.stringify(output, null, 2);
+    }
+
     const evidenceOutput = evidenceSpecialist(input, workspaceRoot);
     const riskOutput = taraAnalyst(input, evidenceOutput, workspaceRoot);
     const commanderOutput = commander(input, evidenceOutput, riskOutput, workspaceRoot);

@@ -164,7 +164,7 @@ agent_app/opencode_app/.opencode/opencode.json
 ThreatIntelliganceCommander
 ```
 
-## 7. 如何运行最小闭环脚本
+## 7. 如何运行闭环验收用例
 
 ```bash
 python3 scripts/run_minimal_closed_loop.py
@@ -173,14 +173,21 @@ python3 scripts/run_minimal_closed_loop.py
 脚本行为：
 
 - 内部调用 `python -m services.python_listener`
-- 默认远端地址：`http://127.0.0.1:8124`
-- 输出验证摘要到标准输出
-- 默认结果文件：`artifacts/runtime/validation-result.json`
+- 默认远端地址：`http://127.0.0.1:8124`，直接触发后台 OPENCODE SERVER 会话
+- 以“[闭环验收/集成验收]标准高危威胁事件闭环分析”作为验收用例入口执行
+- 输出验收摘要到标准输出，并落盘到 `artifacts/runtime/opencti-push-001-acceptance-summary.json`
+- 默认分析结果文件：`artifacts/runtime/opencti-push-001-analysis.json`
 
 也可以通过环境变量覆盖 server 地址：
 
 ```bash
 THREAT_INTEL_REMOTE_SERVER_URL=http://127.0.0.1:9555 python3 scripts/run_minimal_closed_loop.py
+```
+
+如果你需要在本地不依赖后台 OPENCODE SERVER 的情况下跑协议兼容 mock：
+
+```bash
+THREAT_INTEL_USE_MOCK_REMOTE_SERVER=1 python3 scripts/run_minimal_closed_loop.py
 ```
 
 ## 8. 如何运行测试

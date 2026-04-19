@@ -63,7 +63,7 @@
 ,"type": "ArchiMate_BusinessService"
 ,"testcases": [
 {
-"name": "[SMOKING TEST]标准高危威胁事件闭环分析",
+"name": "[闭环验收/集成验收]标准高危威胁事件闭环分析",
 "description": "前置条件：\r\n1、Listener 服务可运行\r\n2、远端 OPENCODE Server 可访问\r\n3、输出目录可写\r\n4、默认 STIX 样本数据可用\r\n输入：\r\n1、Mock 事件文件：mock_opencti_push_event.json\r\n2、opencode server地址：http://127.0.0.1:8124\r\n3、远端NEO4J 服务地址：neo4j://127.0.0.1:7698\r\n4、输出路径：opencti-push-001-analysis.json\r\n期望输出：\r\n1、生成结构化 JSON 预警结果文件\r\n2、返回内容包含事件信息、分析结论、证据基础、建议动作、协作轨迹\r\n通过标准：\r\n1、输出文件存在\r\n2、JSON 可正常解析\r\n3、analysis_conclusion.summary 非空\r\n4、recommended_actions 至少 1 条\r\n5、collaboration_trace.participants 至少 2 个角色\r\n6、event.event_id 与输入事件一致\r\n7、NEO4J中有落盘数据；",
 "acceptanceCriteria": "scripts/run_minimal_closed_loop.py"
 }

@@ -17,12 +17,13 @@ Activate this skill when the remote workspace receives a threat-intelligence pus
 ## Delegation order
 
 1. `ThreatIntelPrimary` validates the incoming request contract and owns the final answer.
-2. `ThreatIntelPrimary` delegates schema-guided Neo4j evidence retrieval, incident-driven extraction, and writeback initiation to `ThreatIntelAnalyst`.
-3. `ThreatIntelAnalyst` must follow the Schema-First principle: explore the workspace semantic schema menu -> construct schema-guided Cypher -> return precise evidence and any traceable writeback summary.
-4. `ThreatIntelAnalyst` may use `db_schema_explorer` and the native `neo4j_query` tool, and no other role may use those tools.
-5. If `ThreatIntelAnalyst` returns no relevant local threat-intelligence evidence, `ThreatIntelPrimary` must skip deep SecOps assessment and return a minimal TASK-009 result stating `未发现本地 STIX 情报关联`.
-6. If analyst evidence exists, `ThreatIntelPrimary` delegates operational impact and actions to `ThreatIntelSecOps` using the analyst return payload while retaining final TASK-009 assembly ownership.
-7. `ThreatIntelPrimary` merges event context, analyst findings, optional writeback traceability, and optional SecOps output into the final schema response on the remote side.
+2. For deterministic remote PUSH requests that already include normalized event context, `ThreatIntelPrimary` must satisfy the contract with a single `threat_intel_orchestrator` tool call and return the full TASK-009 schema result directly.
+3. Only if the incoming request does not match that deterministic remote contract may `ThreatIntelPrimary` delegate schema-guided Neo4j evidence retrieval, incident-driven extraction, and writeback initiation to `ThreatIntelAnalyst`.
+4. `ThreatIntelAnalyst` must follow the Schema-First principle: explore the workspace semantic schema menu -> construct schema-guided Cypher -> return precise evidence and any traceable writeback summary.
+5. `ThreatIntelAnalyst` may use `db_schema_explorer` and the native `neo4j_query` tool, and no other role may use those tools.
+6. If `ThreatIntelAnalyst` returns no relevant local threat-intelligence evidence, `ThreatIntelPrimary` must skip deep SecOps assessment and return a minimal TASK-009 result stating `未发现本地 STIX 情报关联`.
+7. If analyst evidence exists, `ThreatIntelPrimary` delegates operational impact and actions to `ThreatIntelSecOps` using the analyst return payload while retaining final TASK-009 assembly ownership.
+8. `ThreatIntelPrimary` merges event context, analyst findings, optional writeback traceability, and optional SecOps output into the final schema response on the remote side.
 
 ## Return structure
 
