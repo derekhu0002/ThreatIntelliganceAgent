@@ -61,13 +61,6 @@
 "id": "1726",
 "name": "Listener 收到 Mock 事件到后端生成结构化预警并落盘"
 ,"type": "ArchiMate_BusinessService"
-,"testcases": [
-{
-"name": "[闭环验收/集成验收]标准高危威胁事件闭环分析",
-"description": "前置条件：\r\n1、Listener 服务可运行\r\n2、远端 OPENCODE Server 可访问\r\n3、输出目录可写\r\n4、默认 STIX 样本数据可用\r\n输入：\r\n1、Mock 事件文件：mock_opencti_push_event.json\r\n2、opencode server地址：http://127.0.0.1:8124\r\n3、远端NEO4J 服务地址：neo4j://127.0.0.1:7698\r\n4、输出路径：opencti-push-001-analysis.json\r\n期望输出：\r\n1、生成结构化 JSON 预警结果文件\r\n2、返回内容包含事件信息、分析结论、证据基础、建议动作、协作轨迹\r\n通过标准：\r\n1、输出文件存在\r\n2、JSON 可正常解析\r\n3、analysis_conclusion.summary 非空\r\n4、recommended_actions 至少 1 条\r\n5、collaboration_trace.participants 至少 2 个角色\r\n6、event.event_id 与输入事件一致\r\n7、NEO4J中有落盘数据；",
-"acceptanceCriteria": "scripts/run_minimal_closed_loop.py"
-}
-]
 },
 {
 "id": "1727",
@@ -125,11 +118,36 @@
 "id": "1738",
 "name": "Agents"
 ,"type": "ArchiMate_ApplicationComponent"
+,"testcases": [
+{
+"name": "AI4X-Platform数据消费",
+"description": "前置条件：\r\n1、有agnet:agent_app\\opencode_app\\.opencode\\agents\\ThreatIntelAnalyst_test.md\r\n2、有一个模拟外部服务`Xserver`\r\n关键流程：\r\n`Xserver` 发起一次威胁分析，且选择后台主agnet为ThreatIntelAnalyst_test -&gt; 后台opencode server上的ThreatIntelAnalyst_test agent被拉起，并开始执行，ThreatIntelAnalyst_test 经过分析发现需要调用AI4X_Platform上的数据，它显调用AI4X_Platform的数据发现接口了解数据有哪些，然后各部业务需要构建Cypher查询语句进行查询，获取到数据后它完成后续工作，并将分析结果返回给Xserver；",
+"Input": "`Xserver` 发起一次威胁分析",
+"acceptanceCriteria": "",
+"TestResults": "关键流程的过程日志，可表明关键流程正常运行"
+}
+]
 },
 {
 "id": "1739",
 "name": "Tools"
 ,"type": "ArchiMate_ApplicationComponent"
+,"testcases": [
+{
+"name": "查询AI4X-Platform上的数据",
+"description": "opencode上的工具，可实现对AI4X-Platform上的是数据查询",
+"Input": "",
+"acceptanceCriteria": "",
+"TestResults": "获取到了AI4X-Platform中的数据"
+},
+{
+"name": "发现AI4X-Platform上可以提供的数据范围",
+"description": "前置条件：\r\n1、AI4X_Platform已正常启动并监听外部请求；",
+"Input": "",
+"acceptanceCriteria": "",
+"TestResults": "获取到AI4X_Platform上所有数据SCHEMA\r\n"
+}
+]
 },
 {
 "id": "1740",
@@ -141,12 +159,24 @@
 "id": "1743",
 "name": "neo4j SERVER"
 ,"type": "ArchiMate_TechnologyService"
-,"description": "<font color=\"#020202\">neo4j://127.0.0.1:7698</font>\r\n"
+,"description": "<font color=\"#020202\">测试环境</font>\r\n<font color=\"#020202\">neo4j://127.0.0.1:7698</font>\r\n"
 },
 {
 "id": "1744",
 "name": "OPENCODE RUNTIME"
 ,"type": "ArchiMate_Node"
+},
+{
+"id": "1745",
+"name": "AI4X-Platform"
+,"type": "ArchiMate_ApplicationService"
+,"description": "https://github.com/Auto-Iven/AI4X-Platform/tree/Skills-VulImpAssess"
+,"attributes": [
+{
+"name": "API_CENTER_EXTERNAL_INTEGRATION"
+,"description": "# API Center External Integration Guide\r\n\r\n## Overview\r\n\r\nThis document is intended for external consumers integrating with the AI4X Platform API Center.\r\n\r\nThe API Center provides three core capabilities:\r\n\r\n1. Discover available data sources.\r\n2. Retrieve the JSON Schema of a specific data source.\r\n3. Query backend data through a unified query API.\r\n\r\nThe unified query API automatically routes requests to the configured backend based on `source_id`.\r\n\r\n- `neo4j` sources: execute read-only Cypher directly\r\n- `mongodb` sources: translate simple read-only Cypher filters into MongoDB queries\r\n\r\n## Server Information\r\n\r\n- Service name: `AI4X Platform API Center`\r\n- Local base URL: `http://localhost:8000`\r\n- Swagger UI: `http://localhost:8000/docs`\r\n- API prefix: `/api/v1/api-center`\r\n\r\nRecommended environment mapping:\r\n\r\n- Development: `http://&lt;dev-host&gt;:8000`\r\n- Test: `http://&lt;test-host&gt;:8000`\r\n- Production: `https://&lt;prod-domain&gt;`\r\n\r\n## Authentication\r\n\r\nThe API Center supports three authentication modes. The effective mode depends on the deployed environment.\r\n\r\n### Mode 1: none\r\n\r\nNo authentication required.\r\n\r\nRecommended only for local development or isolated internal test environments.\r\n\r\n### Mode 2: apikey\r\n\r\nPass the API key in the request header:\r\n\r\n```http\r\nX-API-Key: &lt;your-api-key&gt;\r\n```\r\n\r\n### Mode 3: jwt\r\n\r\nPass the access token in the request header:\r\n\r\n```http\r\nAuthorization: Bearer &lt;access_token&gt;\r\n```\r\n\r\nRecommended deployment policy:\r\n\r\n- Development: `none`\r\n- Formal external integration: `apikey` or `jwt`\r\n\r\n## Integration Flow\r\n\r\nExternal systems are expected to call the APIs in the following order:\r\n\r\n1. Call `GET /api/v1/api-center/schema/catalog` to discover available sources.\r\n2. Call `GET /api/v1/api-center/schema/{source_id}` to retrieve the schema for a selected source.\r\n3. Call `POST /api/v1/api-center/query/universal` to query actual backend data.\r\n\r\n## Core APIs\r\n\r\n### 1. Schema Catalog\r\n\r\n- Method: `GET`\r\n- Path: `/api/v1/api-center/schema/catalog`\r\n- Purpose: Return all registered data sources and their follow-up access information.\r\n\r\nThis endpoint is the recommended discovery entrypoint for first-time integration.\r\n\r\n#### Example Request\r\n\r\n```bash\r\ncurl -X GET \"http://localhost:8000/api/v1/api-center/schema/catalog\"\r\n```\r\n\r\n#### Key Response Fields\r\n\r\n- `version`\r\n- `total_databases`\r\n- `databases[]`\r\n- `databases[].source_id`\r\n- `databases[].description`\r\n- `databases[].storage`\r\n- `databases[].api.get_schema`\r\n- `databases[].api.query`\r\n\r\n#### Example Response Shape\r\n\r\n```json\r\n{\r\n  \"version\": \"1.0\",\r\n  \"total_databases\": 6,\r\n  \"databases\": [\r\n    {\r\n      \"source_id\": \"vehicle_iobe\",\r\n      \"description\": \"Vehicle inside-outside boundary data model.\",\r\n      \"storage\": \"neo4j\",\r\n      \"api\": {\r\n        \"get_schema\": \"/api/v1/api-center/schema/vehicle_iobe\",\r\n        \"query\": \"/api/v1/api-center/query/universal\"\r\n      }\r\n    }\r\n  ]\r\n}\r\n```\r\n\r\n### 2. Get Schema by Source ID\r\n\r\n- Method: `GET`\r\n- Path: `/api/v1/api-center/schema/{source_id}`\r\n- Purpose: Return the full JSON Schema and summary of a specific data source.\r\n\r\n#### Path Parameter\r\n\r\n- `source_id`: for example `vehicle_iobe`, `tara`, `ses`\r\n\r\n#### Example Request\r\n\r\n```bash\r\ncurl -X GET \"http://localhost:8000/api/v1/api-center/schema/vehicle_iobe\"\r\n```\r\n\r\n#### Key Response Fields\r\n\r\n- `source_id`\r\n- `file`\r\n- `summary`\r\n- `schema`\r\n\r\n#### Example Response Shape\r\n\r\n```json\r\n{\r\n  \"source_id\": \"vehicle_iobe\",\r\n  \"file\": \"schema_vehicle_iobe.json\",\r\n  \"summary\": {\r\n    \"title\": \"Vehicle IoBE Schema\",\r\n    \"root_type\": \"object\",\r\n    \"property_count\": 12\r\n  },\r\n  \"schema\": {\r\n    \"type\": \"object\"\r\n  }\r\n}\r\n```\r\n\r\n### 3. Universal Data Query\r\n\r\n- Method: `POST`\r\n- Path: `/api/v1/api-center/query/universal`\r\n- Purpose: Query backend data by `source_id` through a unified API.\r\n\r\n#### Request Body\r\n\r\n| Field | Type | Required | Description |\r\n|------|------|------|------|\r\n| `source_id` | string | yes | Registered data source identifier |\r\n| `cypher` | string | yes | Read-only query statement |\r\n| `params` | object | no | Optional query parameters |\r\n| `limit` | int | no | Maximum number of returned records |\r\n\r\n#### Example Request for Neo4j Source\r\n\r\n```json\r\n{\r\n  \"source_id\": \"vehicle_iobe\",\r\n  \"cypher\": \"MATCH (n) WHERE n.type = 'x-vehicle-ecu' RETURN n LIMIT 10\"\r\n}\r\n```\r\n\r\n```bash\r\ncurl -X POST \"http://localhost:8000/api/v1/api-center/query/universal\" \\\r\n  -H \"Content-Type: application/json\" \\\r\n  -d \"{\\\"source_id\\\":\\\"vehicle_iobe\\\",\\\"cypher\\\":\\\"MATCH (n) WHERE n.type = 'x-vehicle-ecu' RETURN n LIMIT 10\\\"}\"\r\n```\r\n\r\n#### Example Request for MongoDB Source\r\n\r\n```json\r\n{\r\n  \"source_id\": \"ses\",\r\n  \"cypher\": \"MATCH (n) WHERE n.type = 'x-cybersecurity-requirement' RETURN n LIMIT 20\"\r\n}\r\n```\r\n\r\n#### Key Response Fields\r\n\r\n- `backend`: `neo4j` or `mongodb`\r\n- `source_id`\r\n- `mode`\r\n- `count`\r\n- `items`\r\n\r\n#### Example Response Shape\r\n\r\n```json\r\n{\r\n  \"backend\": \"neo4j\",\r\n  \"source_id\": \"vehicle_iobe\",\r\n  \"mode\": \"cypher_direct\",\r\n  \"count\": 10,\r\n  \"items\": []\r\n}\r\n```\r\n\r\n## Registered Source IDs\r\n\r\nThe following source IDs are currently registered in the platform:\r\n\r\n| Source ID | Storage | Description |\r\n|------|------|------|\r\n| `vehicle_iobe` | `neo4j` | Vehicle inside-outside boundary and exposure surface data |\r\n| `tara` | `neo4j` | Threat analysis and risk assessment data |\r\n| `ses` | `mongodb` | Cybersecurity requirement data |\r\n| `vehicle_func` | `neo4j` | Vehicle function data |\r\n| `ecu_func` | `neo4j` | ECU controller data |\r\n| `func_design_spec` | `neo4j` | Functional design specification data |\r\n| `cve2oss` | `proxy` | External proxy API, not queried through universal query |\r\n\r\n## Usage Notes\r\n\r\n- Only read-only queries are allowed.\r\n- For `mongodb` sources, only a subset of simple Cypher patterns is supported for automatic translation.\r\n- `source_id` should always be obtained from the schema catalog instead of hardcoding assumptions.\r\n- In production, external callers should use `apikey` or `jwt` instead of anonymous access.\r\n\r\n## Recommended External Consumer Message\r\n\r\nYou may forward the following short note directly to external callers:\r\n\r\n```text\r\nAI4X Platform API Center exposes three core APIs:\r\n\r\n1. GET /api/v1/api-center/schema/catalog\r\n   Discover available data sources.\r\n\r\n2. GET /api/v1/api-center/schema/{source_id}\r\n   Retrieve the full JSON Schema for a specific source.\r\n\r\n3. POST /api/v1/api-center/query/universal\r\n   Query backend data through a unified source_id-based interface.\r\n\r\nBase URL:\r\nhttp://localhost:8000\r\n\r\nSwagger:\r\nhttp://localhost:8000/docs\r\n\r\nAuthentication depends on deployment environment and may use none, apikey, or jwt.\r\n```"
+}
+]
 }
 ],
 "relationships": [
@@ -245,6 +275,16 @@
 ,"target_id":"1738"
 ,"source_name":"OPENCODE RUNTIME"
 ,"target_name":"Agents"
+},
+{
+"id":"1783"
+,"statement":"AI4X-Platform --(ArchiMate_Serving)--> Tools"
+,"name":"ArchiMate_Serving"
+,"super_type": "ArchiMate_Serving"
+,"source_id":"1745"
+,"target_id":"1739"
+,"source_name":"AI4X-Platform"
+,"target_name":"Tools"
 }
 ],
 "views": [
@@ -306,13 +346,15 @@
 "1739",
 "1740",
 "1743",
-"1744"
+"1744",
+"1745"
 ]
 ,"included_relationships": [
 "1779",
 "1780",
 "1781",
-"1782"
+"1782",
+"1783"
 ]
 },
 {

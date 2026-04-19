@@ -1,1 +1,20 @@
-[]
+[
+  {
+    "testcasename": "AI4X-Platform数据消费",
+    "testdescription": "前置条件：\r\n1、有agnet:agent_app\\opencode_app\\.opencode\\agents\\ThreatIntelAnalyst_test.md\r\n2、有一个模拟外部服务`Xserver`\r\n关键流程：\r\n`Xserver` 发起一次威胁分析，且选择后台主agnet为ThreatIntelAnalyst_test -&gt; 后台opencode server上的ThreatIntelAnalyst_test agent被拉起，并开始执行，ThreatIntelAnalyst_test 经过分析发现需要调用AI4X_Platform上的数据，它显调用AI4X_Platform的数据发现接口了解数据有哪些，然后各部业务需要构建Cypher查询语句进行查询，获取到数据后它完成后续工作，并将分析结果返回给Xserver；",
+    "acceptanceCriteria": "",
+    "relatedIntentElementId": "1738"
+  },
+  {
+    "testcasename": "查询AI4X-Platform上的数据",
+    "testdescription": "opencode上的工具，可实现对AI4X-Platform上的是数据查询",
+    "acceptanceCriteria": "",
+    "relatedIntentElementId": "1739"
+  },
+  {
+    "testcasename": "发现AI4X-Platform上可以提供的数据范围",
+    "testdescription": "前置条件：\r\n1、AI4X_Platform已正常启动并监听外部请求；",
+    "acceptanceCriteria": "",
+    "relatedIntentElementId": "1739"
+  }
+]
