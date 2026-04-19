@@ -111,6 +111,17 @@ def test_assemble_structured_result_populates_required_fields_and_summary_counts
                     ],
                 }
             ],
+            "writeback_summary": {
+                "attempted": True,
+                "operation_mode": "read_write",
+                "persistence_outcome": "updated",
+                "total_updates": 3,
+                "counters": {
+                    "nodes_created": 1,
+                    "relationships_created": 1,
+                    "properties_set": 1,
+                },
+            },
         },
         collaboration_output={
             "participants": ["ThreatIntelPrimary", "ThreatIntelAnalyst"],
@@ -135,6 +146,8 @@ def test_assemble_structured_result_populates_required_fields_and_summary_counts
     assert result.analysis_conclusion.supporting_entities == ["indicator--555"]
     assert result.recommended_actions == ["Block the indicator"]
     assert "3 object matches and 1 related relationship views" in result.key_information_summary[1]
+    assert payload["evidence_query_basis"]["writeback_summary"]["persistence_outcome"] == "updated"
+    assert payload["evidence_query_basis"]["writeback_summary"]["total_updates"] == 3
     assert payload["collaboration_trace"]["assembly_contract"] == {
         "schema": "TASK-009",
         "assembled_by": "ThreatIntelPrimary",

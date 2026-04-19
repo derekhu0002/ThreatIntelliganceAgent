@@ -101,14 +101,29 @@ function enforceAgentScope(context) {
 
 async function runCommand(command, commandArgs, context, cwd) {
   return await new Promise((resolve, reject) => {
-    const useShell = process.platform === "win32" && /\.(cmd|bat)$/i.test(command);
-    const child = spawn(command, commandArgs, {
-      cwd,
-      env: process.env,
-      signal: context.abort,
-      shell: useShell,
-      stdio: ["ignore", "pipe", "pipe"],
-    });
+    const useCmdWrapper = process.platform === "win32" && /\.(cmd|bat)$/i.test(command);
+    const child = useCmdWrapper
+      ? spawn(
+        process.env.ComSpec || "cmd.exe",
+        [
+          "/d",
+          "/s",
+          "/c",
+          [command, ...commandArgs].map(quoteWindowsCmdArg).join(" "),
+        ],
+        {
+          cwd,
+          env: process.env,
+          signal: context.abort,
+          stdio: ["ignore", "pipe", "pipe"],
+        },
+      )
+      : spawn(command, commandArgs, {
+        cwd,
+        env: process.env,
+        signal: context.abort,
+        stdio: ["ignore", "pipe", "pipe"],
+      });
 
     let stdout = "";
     let stderr = "";
@@ -134,6 +149,10 @@ async function runCommand(command, commandArgs, context, cwd) {
       reject(new Error(stderr.trim() || `tools.stix_cli exited with status ${code}`));
     });
   });
+}
+
+function quoteWindowsCmdArg(value) {
+  return `"${String(value).replace(/"/g, '""')}"`;
 }
 
 async function runCliCommand(pythonCandidates, cliArgs, context, cwd) {

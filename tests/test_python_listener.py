@@ -180,9 +180,36 @@ def test_listener_process_event_dispatches_remote_request_and_persists_remote_re
     assert result["collaboration_trace"]["assembly_contract"]["assembled_by"] == "ThreatIntelPrimary"
     assert result["evidence_query_basis"]["searches"][0]["match_count"] >= 1
     assert result["evidence_query_basis"]["relationships"][0]["relationship_count"] >= 1
+    assert result["evidence_query_basis"]["writeback_summary"]["attempted"] is True
+    assert result["evidence_query_basis"]["writeback_summary"]["persistence_outcome"] == "updated"
+    assert result["evidence_query_basis"]["writeback_summary"]["total_updates"] > 0
     assert not hasattr(listener, "_collect_evidence")
     assert not hasattr(listener, "_invoke_stix_cli")
     assert not hasattr(listener, "_invoke_orchestrator")
+
+
+def test_smoking_standard_high_risk_threat_event_closed_loop(tmp_path: Path) -> None:
+    output_path = tmp_path / "opencti-push-001-analysis.json"
+
+    with start_mock_remote_server(stix_data_path=STIX_BUNDLE_PATH) as server:
+        listener = ThreatIntelListener(remote_server_url=server.base_url)
+        result = listener.process_event(
+            REPO_ROOT / "data/mock_events/mock_opencti_push_event.json",
+            output_path,
+        )
+
+    persisted_result = json.loads(output_path.read_text(encoding="utf-8"))
+
+    assert output_path.name == "opencti-push-001-analysis.json"
+    assert output_path.is_file()
+    assert persisted_result == result
+    assert result["analysis_conclusion"]["summary"]
+    assert len(result["recommended_actions"]) >= 1
+    assert len(result["collaboration_trace"]["participants"]) >= 2
+    assert result["event"]["event_id"] == "opencti-push-001"
+    assert result["evidence_query_basis"]["writeback_summary"]["attempted"] is True
+    assert result["evidence_query_basis"]["writeback_summary"]["persistence_outcome"] == "updated"
+    assert result["evidence_query_basis"]["writeback_summary"]["total_updates"] > 0
 
 
 def test_remote_client_raises_when_message_response_has_no_structured_result() -> None:

@@ -48,7 +48,23 @@
       }
     },
     "evidence_query_basis": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "writeback_summary": {
+          "type": "object",
+          "required": ["attempted", "operation_mode", "persistence_outcome", "total_updates", "counters"],
+          "properties": {
+            "attempted": { "type": "boolean" },
+            "operation_mode": { "type": "string", "enum": ["write", "read_write"] },
+            "persistence_outcome": { "type": "string", "enum": ["updated", "idempotent_noop"] },
+            "total_updates": { "type": "integer", "minimum": 0 },
+            "counters": {
+              "type": "object",
+              "additionalProperties": { "type": "integer", "minimum": 0 }
+            }
+          }
+        }
+      }
     },
     "recommended_actions": {
       "type": "array",

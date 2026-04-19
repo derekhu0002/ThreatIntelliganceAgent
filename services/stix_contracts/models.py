@@ -148,10 +148,28 @@ class StixSchemaSummary(StrictContractModel):
     entity_types: list[StixEntitySchemaSummary]
 
 
+class EvidenceWritebackSummary(StrictContractModel):
+    attempted: bool
+    operation_mode: Literal["write", "read_write"]
+    persistence_outcome: Literal["updated", "idempotent_noop"]
+    total_updates: Annotated[int, Field(ge=0)]
+    counters: dict[NonEmptyString, int] = Field(default_factory=dict)
+
+
 class EvidenceQueryBasis(StrictContractModel):
     stix_bundle: NonEmptyString
     searches: list[StixSearchResult] = Field(default_factory=list)
     relationships: list[StixNeighborsResult] = Field(default_factory=list)
+    writeback_summary: EvidenceWritebackSummary | None = None
+
+    @model_validator(mode="after")
+    def validate_writeback_summary(self) -> "EvidenceQueryBasis":
+        if self.writeback_summary is None:
+            return self
+
+        if any(value < 0 for value in self.writeback_summary.counters.values()):
+            raise ValueError("writeback_summary counters must be non-negative.")
+        return self
 
 
 class AnalysisConclusion(StrictContractModel):

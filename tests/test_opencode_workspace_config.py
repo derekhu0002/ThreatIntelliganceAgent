@@ -75,6 +75,17 @@ def _has_trace_tag(text: str, tag: str, value: str) -> bool:
 
 
 def _write_fake_python_executable(tmp_path: Path, stdout_text: str, exit_code: int = 0) -> Path:
+    if os.name == "nt":
+        script_path = tmp_path / "fake-python.cmd"
+        escaped_stdout = stdout_text.replace("^", "^^").replace("%", "%%")
+        script_path.write_text(
+            "@echo off\n"
+            f"<nul set /p ={escaped_stdout}\n"
+            f"exit /b {exit_code}\n",
+            encoding="utf-8",
+        )
+        return script_path
+
     script_path = tmp_path / "fake-python"
     script_path.write_text(
         "#!/bin/sh\n"
