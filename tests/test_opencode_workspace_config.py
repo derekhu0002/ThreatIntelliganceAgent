@@ -123,6 +123,7 @@ def test_opencode_app_contains_local_tool_runtime_dependencies() -> None:
     # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
     # @ArchitectureID: ELM-TECH-ARTIFACT-OPENCODE-WORKSPACE
     assert (REPO_ROOT / "agent_app/opencode_app/tools/__init__.py").is_file()
+    assert (REPO_ROOT / "agent_app/opencode_app/tools/ai4x_cli.py").is_file()
     assert (REPO_ROOT / "agent_app/opencode_app/tools/stix_cli/__main__.py").is_file()
     assert (REPO_ROOT / "agent_app/opencode_app/tools/stix_cli/semantic_query.py").is_file()
     assert (REPO_ROOT / "agent_app/opencode_app/data/stix_samples/threat_intel_bundle.json").is_file()

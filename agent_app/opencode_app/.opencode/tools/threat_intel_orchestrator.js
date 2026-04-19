@@ -1,6 +1,7 @@
 // @ArchitectureID: ELM-APP-COMP-AGENT-ORCH
 // MOCK STUB FOR TESTING ONLY - production should delegate to LLM-driven agents.
 
+import { spawn } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -21,6 +22,9 @@ const LEGACY_ROLE_MAP = Object.fromEntries(
 );
 const RESULT_SCHEMA_VERSION = "threat-intelligence-agent.v1";
 const DEFAULT_STIX_BUNDLE_PATH = path.join("..", "data", "stix_samples", "threat_intel_bundle.json");
+const DEFAULT_AI4X_BASE_URL = "http://localhost:8000";
+const API_CENTER_PREFIX = "/api/v1/api-center";
+const AI4X_SOURCE_PREFERENCE = ["tara", "vehicle_iobe", "vehicle_func", "ecu_func", "func_design_spec", "ses"];
 
 function resolveWorkspaceRoot(context) {
   if (context.directory && existsSync(path.join(context.directory, "agents"))) {
@@ -79,9 +83,6 @@ function summarizeObject(stixObject) {
     id: stixObject.id,
     type: stixObject.type,
     name: stixObject.name || stixObject.value || stixObject.relationship_type || null,
-    description: stixObject.description || null,
-    pattern: stixObject.pattern || null,
-    value: stixObject.value || null,
     confidence: typeof stixObject.confidence === "number" ? stixObject.confidence : null,
   };
 }
@@ -166,9 +167,14 @@ function buildEvidenceBundleFromRequest(input, workspaceRoot) {
 
   const searches = [];
   const candidateIds = [];
-  for (const searchTerm of [...new Set(searchTerms)]) {
+  for (const searchTerm of [...new Set(searchTerms)].slice(0, 4)) {
     const result = searchEntities(bundle, searchTerm);
-    searches.push(result);
+    const truncatedMatches = result.matches.slice(0, 1);
+    searches.push({
+      query: result.query,
+      match_count: truncatedMatches.length,
+      matches: truncatedMatches,
+    });
     for (const match of result.matches.slice(0, 2)) {
       if (match.id && !candidateIds.includes(match.id)) {
         candidateIds.push(match.id);
@@ -176,7 +182,7 @@ function buildEvidenceBundleFromRequest(input, workspaceRoot) {
     }
   }
 
-  const relationships = candidateIds.slice(0, 3).map((stixId) => neighbors(bundle, stixId));
+  const relationships = candidateIds.slice(0, 2).map((stixId) => neighbors(bundle, stixId));
   const uniqueEntityRefs = [...new Set([input.event?.entity?.id, ...candidateIds].filter(Boolean))];
   const relationshipCount = relationships.reduce((sum, item) => sum + Number(item.relationship_count || 0), 0);
   const counters = {
@@ -188,7 +194,12 @@ function buildEvidenceBundleFromRequest(input, workspaceRoot) {
   return {
     stix_bundle: path.relative(workspaceRoot, bundlePath).replace(/\\/g, "/"),
     searches,
-    relationships,
+    relationships: relationships.map((view) => ({
+      stix_id: view.stix_id,
+      object: view.object,
+      relationship_count: view.relationship_count,
+      relationships: (view.relationships || []).slice(0, 2),
+    })),
     writeback_summary: {
       attempted: true,
       operation_mode: "read_write",
@@ -196,6 +207,125 @@ function buildEvidenceBundleFromRequest(input, workspaceRoot) {
       total_updates: Object.values(counters).reduce((sum, value) => sum + value, 0),
       counters,
     },
+  };
+}
+
+function resolveAi4xBaseUrl() {
+  return String(
+    process.env.THREAT_INTEL_AI4X_BASE_URL
+    || process.env.AI4X_PLATFORM_BASE_URL
+    || DEFAULT_AI4X_BASE_URL,
+  ).trim().replace(/\/$/, "");
+}
+
+function shouldIncludeAi4xEvidence(input) {
+  const mainAgent = String(input.main_agent || "").trim();
+  const requestedMainAgent = String(input.requested_main_agent || "").trim();
+  return mainAgent === "ThreatIntelAnalyst_test" || requestedMainAgent === "ThreatIntelAnalyst_test";
+}
+
+async function requestAi4xJson(method, pathName, payload) {
+  const response = await fetch(`${resolveAi4xBaseUrl()}${pathName}`, {
+    method,
+    headers: {
+      Accept: "application/json",
+      ...(payload ? { "Content-Type": "application/json" } : {}),
+    },
+    body: payload ? JSON.stringify(payload) : undefined,
+  });
+
+  const responseText = await response.text();
+  if (!response.ok) {
+    throw new Error(`AI4X request failed with HTTP ${response.status}: ${responseText}`);
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(responseText);
+  } catch (error) {
+    throw new Error(`AI4X service returned invalid JSON: ${error.message}`);
+  }
+
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new Error("AI4X service must return a JSON object.");
+  }
+  return parsed;
+}
+
+function selectAi4xSourceId(databases) {
+  for (const preferredId of AI4X_SOURCE_PREFERENCE) {
+    const preferred = databases.find((item) => String(item?.source_id || "").trim() === preferredId);
+    if (preferred) {
+      return preferredId;
+    }
+  }
+
+  const fallback = databases.find((item) => String(item?.source_id || "").trim());
+  if (!fallback) {
+    throw new Error("AI4X catalog returned no usable source_id values.");
+  }
+
+  return String(fallback.source_id).trim();
+}
+
+function summarizeAi4xCatalog(catalog) {
+  const databases = Array.isArray(catalog?.databases)
+    ? catalog.databases
+      .filter((item) => item && typeof item === "object")
+      .map((item) => ({
+        source_id: item.source_id,
+        title: item.title || null,
+        category: item.category || null,
+        storage: item.storage || null,
+      }))
+    : [];
+
+  return {
+    version: catalog?.version || null,
+    total_databases: databases.length,
+    databases,
+  };
+}
+
+function summarizeAi4xSchema(selectedSourceId, schemaPayload) {
+  return {
+    source_id: selectedSourceId,
+    top_level_keys: Object.keys(schemaPayload || {}).slice(0, 12),
+  };
+}
+
+function summarizeAi4xQuery(selectedSourceId, queryPayload) {
+  const items = Array.isArray(queryPayload?.items) ? queryPayload.items : [];
+  return {
+    source_id: selectedSourceId,
+    count: Number.isInteger(queryPayload?.count) ? queryPayload.count : items.length,
+    items_preview: items.slice(0, 1),
+  };
+}
+
+async function buildAi4xEvidence(input) {
+  const catalogPayload = await requestAi4xJson("GET", `${API_CENTER_PREFIX}/schema/catalog`);
+  const databases = Array.isArray(catalogPayload.databases)
+    ? catalogPayload.databases.filter((item) => item && typeof item === "object")
+    : [];
+  const selectedSourceId = selectAi4xSourceId(databases);
+  const selectedSchemaPayload = await requestAi4xJson("GET", `${API_CENTER_PREFIX}/schema/${selectedSourceId}`);
+  const queryPayload = await requestAi4xJson("POST", `${API_CENTER_PREFIX}/query/universal`, {
+    source_id: selectedSourceId,
+    cypher: "MATCH (n) RETURN n LIMIT 5",
+    limit: 5,
+  });
+
+  return {
+    base_url: resolveAi4xBaseUrl(),
+    catalog: summarizeAi4xCatalog(catalogPayload),
+    selected_source_id: selectedSourceId,
+    selected_schema: summarizeAi4xSchema(selectedSourceId, selectedSchemaPayload),
+    query: summarizeAi4xQuery(selectedSourceId, queryPayload),
+    requested_labels: Array.isArray(input.event?.labels) ? input.event.labels : [],
+    requested_observables: Array.isArray(input.event?.observables)
+      ? input.event.observables.map((item) => item?.value).filter(Boolean)
+      : [],
   };
 }
 
@@ -278,7 +408,7 @@ function commander(input, evidenceOutput, riskOutput, workspaceRoot) {
         (view.relationships || []).map((item) => item.peer && item.peer.name).filter(Boolean),
       ),
     ]),
-  ];
+  ].slice(0, 5);
 
   return {
     role: canonicalRoleName("ThreatIntelligenceCommander"),
@@ -308,8 +438,11 @@ function commander(input, evidenceOutput, riskOutput, workspaceRoot) {
   };
 }
 
-function buildStructuredResult(input, workspaceRoot) {
+async function buildStructuredResult(input, workspaceRoot) {
   const evidenceBundle = input.evidence_bundle || buildEvidenceBundleFromRequest(input, workspaceRoot);
+  if (shouldIncludeAi4xEvidence(input) && !evidenceBundle.ai4x) {
+    evidenceBundle.ai4x = await buildAi4xEvidence(input);
+  }
   const evidenceOutput = evidenceSpecialist({ ...input, evidence_bundle: evidenceBundle }, workspaceRoot);
   const riskOutput = taraAnalyst(input, evidenceOutput, workspaceRoot);
   const commanderOutput = commander({ ...input, evidence_bundle: evidenceBundle }, evidenceOutput, riskOutput, workspaceRoot);
@@ -416,7 +549,7 @@ export default tool({
     const input = loadInput(args, context);
 
     if (input.request_contract_version === "threat-intelligence-agent.remote-request.v2" && input.event && input.run_context) {
-      const output = buildStructuredResult(input, workspaceRoot);
+      const output = await buildStructuredResult(input, workspaceRoot);
 
       context.metadata({
         title: "threat_intel_orchestrator",
@@ -426,7 +559,7 @@ export default tool({
         },
       });
 
-      return JSON.stringify(output, null, 2);
+      return JSON.stringify(output);
     }
 
     const evidenceOutput = evidenceSpecialist(input, workspaceRoot);

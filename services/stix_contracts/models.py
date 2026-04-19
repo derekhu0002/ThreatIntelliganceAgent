@@ -161,6 +161,7 @@ class EvidenceQueryBasis(StrictContractModel):
     searches: list[StixSearchResult] = Field(default_factory=list)
     relationships: list[StixNeighborsResult] = Field(default_factory=list)
     writeback_summary: EvidenceWritebackSummary | None = None
+    ai4x: dict[str, Any] | None = None
 
     @model_validator(mode="after")
     def validate_writeback_summary(self) -> "EvidenceQueryBasis":

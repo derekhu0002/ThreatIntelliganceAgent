@@ -164,7 +164,6 @@ def test_listener_process_event_dispatches_remote_request_and_persists_remote_re
     assert 'Requested main agent alias: "ThreatIntelPrimary"' in prompt_text
     assert "Call `threat_intel_orchestrator` exactly once." in prompt_text
     assert "Pass `inputJson` with exactly the JSON object from REQUEST_CONTEXT_JSON below." in prompt_text
-    assert "Do not use `inputPath` unless you have confirmed that the local debug artifact path exists in the current runtime workspace." in prompt_text
     assert '"request_contract_version": "threat-intelligence-agent.remote-request.v2"' in prompt_text
     assert "REQUEST_CONTEXT_PATH: artifacts/runtime/opencti-push-001-remote-request.json" in prompt_text
     request_context = json.loads(

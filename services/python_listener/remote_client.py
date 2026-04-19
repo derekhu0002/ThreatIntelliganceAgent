@@ -107,11 +107,7 @@ class RemoteOpencodeClient:
                     action="create remote session",
                 )
                 session_id = self._extract_session_id(session_response)
-                message_response = self._post_json(
-                    f"{self.endpoint_url}/session/{quote(session_id, safe='')}/message",
-                    self._build_message_payload(request_payload),
-                    action="dispatch remote message",
-                )
+                message_response = self._dispatch_remote_message(session_id, request_payload)
                 try:
                     return self._extract_structured_result(message_response)
                 except RemoteDispatchError:
@@ -194,6 +190,21 @@ class RemoteOpencodeClient:
 
         return schema
 
+    def _dispatch_remote_message(self, session_id: str, request_payload: dict[str, Any]) -> dict[str, Any]:
+        message_payload = self._build_message_payload(request_payload)
+        message_url = f"{self.endpoint_url}/session/{quote(session_id, safe='')}/message"
+
+        try:
+            return self._post_json(
+                message_url,
+                message_payload,
+                action="dispatch remote message",
+            )
+        except RemoteDispatchError as exc:
+            if "timed out" not in str(exc).casefold():
+                raise
+        return {}
+
     def _poll_session_messages_for_result(self, session_id: str) -> dict[str, Any]:
         deadline = monotonic() + self.timeout_seconds
         last_error: RemoteDispatchError | None = None
@@ -220,13 +231,16 @@ class RemoteOpencodeClient:
             f"Failed to dispatch remote message: remote session {session_id} did not produce a valid structured result within {self.timeout_seconds:.1f}s"
         )
 
-    def _extract_message_list(self, payload: dict[str, Any]) -> list[dict[str, Any]]:
+    def _extract_message_list(self, payload: Any) -> list[dict[str, Any]]:
+        if isinstance(payload, list):
+            return [item for item in payload if isinstance(item, dict)]
+
         value = payload.get("value")
         if isinstance(value, list):
             return [item for item in value if isinstance(item, dict)]
         return []
 
-    def _get_json(self, url: str, *, action: str) -> dict[str, Any]:
+    def _get_json(self, url: str, *, action: str) -> Any:
         http_request = request.Request(
             url,
             headers={
@@ -253,8 +267,8 @@ class RemoteOpencodeClient:
         except json.JSONDecodeError as exc:
             raise RemoteDispatchError(f"Failed to {action}: remote server returned invalid JSON.") from exc
 
-        if not isinstance(parsed, dict):
-            raise RemoteDispatchError(f"Failed to {action}: remote server must return a JSON object result.")
+        if not isinstance(parsed, (dict, list)):
+            raise RemoteDispatchError(f"Failed to {action}: remote server must return a JSON object or array result.")
         return parsed
 
     def _post_json(self, url: str, payload: dict[str, Any], *, action: str) -> dict[str, Any]:

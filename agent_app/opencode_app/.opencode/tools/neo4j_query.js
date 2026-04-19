@@ -11,7 +11,7 @@ import { z } from "zod";
 
 const FILE_DIR = path.dirname(fileURLToPath(import.meta.url));
 const LOCAL_WORKSPACE_ROOT = path.resolve(FILE_DIR, "..", "..");
-const ANALYST_AGENTS = new Set(["ThreatIntelAnalyst", "STIX_EvidenceSpecialist"]);
+const ANALYST_AGENTS = new Set(["ThreatIntelAnalyst", "STIX_EvidenceSpecialist", "ThreatIntelAnalyst_test"]);
 const SECOPS_AGENTS = new Set(["ThreatIntelSecOps", "TARA_analyst"]);
 const nonEmptyString = z.string().trim().min(1);
 const jsonScalarSchema = z.union([z.string(), z.number().finite(), z.boolean(), z.null()]);

@@ -111,14 +111,11 @@ class ThreatIntelListener:
         return {
             **request_context,
             "prompt_text": (
-                "Remote PUSH analysis request. Return JSON only and satisfy the provided json_schema.\n"
+                "Return JSON only and satisfy the provided json_schema.\n"
                 f'Main agent semantic: "{self.main_agent}".\n'
                 f'Requested main agent alias: "{self.requested_main_agent}".\n'
                 "Call `threat_intel_orchestrator` exactly once.\n"
                 "Pass `inputJson` with exactly the JSON object from REQUEST_CONTEXT_JSON below.\n"
-                f"Local debug artifact path, if shared workspace file access is available: {request_context_path}.\n"
-                "Do not use `inputPath` unless you have confirmed that the local debug artifact path exists in the current runtime workspace.\n"
-                "Do not use `task`. Do not use any other tool unless `threat_intel_orchestrator` is unavailable.\n"
                 "After the tool returns, emit that result as the final structured output.\n"
                 "REQUEST_CONTEXT_JSON:\n```json\n"
                 f"{json.dumps(request_context, indent=2, ensure_ascii=False)}\n"

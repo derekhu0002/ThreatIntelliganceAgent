@@ -61,6 +61,15 @@
 "id": "1726",
 "name": "Listener 收到 Mock 事件到后端生成结构化预警并落盘"
 ,"type": "ArchiMate_BusinessService"
+,"testcases": [
+{
+"name": "[闭环验收/集成验收]标准高危威胁事件闭环分析",
+"description": "前置条件：\r\n1、Listener 服务可运行\r\n2、远端 OPENCODE Server 可访问\r\n3、输出目录可写\r\n4、默认 STIX 样本数据可用\r\n输入：\r\n1、Mock 事件文件：mock_opencti_push_event.json\r\n2、opencode server地址：http://127.0.0.1:8124\r\n3、远端NEO4J 服务地址：neo4j://127.0.0.1:7698\r\n4、输出路径：opencti-push-001-analysis.json\r\n期望输出：\r\n1、生成结构化 JSON 预警结果文件\r\n2、返回内容包含事件信息、分析结论、证据基础、建议动作、协作轨迹\r\n通过标准：\r\n1、输出文件存在\r\n2、JSON 可正常解析\r\n3、analysis_conclusion.summary 非空\r\n4、recommended_actions 至少 1 条\r\n5、collaboration_trace.participants 至少 2 个角色\r\n6、event.event_id 与输入事件一致\r\n7、NEO4J中有落盘数据；",
+"Input": "",
+"acceptanceCriteria": "scripts/run_minimal_closed_loop.py",
+"TestResults": ""
+}
+]
 },
 {
 "id": "1727",
@@ -120,11 +129,18 @@
 ,"type": "ArchiMate_ApplicationComponent"
 ,"testcases": [
 {
-"name": "AI4X-Platform数据消费",
-"description": "前置条件：\r\n1、有agnet:agent_app\\opencode_app\\.opencode\\agents\\ThreatIntelAnalyst_test.md\r\n2、有一个模拟外部服务`Xserver`\r\n关键流程：\r\n`Xserver` 发起一次威胁分析，且选择后台主agnet为ThreatIntelAnalyst_test -&gt; 后台opencode server上的ThreatIntelAnalyst_test agent被拉起，并开始执行，ThreatIntelAnalyst_test 经过分析发现需要调用AI4X_Platform上的数据，它显调用AI4X_Platform的数据发现接口了解数据有哪些，然后各部业务需要构建Cypher查询语句进行查询，获取到数据后它完成后续工作，并将分析结果返回给Xserver；",
+"name": "AI4X-Platform数据消费-模拟OPENCODE-真实AI4X",
+"description": "前置条件：\\r\\n1、有agnet:agent_app\\\\opencode_app\\\\.opencode\\\\agents\\\\ThreatIntelAnalyst_test.md；\\r\\n2、有一个模拟外部服务`Xserver`；\\r\\n3、真实 AI4X Platform API Center 已在 `http://localhost:8000` 启动，并提供 `/api/v1/api-center`。\\r\\nSystem Runtime View：\\r\\n1、`Xserver` 发起一次威胁分析，请求经 Python listener 进入后台 opencode server；\\r\\n2、后台主 agent 选择 `ThreatIntelAnalyst_test`；\\r\\n3、agent 侧通过 `.opencode/tools/ai4x_query.js` 调用本地 tool runtime；\\r\\n4、`ai4x_query.js` 再启动 Python CLI `agent_app/opencode_app/tools/ai4x_cli.py`；\\r\\n5、`ai4x_cli.py` 通过 `services/ai4x_client.py` 访问真实 AI4X Platform，先调用 `GET /api/v1/api-center/schema/catalog` 发现数据源，再调用 schema/query 接口获取数据；\\r\\n6、agent 基于发现结果和查询结果完成后续分析，并将结构化结果返回给 `Xserver`。\\r\\n失败语义：若真实 AI4X 环境未启动或 catalog 不可达，测试必须失败并打印失败原因，不允许跳过，也不允许回退到 AI4X mock。",
 "Input": "`Xserver` 发起一次威胁分析",
-"acceptanceCriteria": "",
+"acceptanceCriteria": "tests/test_ai4x_platform_integration.py::test_ai4x_platform_data_consumption_flow_uses_real_ai4x_service",
 "TestResults": "关键流程的过程日志，可表明关键流程正常运行"
+},
+{
+"name": "AI4X-Platform数据消费-真实OPENCODE-真实AI4X",
+"description": "前置条件：\\r\\n1、有 agent：`agent_app/opencode_app/.opencode/agents/ThreatIntelAnalyst_test.md`；\\r\\n2、真实 OPENCODE Server 已启动并监听 `http://127.0.0.1:8124`；\\r\\n3、真实 AI4X Platform API Center 已启动并监听 `http://localhost:8000/api/v1/api-center`；\\r\\n4、OPENCODE 运行容器已配置 `THREAT_INTEL_AI4X_BASE_URL=http://host.docker.internal:8000` 以访问宿主机 AI4X 服务。\\r\\nSystem Runtime View：\\r\\n1、pytest 用例直接创建真实 OPENCODE session，而不是使用 mock remote server；\\r\\n2、测试向真实 OPENCODE Server 投递一条指令，强制 `ThreatIntelAnalyst_test` 只能直接调用 `ai4x_query`；\\r\\n3、agent 首先调用 `command=catalog` 发现可用 `source_id`；\\r\\n4、agent 再对同一 `source_id` 调用 `command=schema` 获取 schema；\\r\\n5、agent 根据 schema/source 信息构造只读 Cypher，并调用 `command=query` 获取真实结果；\\r\\n6、测试通过轮询真实 session 消息，校验 `catalog -&gt; schema -&gt; query` 三次 `ai4x_query` 直接调用均已完成，且 schema/query 使用相同 source_id。\\r\\n失败语义：若真实 OPENCODE Server 不可用、AI4X 不可达、agent 未直接调用 `ai4x_query`，或三段调用链未闭环完成，测试必须失败并打印失败原因，不允许跳过，也不允许回退到 mock。",
+"Input": "pytest 直接向真实 OPENCODE session 投递 AI4X 数据消费指令",
+"acceptanceCriteria": "tests/test_ai4x_platform_integration.py::test_ai4x_platform_data_consumption_flow_uses_real_opencode_server_and_real_ai4x_service",
+"TestResults": "session 消息轨迹中可证明 agent 已直接完成 ai4x_query 的 catalog、schema、query 调用，并拿到查询结果"
 }
 ]
 },
@@ -135,16 +151,16 @@
 ,"testcases": [
 {
 "name": "查询AI4X-Platform上的数据",
-"description": "opencode上的工具，可实现对AI4X-Platform上的是数据查询",
+"description": "System Runtime View：pytest 用例先通过 `services/ai4x_client.py` 预探测真实 AI4X 环境；随后测试通过 Node 子进程加载 `.opencode/tools/ai4x_query.js`，并以 `ThreatIntelAnalyst_test` 身份执行工具；`ai4x_query.js` 通过本地 Python CLI `agent_app/opencode_app/tools/ai4x_cli.py` 调用 `services/ai4x_client.py`，对真实 AI4X Platform 执行 `POST /api/v1/api-center/query/universal` 查询，返回 source_id、count、items 等查询结果。失败语义：若真实 AI4X 环境未启动、query 接口不可达或返回非法结果，测试必须失败并打印失败原因，不允许跳过，也不允许改用 mock。",
 "Input": "",
-"acceptanceCriteria": "",
+"acceptanceCriteria": "tests/test_ai4x_platform_integration.py::test_ai4x_platform_query_tool_returns_real_data_payload",
 "TestResults": "获取到了AI4X-Platform中的数据"
 },
 {
 "name": "发现AI4X-Platform上可以提供的数据范围",
-"description": "前置条件：\r\n1、AI4X_Platform已正常启动并监听外部请求；",
+"description": "前置条件：\\r\\n1、AI4X_Platform 已正常启动并监听外部请求，基础地址为 `http://localhost:8000`；\\r\\n2、API Center 路径为 `/api/v1/api-center/schema/catalog`。\\r\\nSystem Runtime View：pytest 测试驱动先调用 `services/ai4x_client.py` 对真实 catalog 接口做预探测；环境就绪后，测试再通过 Node 子进程执行 `.opencode/tools/ai4x_query.js`；该工具调用 Python CLI `agent_app/opencode_app/tools/ai4x_cli.py`，CLI 再调用 `services/ai4x_client.py` 访问真实 AI4X Platform 的 `GET /api/v1/api-center/schema/catalog`，返回 `version`、`total_databases`、`databases[]`。测试对 tool 返回结果与预探测结果做一致性断言。失败语义：若真实 AI4X 环境未启动或 catalog 不可达，测试必须失败并打印失败原因，不允许跳过，也不允许回退到 AI4X mock。",
 "Input": "",
-"acceptanceCriteria": "",
+"acceptanceCriteria": "tests/test_ai4x_platform_integration.py::test_ai4x_platform_catalog_exposes_available_data_range",
 "TestResults": "获取到AI4X_Platform上所有数据SCHEMA\r\n"
 }
 ]
@@ -165,6 +181,7 @@
 "id": "1744",
 "name": "OPENCODE RUNTIME"
 ,"type": "ArchiMate_Node"
+,"description": "真实opencode服务，访问地址为：http://127.0.0.1:8124"
 },
 {
 "id": "1745",

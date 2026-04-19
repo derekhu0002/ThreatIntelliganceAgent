@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any, Iterator
 
 from agent_app.opencode_app.tools.stix_cli.semantic_query import load_bundle, neighbors, search_entities
+from services.ai4x_client import AI4XPlatformError, execute_universal_query, fetch_schema_catalog, fetch_source_schema
 from services.result_assembler import assemble_structured_result
 
 
@@ -126,6 +127,61 @@ def _build_evidence_bundle(stix_data_path: Path, normalized_event: dict[str, Any
     }
 
 
+def _select_ai4x_source_id(databases: list[dict[str, Any]]) -> str:
+    preferred_ids = ["tara", "vehicle_iobe", "vehicle_func", "ecu_func", "func_design_spec", "ses"]
+    for preferred_id in preferred_ids:
+        for database in databases:
+            if str(database.get("source_id") or "").strip() == preferred_id:
+                return preferred_id
+
+    for database in databases:
+        source_id = str(database.get("source_id") or "").strip()
+        if source_id:
+            return source_id
+
+    raise AI4XPlatformError("AI4X catalog returned no usable source_id values.")
+
+
+def _build_ai4x_evidence(normalized_event: dict[str, Any], *, ai4x_base_url: str | None = None) -> dict[str, Any]:
+    catalog = fetch_schema_catalog(base_url=ai4x_base_url)
+    databases = [item for item in catalog.get("databases", []) if isinstance(item, dict)]
+    selected_source_id = _select_ai4x_source_id(databases)
+    schema = fetch_source_schema(selected_source_id, base_url=ai4x_base_url)
+    query_result = execute_universal_query(
+        selected_source_id,
+        "MATCH (n) RETURN n LIMIT 5",
+        limit=5,
+        base_url=ai4x_base_url,
+    )
+
+    return {
+        "base_url": ai4x_base_url,
+        "catalog": catalog,
+        "selected_source_id": selected_source_id,
+        "selected_schema": schema,
+        "query": query_result,
+        "requested_labels": normalized_event.get("labels", []),
+        "requested_observables": [
+            item.get("value")
+            for item in normalized_event.get("observables", [])
+            if isinstance(item, dict) and item.get("value")
+        ],
+    }
+
+
+def _build_evidence_bundle_for_mode(
+    stix_data_path: Path,
+    normalized_event: dict[str, Any],
+    *,
+    ai4x_base_url: str | None = None,
+    require_real_ai4x: bool = False,
+) -> dict[str, Any]:
+    evidence_bundle = _build_evidence_bundle(stix_data_path, normalized_event)
+    if require_real_ai4x:
+        evidence_bundle["ai4x"] = _build_ai4x_evidence(normalized_event, ai4x_base_url=ai4x_base_url)
+    return evidence_bundle
+
+
 def _build_collaboration_output(
     *, main_agent: str, normalized_event: dict[str, Any], evidence_bundle: dict[str, Any]
 ) -> dict[str, Any]:
@@ -184,11 +240,22 @@ def _build_collaboration_output(
     }
 
 
-def build_remote_response(request_payload: dict[str, Any], stix_data_path: str | Path) -> dict[str, Any]:
+def build_remote_response(
+    request_payload: dict[str, Any],
+    stix_data_path: str | Path,
+    *,
+    ai4x_base_url: str | None = None,
+    require_real_ai4x: bool = False,
+) -> dict[str, Any]:
     normalized_event = request_payload["event"]
     run_context = request_payload["run_context"]
     main_agent = request_payload["main_agent"]
-    evidence_bundle = _build_evidence_bundle(Path(stix_data_path), normalized_event)
+    evidence_bundle = _build_evidence_bundle_for_mode(
+        Path(stix_data_path),
+        normalized_event,
+        ai4x_base_url=ai4x_base_url,
+        require_real_ai4x=require_real_ai4x,
+    )
     collaboration_output = _build_collaboration_output(
         main_agent=main_agent,
         normalized_event=normalized_event,
@@ -210,9 +277,19 @@ class MockRemoteServerHandle:
 
 
 class _MockRemoteServer(ThreadingHTTPServer):
-    def __init__(self, server_address: tuple[str, int], request_handler_class, stix_data_path: Path) -> None:
+    def __init__(
+        self,
+        server_address: tuple[str, int],
+        request_handler_class,
+        stix_data_path: Path,
+        *,
+        ai4x_base_url: str | None = None,
+        require_real_ai4x: bool = False,
+    ) -> None:
         super().__init__(server_address, request_handler_class)
         self.stix_data_path = stix_data_path
+        self.ai4x_base_url = ai4x_base_url
+        self.require_real_ai4x = require_real_ai4x
         self.captured_requests: list[dict[str, Any]] = []
         self.sessions: dict[str, dict[str, Any]] = {}
 
@@ -245,7 +322,12 @@ def _build_handler():
                         "content": [
                             {
                                 "type": "json",
-                                "json": build_remote_response(request_context, self.server.stix_data_path),  # type: ignore[attr-defined]
+                                "json": build_remote_response(
+                                    request_context,
+                                    self.server.stix_data_path,  # type: ignore[attr-defined]
+                                    ai4x_base_url=self.server.ai4x_base_url,  # type: ignore[attr-defined]
+                                    require_real_ai4x=self.server.require_real_ai4x,  # type: ignore[attr-defined]
+                                ),
                             }
                         ],
                     },
@@ -269,8 +351,19 @@ def _build_handler():
 
 
 @contextmanager
-def start_mock_remote_server(*, stix_data_path: str | Path) -> Iterator[MockRemoteServerHandle]:
-    server = _MockRemoteServer(("127.0.0.1", 0), _build_handler(), Path(stix_data_path))
+def start_mock_remote_server(
+    *,
+    stix_data_path: str | Path,
+    ai4x_base_url: str | None = None,
+    require_real_ai4x: bool = False,
+) -> Iterator[MockRemoteServerHandle]:
+    server = _MockRemoteServer(
+        ("127.0.0.1", 0),
+        _build_handler(),
+        Path(stix_data_path),
+        ai4x_base_url=ai4x_base_url,
+        require_real_ai4x=require_real_ai4x,
+    )
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     base_url = f"http://127.0.0.1:{server.server_port}"

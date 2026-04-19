@@ -22,6 +22,9 @@ services:
       PYTHON_BIN: python3
       PYTHONPATH: /root/project_tia
       THREAT_INTEL_REPO_ROOT: /root/project_tia
+      THREAT_INTEL_AI4X_BASE_URL: http://host.docker.internal:8000
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ./opencode_app:/root/project_tia
     stdin_open: true

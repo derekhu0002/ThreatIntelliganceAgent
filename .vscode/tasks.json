@@ -1,0 +1,66 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "pytest-ai4x-targeted",
+			"type": "shell",
+			"command": "d:/projects/ThreatIntelliganceAgent/.venv/Scripts/python.exe",
+			"args": [
+				"-m",
+				"pytest",
+				"tests/test_opencode_workspace_config.py::test_opencode_app_contains_local_tool_runtime_dependencies",
+				"tests/test_ai4x_platform_integration.py",
+				"-q"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "pytest-ai4x-targeted-rerun",
+			"type": "shell",
+			"command": "d:/projects/ThreatIntelliganceAgent/.venv/Scripts/python.exe",
+			"args": [
+				"-m",
+				"pytest",
+				"tests/test_opencode_workspace_config.py::test_opencode_app_contains_local_tool_runtime_dependencies",
+				"tests/test_ai4x_platform_integration.py",
+				"-q"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "pytest-ai4x-targeted-rerun-2",
+			"type": "shell",
+			"command": "d:/projects/ThreatIntelliganceAgent/.venv/Scripts/python.exe",
+			"args": [
+				"-m",
+				"pytest",
+				"tests/test_opencode_workspace_config.py::test_opencode_app_contains_local_tool_runtime_dependencies",
+				"tests/test_ai4x_platform_integration.py",
+				"-q"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "pytest-full-suite",
+			"type": "shell",
+			"command": "d:/projects/ThreatIntelliganceAgent/.venv/Scripts/python.exe",
+			"args": [
+				"-m",
+				"pytest",
+				"-rA"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "pytest-full-suite-rerun",
+			"type": "shell",
+			"command": "d:/projects/ThreatIntelliganceAgent/.venv/Scripts/python.exe",
+			"args": [
+				"-m",
+				"pytest",
+				"-rA"
+			],
+			"isBackground": false
+		}
+	]
+}
