@@ -1,0 +1,69 @@
+# 基础
+APP_NAME=AI Security Platform
+APP_VERSION=1.0.0
+DEBUG=false
+API_PREFIX=/api/v1
+
+# Postgres（要和 docker-compose 里保持一致）
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=11111111
+POSTGRES_DB=ai_security
+
+# Neo4j
+NEO4J_URI=bolt://neo4j:7687
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=11111111
+
+# Redis
+REDIS_HOST=redis
+REDIS_PORT=6379
+REDIS_DB=0
+
+# MinIO
+MINIO_ENDPOINT=minio:9000
+MINIO_ACCESS_KEY=minioadmin
+MINIO_SECRET_KEY=minioadmin
+MINIO_BUCKET_NAME=security-artifacts
+MINIO_SECURE=false
+
+# Milvus
+MILVUS_HOST=milvus
+MILVUS_PORT=19530
+MILVUS_COLLECTION_NAME=security_knowledge
+
+# JWT / 安全
+SECRET_KEY=please-change-me-to-a-random-long-string
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+# API Center 认证模式（auto/none/apikey/jwt）
+# - auto  : 自动按 DEBUG 切换（DEBUG=true => none，DEBUG=false => jwt）
+# - none  : 不做认证（仅建议本地开发联调）
+# - apikey: 使用请求头 X-API-Key（优先读取 API_CENTER_API_KEYS，多 key）
+# - jwt   : 使用现有登录态 Bearer Token（生产推荐）
+API_CENTER_AUTH_MODE=none
+# apikey 模式配置（推荐使用多 key，逗号分隔）
+API_CENTER_API_KEYS=D7k1Z3eFLo-cyxt84L-jt1r2bWEYWNZjSEoCy7klfSPG1MrDnwulMGG_WOtiZnYJ,4Pps4Rtq9RCPl88qo2hBwhptA-SE4kSs578qGoimD54848dy8g5WverhZFa-M-XS,enmPY2U88Q-M9wWvZFTMosqe3-aQAKQtEnOJp8ziM_UQN6_FJhASqdYcCyOCU9jO
+# 兼容单 key（仅在 API_CENTER_API_KEYS 为空时生效）
+API_CENTER_API_KEY=
+
+# OpenAI / LLM（如果你有 key，可以打开完整 AI 能力）
+LLM_PROVIDER=openai
+OPENAI_API_KEY=sk-e1a1cc0e1d26491982e7f207b8f045f9
+OPENAI_MODEL=deepseek-reasoner
+OPENAI_BASE_URL=https://api.deepseek.com
+
+
+# NVD / 威胁情报
+NVD_API_KEY=
+THREAT_INTEL_USE_NVD=false
+THREAT_INTEL_USE_LLM=false
+
+# Email（避免使用仓库里的默认账号）
+SMTP_SERVER=smtp.example.com
+SMTP_PORT=587
+SMTP_USER=alerts@example.com
+SMTP_PASSWORD=your-smtp-password
+SMTP_SENDER=alerts@example.com
+ALERT_RECIPIENT=security@example.com
