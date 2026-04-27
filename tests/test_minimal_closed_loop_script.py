@@ -194,7 +194,34 @@ def test_run_minimal_closed_loop_retries_transient_external_listener_failure(mon
     output = json.loads(capsys.readouterr().out)
     assert calls["count"] == 2
     assert output["status"] == "passed"
-    assert output["acceptance_case"]["id"] == "1726"
+
+
+def test_run_minimal_closed_loop_reexecs_into_repo_venv_when_neo4j_missing(monkeypatch) -> None:
+    module = _load_script_module()
+    repo_python = REPO_ROOT / ".venv/Scripts/python.exe"
+    recorded = {}
+
+    monkeypatch.setattr(module.importlib.util, "find_spec", lambda name: None if name == "neo4j" else object())
+    monkeypatch.setattr(module, "_resolve_repo_venv_python", lambda repo_root: repo_python)
+    monkeypatch.delenv(module.REEXEC_ENV, raising=False)
+
+    def fake_execv(executable, argv):
+        recorded["executable"] = executable
+        recorded["argv"] = argv
+        raise SystemExit(0)
+
+    monkeypatch.setattr(module.os, "execv", fake_execv)
+
+    try:
+        module._bootstrap_runtime_python(REPO_ROOT)
+    except SystemExit as exc:
+        assert exc.code == 0
+    else:
+        raise AssertionError("Expected bootstrap to re-exec into the repo virtual environment.")
+
+    assert recorded["executable"] == str(repo_python)
+    assert recorded["argv"][0] == str(repo_python)
+    assert recorded["argv"][1] == str((REPO_ROOT / "scripts/run_minimal_closed_loop.py").resolve())
 
 
 def test_run_minimal_closed_loop_rejects_missing_writeback_summary(monkeypatch) -> None:

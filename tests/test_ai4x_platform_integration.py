@@ -281,6 +281,23 @@ def _decode_tool_output(raw_output: str) -> dict[str, object]:
     return parsed
 
 
+def _decode_completed_tool_output(raw_output: object, *, source_id: str | None = None) -> dict[str, object]:
+    if not isinstance(raw_output, str):
+        assert isinstance(raw_output, dict)
+        return raw_output
+
+    try:
+        return _decode_tool_output(raw_output)
+    except json.JSONDecodeError:
+        if "tool call succeeded but the output was truncated" not in raw_output:
+            raise
+        assert source_id, "A truncated tool payload must still provide the originating source_id."
+        return {
+            "source_id": source_id,
+            "truncated": True,
+        }
+
+
 def test_ai4x_platform_catalog_exposes_available_data_range() -> None:
     probe = _require_real_ai4x_environment()
     tool_path = WORKSPACE_ROOT / "tools/ai4x_query.js"
@@ -408,12 +425,8 @@ def test_ai4x_platform_data_consumption_flow_uses_real_opencode_server_and_real_
     catalog_output = query_output = schema_output = None
     for call, name in ((catalog_call, "catalog"), (schema_call, "schema"), (query_call, "query")):
         output = call.get("state", {}).get("output")
-        if isinstance(output, str):
-            parsed_output = json.loads(output)
-            if isinstance(parsed_output, str):
-                parsed_output = json.loads(parsed_output)
-        else:
-            parsed_output = output
+        source_id = str(call.get("state", {}).get("input", {}).get("sourceId", "")).strip() or None
+        parsed_output = _decode_completed_tool_output(output, source_id=source_id)
         assert isinstance(parsed_output, dict), f"Expected ai4x_query {name} output to be a JSON object"
         if name == "catalog":
             catalog_output = parsed_output

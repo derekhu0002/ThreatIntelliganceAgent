@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from contextlib import nullcontext
+import importlib.util
 import json
 import os
 import subprocess
@@ -30,10 +31,36 @@ ACCEPTANCE_CASE_NAME = "[闭环验收/集成验收]标准高危威胁事件闭�
 ACCEPTANCE_CASE_TYPE = "closed-loop-acceptance"
 ACCEPTANCE_SUMMARY_PATH = Path("artifacts/runtime/opencti-push-001-acceptance-summary.json")
 USE_MOCK_REMOTE_SERVER_ENV = "THREAT_INTEL_USE_MOCK_REMOTE_SERVER"
+REEXEC_ENV = "THREAT_INTEL_MINIMAL_CLOSED_LOOP_REEXEC"
 
 
 def _is_truthy_env(value: str | None) -> bool:
     return (value or "").strip().lower() in {"1", "true", "yes", "y", "on"}
+
+
+def _resolve_repo_venv_python(repo_root: Path) -> Path | None:
+    candidates = [
+        repo_root / ".venv/Scripts/python.exe",
+        repo_root / ".venv/bin/python",
+    ]
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate
+    return None
+
+
+def _bootstrap_runtime_python(repo_root: Path) -> None:
+    if importlib.util.find_spec("neo4j") is not None:
+        return
+    if _is_truthy_env(os.environ.get(REEXEC_ENV)):
+        return
+
+    repo_python = _resolve_repo_venv_python(repo_root)
+    if repo_python is None:
+        return
+
+    os.environ[REEXEC_ENV] = "1"
+    os.execv(str(repo_python), [str(repo_python), str(Path(__file__).resolve()), *sys.argv[1:]])
 
 
 def _resolve_remote_server(repo_root: Path):
@@ -64,6 +91,7 @@ def _emit_acceptance_summary(repo_root: Path, summary: dict[str, object]) -> Non
 
 def main() -> None:
     repo_root = REPO_ROOT
+    _bootstrap_runtime_python(repo_root)
     output_path = repo_root / "artifacts/runtime/opencti-push-001-analysis.json"
     output_path.parent.mkdir(parents=True, exist_ok=True)
     event_id = "opencti-push-001"
