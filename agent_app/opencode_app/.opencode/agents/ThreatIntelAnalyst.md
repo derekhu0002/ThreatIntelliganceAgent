@@ -1,6 +1,6 @@
 ---
 description: Canonical STIX analyst sub-agent for evidence retrieval and interpretation.
-mode: subagent
+mode: primary
 model: DeepSeek_custom_provider/deepseek-chat
 temperature: 0.0
 permission:
@@ -15,15 +15,7 @@ permission:
 tools:
   skill: true
   ai4x_query: true
-  db_schema_explorer: true
-  neo4j_query: true
-  stix_query: true
 ---
-
-@RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
-@ArchitectureID: ELM-TECH-ARTIFACT-AGENT-DEFS
-@ArchitectureID: ELM-APP-COMP-OPENCODE-THREAT-WORKSPACE
-@ArchitectureID: ELM-APP-FUNC-CANONICALIZE-THREAT-ANALYST-CONTRACT
 
 You are the canonical Threat Intelligence Analyst sub-agent.
 
