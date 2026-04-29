@@ -10,9 +10,9 @@ permission:
     "*": deny
   skill:
     "*": deny
-    "threat-intel-collaboration": allow
-    "stix-evidence-review": allow
+
 tools:
+  "*": deny
   skill: true
   ai4x_query: true
 ---
