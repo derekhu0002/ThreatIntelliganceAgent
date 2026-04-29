@@ -1,0 +1,239 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Vehicle IoBE (Internal/External Boundary) Schema",
+  "description": "车辆内外部边界（IoBE）数据模型，定义车辆网络安全边界与暴露面信息，包含车载控制器、暴露面、外部对端、网络流量、消息及其关系，符合 STIX 2.1 标准。",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "const": "bundle"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^bundle--[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "objects": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "车载控制器（ECU）定义",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "x-vehicle-ecu"
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^x-vehicle-ecu--[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "name": {
+                "type": "string",
+                "description": "ECU 名称，如 VIU0、CDC、ADS、TBOX 等"
+              },
+              "description": {
+                "type": "string",
+                "description": "ECU 功能描述"
+              },
+              "x_ecu_type": {
+                "type": "string",
+                "description": "ECU 类型",
+                "enum": ["domain_controller", "legacy_ecu", "sensor", "actuator"]
+              },
+              "x_software_version": {
+                "type": "string",
+                "description": "软件版本信息"
+              },
+              "x_aliases": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "ECU 别名列表"
+              },
+              "x_domain_tag": {
+                "type": "string",
+                "description": "域/车型/版本数据标签，用于多租户或平台化区分"
+              }
+            },
+            "required": ["type", "id", "name", "x_domain_tag"],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "暴露面定义",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "x-exposure-surface"
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^x-exposure-surface--[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "name": {
+                "type": "string",
+                "description": "暴露面名称，如 OBD、Bluetooth、WiFi、USB、Cellular、Charger、RF 等"
+              },
+              "description": {
+                "type": "string",
+                "description": "暴露面描述，说明该接口的功能和潜在风险"
+              },
+              "x_domain_tag": {
+                "type": "string",
+                "description": "域/车型/版本数据标签"
+              }
+            },
+            "required": ["type", "id", "name", "x_domain_tag"],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "外部对端定义",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "x-external-peer"
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^x-external-peer--[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "name": {
+                "type": "string",
+                "description": "外部对端名称，如车云、手机、充电桩等"
+              },
+              "description": {
+                "type": "string",
+                "description": "外部对端描述"
+              },
+              "x_domain_tag": {
+                "type": "string",
+                "description": "域/车型/版本数据标签"
+              }
+            },
+            "required": ["type", "id", "name", "x_domain_tag"],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "网络流量定义",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "network-traffic"
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^network-traffic--[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "name": {
+                "type": "string",
+                "description": "网络流量名称，如 [ETH]VIU0->CDC、[CAN]BMS->VIU0 等"
+              },
+              "description": {
+                "type": "string",
+                "description": "网络流量描述"
+              },
+              "protocols": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "使用的协议列表，如 SOME/IP、DDS、CAN、CANFD、LIN 等"
+              },
+              "src_ref": {
+                "type": "string",
+                "description": "源节点的 STIX ID"
+              },
+              "dst_ref": {
+                "type": "string",
+                "description": "目标节点的 STIX ID"
+              },
+              "x_domain_tag": {
+                "type": "string",
+                "description": "域/车型/版本数据标签"
+              }
+            },
+            "required": ["type", "id", "name", "x_domain_tag"],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "消息定义",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "x-message"
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^x-message--[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "name": {
+                "type": "string",
+                "description": "消息名称"
+              },
+              "description": {
+                "type": "string",
+                "description": "消息描述"
+              },
+              "x_domain_tag": {
+                "type": "string",
+                "description": "域/车型/版本数据标签"
+              }
+            },
+            "required": ["type", "id", "name", "x_domain_tag"],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "STIX 2.1 关系对象",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "relationship"
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^relationship--[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "source_ref": {
+                "type": "string",
+                "description": "关系源对象的 STIX ID"
+              },
+              "target_ref": {
+                "type": "string",
+                "description": "关系目标对象的 STIX ID"
+              },
+              "relationship_type": {
+                "type": "string",
+                "description": "关系类型",
+                "enum": [
+                  "exposes",
+                  "via_channel",
+                  "transmitted_by",
+                  "connects_to",
+                  "communicates_with",
+                  "related-to"
+                ]
+              },
+              "description": {
+                "type": "string",
+                "description": "关系描述"
+              },
+              "x_name": {
+                "type": "string",
+                "description": "关系名称标识"
+              },
+              "x_domain_tag": {
+                "type": "string",
+                "description": "域/车型/版本数据标签"
+              }
+            },
+            "required": ["type", "id", "source_ref", "target_ref", "relationship_type", "x_domain_tag"],
+            "additionalProperties": false
+          }
+        ]
+      }
+    }
+  },
+  "required": ["type", "id", "objects"]
+}

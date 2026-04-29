@@ -1,0 +1,63 @@
+{
+"$schema": "http://json-schema.org/draft-07/schema#",
+"title": "STIX 2.1 ECU Controller Schema",
+"description": "适配 ECU 控制器数据，符合 STIX2.1+MongoDB 存储标准",
+"type": "object",
+"properties": {
+    "type": {
+    "type": "string",
+    "const": "bundle"
+    },
+    "id": {
+    "type": "string",
+    "pattern": "^bundle--[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "objects": {
+    "type": "array",
+    "description": "STIX2.1 扩展对象集合：ECU 控制器",
+    "items": {
+        "type": "object",
+        "description": "自定义 STIX2.1 扩展对象：ECU 控制器",
+        "properties": {
+        "type": {
+            "type": "string",
+            "const": "x-ecu-controller"
+        },
+        "id": {
+            "type": "string",
+            "pattern": "^x-ecu-controller--[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "ecu_name": {
+            "type": "string",
+            "description": "ECU 控制器名称"
+        },
+        "related_functions": {
+            "type": "array",
+            "items": {
+            "type": "string"
+            },
+            "description": "相关功能列表"
+        },
+        "x_domain_tag": {
+            "type": "string",
+            "description": "域/车型/版本数据标签，用于多车型或平台化区分。"
+        }
+        },
+        "required": [
+        "type",
+        "id",
+        "ecu_name",
+        "related_functions",
+        "x_domain_tag"
+        ],
+        "additionalProperties": false
+    }
+    }
+},
+"required": [
+    "type",
+    "id",
+    "objects"
+],
+"additionalProperties": false
+}

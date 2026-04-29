@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "STIX 2.1 网络安全需求 Schema",
+  "description": "适配密码算法/安全需求类数据，符合STIX2.1+MongoDB存储标准",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "const": "bundle"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^bundle--[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "objects": {
+      "type": "array",
+      "description": "STIX2.1安全需求对象集合",
+      "items": {
+        "type": "object",
+        "description": "自定义STIX2.1扩展对象：网络安全需求/密码算法规范",
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "x-cybersecurity-requirement"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^x-cybersecurity-requirement--[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "keywords/labels": {
+            "type": "string",
+            "description": "关键词/标签"
+          },
+          "cybersecurity_goal": {
+            "type": "string",
+            "description": "安全目标"
+          },
+          "cybersecurity_measure": {
+            "type": "string",
+            "description": "消减措施/安全需求"
+          },
+          "text": {
+            "type": "string",
+            "description": "完整原始文本"
+          },
+          "x_domain_tag": {
+            "type": "string",
+            "description": "域/车型/版本数据标签，用于多租户或平台化区分。"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "keywords/labels",
+          "cybersecurity_goal",
+          "cybersecurity_measure",
+          "text",
+          "x_domain_tag"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "type",
+    "id",
+    "spec_version",
+    "objects"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,322 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CVE2OSS API Schema",
+  "description": "CVE2OSS 漏洞查询代理服务 Schema，通过 W3 SSO 认证获取 Token 后并发查询 REPAIRED_STATUS 和 PRECAUTION_STATUS，合并结果并过滤返回白名单字段。用户仅需传入 cve_id，pageNum 固定为 1，pageSize 固定为 5。",
+  "type": "object",
+  "properties": {
+    "endpoints": {
+      "type": "object",
+      "description": "CVE2OSS API 端点定义",
+      "properties": {
+        "query": {
+          "type": "object",
+          "title": "CVE2OSS 漏洞查询",
+          "description": "POST /api/v1/cve2oss/query — 输入 CVE ID，系统自动获取 W3 Token 并向上游发起 REPAIRED_STATUS 和 PRECAUTION_STATUS 两次查询，合并结果后仅返回白名单字段。pageNum 固定为 1，pageSize 固定为 5。",
+          "properties": {
+            "method": { "const": "POST" },
+            "path": { "const": "/api/v1/cve2oss/query" },
+            "request": {
+              "type": "object",
+              "title": "查询请求体",
+              "properties": {
+                "cve_id": {
+                  "type": "string",
+                  "description": "CVE 编号（必填）",
+                  "examples": ["CVE-2023-53368"]
+                }
+              },
+              "required": ["cve_id"],
+              "additionalProperties": false,
+              "examples": [
+                {
+                  "_comment": "标准请求（必填字段）",
+                  "cve_id": "CVE-2023-53368"
+                },
+                {
+                  "_comment": "查询另一个 CVE",
+                  "cve_id": "CVE-2024-12345"
+                }
+              ]
+            },
+            "fixed_parameters": {
+              "type": "object",
+              "title": "固定参数",
+              "description": "以下参数由系统固定，无需用户传入",
+              "properties": {
+                "pageNum": {
+                  "type": "integer",
+                  "const": 1,
+                  "description": "页码（固定值）"
+                },
+                "pageSize": {
+                  "type": "integer",
+                  "const": 5,
+                  "description": "每页记录数（固定值）"
+                }
+              }
+            },
+            "response_success": {
+              "type": "object",
+              "title": "成功响应 (HTTP 200)",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "const": true
+                },
+                "total": {
+                  "type": "integer",
+                  "description": "返回记录总数（REPAIRED + PRECAUTION 合并后）"
+                },
+                "datalist": {
+                  "type": "array",
+                  "description": "漏洞记录列表（仅包含白名单字段）",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "CVEID": {
+                        "type": "string",
+                        "description": "CVE 编号",
+                        "examples": ["CVE-2023-53368"]
+                      },
+                      "PROD_CN_NAME": {
+                        "type": "string",
+                        "description": "产品中文名称",
+                        "examples": ["某产品 V300"]
+                      },
+                      "EDITION_CODE": {
+                        "type": "string",
+                        "description": "版本编码",
+                        "examples": ["V300R001C00"]
+                      },
+                      "LDY_NAME": {
+                        "type": "string",
+                        "description": "LDY 名称",
+                        "examples": ["版本3"]
+                      },
+                      "HWPSIRTID": {
+                        "type": "string",
+                        "description": "HWPSIRT 编号",
+                        "examples": ["HWPSIRT-2023-89"]
+                      }
+                    }
+                  }
+                },
+                "repaired_count": {
+                  "type": "integer",
+                  "description": "REPAIRED_STATUS 返回的记录数"
+                },
+                "precaution_count": {
+                  "type": "integer",
+                  "description": "PRECAUTION_STATUS 返回的记录数"
+                }
+              },
+              "examples": [
+                {
+                  "success": true,
+                  "total": 2,
+                  "datalist": [
+                    {
+                      "CVEID": "CVE-2023-53368",
+                      "PROD_CN_NAME": "某产品 V300",
+                      "EDITION_CODE": "V300R001C00",
+                      "LDY_NAME": "版本3",
+                      "HWPSIRTID": "HWPSIRT-2023-89"
+                    },
+                    {
+                      "CVEID": "CVE-2023-53368",
+                      "PROD_CN_NAME": "某产品 V200",
+                      "EDITION_CODE": "V200R005C00",
+                      "LDY_NAME": "版本2",
+                      "HWPSIRTID": "HWPSIRT-2023-89"
+                    }
+                  ],
+                  "repaired_count": 1,
+                  "precaution_count": 1
+                }
+              ]
+            },
+            "response_error": {
+              "type": "object",
+              "title": "错误响应",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "const": false
+                },
+                "error_code": {
+                  "type": "string",
+                  "description": "错误码，格式 CVE2OSS-XXXX（1xxx=配置错误, 2xxx=认证错误, 3xxx=上游错误, 4xxx=参数错误, 5xxx=内部错误）",
+                  "examples": ["CVE2OSS-4001", "CVE2OSS-2002", "CVE2OSS-3002"]
+                },
+                "error_message": {
+                  "type": "string",
+                  "description": "错误描述"
+                },
+                "detail": {
+                  "type": "string",
+                  "description": "详细技术信息（含异常类型和消息）"
+                },
+                "timestamp": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "错误发生时间（UTC ISO 8601）"
+                },
+                "upstream_status": {
+                  "type": ["integer", "null"],
+                  "description": "上游 API 返回的 HTTP 状态码（仅上游错误时有值）"
+                },
+                "upstream_body": {
+                  "type": ["string", "null"],
+                  "description": "上游 API 返回的原始响应体（截断至 2000 字符）"
+                }
+              },
+              "examples": [
+                {
+                  "success": false,
+                  "error_code": "CVE2OSS-4001",
+                  "error_message": "请求参数校验失败（cveId 为必填）",
+                  "detail": "",
+                  "timestamp": "2026-04-21T09:00:00.000Z"
+                },
+                {
+                  "success": false,
+                  "error_code": "CVE2OSS-3002",
+                  "error_message": "CVE2OSS 上游 API 返回非 200 状态码",
+                  "detail": "",
+                  "timestamp": "2026-04-21T09:00:00.000Z",
+                  "upstream_status": 503,
+                  "upstream_body": "{\"error\":\"service unavailable\"}"
+                }
+              ]
+            },
+            "curl_examples": {
+              "bash_basic": "curl -s -X POST \"http://localhost:8000/api/v1/cve2oss/query\" -H \"Content-Type: application/json\" -d '{\"cve_id\":\"CVE-2023-53368\"}'",
+              "powershell_basic": "$body = '{\"cve_id\":\"CVE-2023-53368\"}'; Invoke-RestMethod -Uri \"http://localhost:8000/api/v1/cve2oss/query\" -Method POST -ContentType \"application/json\" -Body $body | ConvertTo-Json -Depth 10",
+              "bash_with_overrides": "curl -s -X POST \"http://localhost:8000/api/v1/cve2oss/query\" -H \"Content-Type: application/json\" -d '{\"cve_id\":\"CVE-2023-53368\",\"repaired_overrides\":{\"pageSize\":100,\"startTime\":\"202301\"},\"precaution_overrides\":{\"pageSize\":100}}'",
+              "powershell_with_overrides": "$body = '{\"cve_id\":\"CVE-2023-53368\",\"repaired_overrides\":{\"pageSize\":100,\"startTime\":\"202301\"},\"precaution_overrides\":{\"pageSize\":100}}'; Invoke-RestMethod -Uri \"http://localhost:8000/api/v1/cve2oss/query\" -Method POST -ContentType \"application/json\" -Body $body | ConvertTo-Json -Depth 10"
+            }
+          }
+        },
+        "token_refresh": {
+          "type": "object",
+          "title": "强制刷新 W3 Token",
+          "description": "POST /api/v1/cve2oss/token/refresh — 清除 Token 缓存并重新获取。",
+          "properties": {
+            "method": { "const": "POST" },
+            "path": { "const": "/api/v1/cve2oss/token/refresh" },
+            "response": {
+              "type": "object",
+              "properties": {
+                "success": { "type": "boolean" },
+                "message": { "type": "string" },
+                "remaining_seconds": {
+                  "type": "integer",
+                  "description": "Token 剩余有效时间（秒）"
+                }
+              },
+              "examples": [
+                {
+                  "success": true,
+                  "message": "Token 刷新成功",
+                  "remaining_seconds": 82800
+                }
+              ]
+            },
+            "curl_examples": {
+              "bash": "curl -s -X POST \"http://localhost:8000/api/v1/cve2oss/token/refresh\"",
+              "powershell": "Invoke-RestMethod -Uri \"http://localhost:8000/api/v1/cve2oss/token/refresh\" -Method POST | ConvertTo-Json -Depth 10"
+            }
+          }
+        },
+        "health": {
+          "type": "object",
+          "title": "健康检查",
+          "description": "GET /api/v1/cve2oss/health — 返回配置状态和 Token 缓存状态，无需认证。",
+          "properties": {
+            "method": { "const": "GET" },
+            "path": { "const": "/api/v1/cve2oss/health" },
+            "response": {
+              "type": "object",
+              "properties": {
+                "service": { "type": "string", "const": "cve2oss" },
+                "status": { "type": "string", "enum": ["ok", "degraded"] },
+                "config": {
+                  "type": "object",
+                  "properties": {
+                    "loaded": { "type": "boolean" },
+                    "detail": { "type": "string" },
+                    "w3token_url": { "type": "string" },
+                    "cve2oss_url": { "type": "string" },
+                    "response_fields": { "type": "array", "items": { "type": "string" } }
+                  }
+                },
+                "token": {
+                  "type": "object",
+                  "properties": {
+                    "has_token": { "type": "boolean" },
+                    "remaining_seconds": { "type": "integer" },
+                    "obtained_at": { "type": ["string", "null"] }
+                  }
+                }
+              },
+              "examples": [
+                {
+                  "service": "cve2oss",
+                  "status": "ok",
+                  "config": {
+                    "loaded": true,
+                    "detail": "",
+                    "w3token_url": "https://apig.yinwang.com/api/ssoproxysvr/v2/w3tokens",
+                    "cve2oss_url": "https://apig.yinwang.com/api/bu-report/v1/vul/idopVulDetail",
+                    "response_fields": ["CVEID", "PROD_CN_NAME", "EDITION_CODE", "LDY_NAME", "HWPSIRTID"]
+                  },
+                  "token": {
+                    "has_token": true,
+                    "remaining_seconds": 80000,
+                    "obtained_at": "2026-04-21T01:00:00.000Z"
+                  }
+                }
+              ]
+            },
+            "curl_examples": {
+              "bash": "curl -s \"http://localhost:8000/api/v1/cve2oss/health\"",
+              "powershell": "Invoke-RestMethod -Uri \"http://localhost:8000/api/v1/cve2oss/health\" -Method GET | ConvertTo-Json -Depth 10"
+            }
+          }
+        },
+        "config_reload": {
+          "type": "object",
+          "title": "热重载配置文件",
+          "description": "GET /api/v1/cve2oss/config/reload — 强制重新加载 cve2oss_config.yaml，无需重启服务。",
+          "properties": {
+            "method": { "const": "GET" },
+            "path": { "const": "/api/v1/cve2oss/config/reload" },
+            "response": {
+              "type": "object",
+              "properties": {
+                "success": { "type": "boolean" },
+                "message": { "type": "string" },
+                "w3token_url": { "type": "string" },
+                "cve2oss_url": { "type": "string" },
+                "response_fields": { "type": "array", "items": { "type": "string" } }
+              },
+              "examples": [
+                {
+                  "success": true,
+                  "message": "配置重载成功",
+                  "w3token_url": "https://apig.yinwang.com/api/ssoproxysvr/v2/w3tokens",
+                  "cve2oss_url": "https://apig.yinwang.com/api/bu-report/v1/vul/idopVulDetail",
+                  "response_fields": ["CVEID", "PROD_CN_NAME", "EDITION_CODE", "LDY_NAME", "HWPSIRTID"]
+                }
+              ]
+            },
+            "curl_examples": {
+              "bash": "curl -s \"http://localhost:8000/api/v1/cve2oss/config/reload\"",
+              "powershell": "Invoke-RestMethod -Uri \"http://localhost:8000/api/v1/cve2oss/config/reload\" -Method GET | ConvertTo-Json -Depth 10"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,686 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TARA Graph Database Schema (STIX 2.1)",
+  "description": "Complete STIX 2.1 compliant schema for TARA threat risk assessment graph database",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "const": "bundle"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^bundle--[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "objects": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "Vehicle component definition",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "x-vehicle-component"
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^x-vehicle-component--[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "item": {
+                "type": "string",
+                "description": "车辆组件所属分类项"
+              },
+              "name": {
+                "type": "string",
+                "description": "车辆组件名称"
+              },
+              "description": {
+                "type": "string",
+                "description": "车辆组件详细描述"
+              },
+              "x_domain_tag": {
+                "type": "string",
+                "description": "域/车型/版本数据标签，用于多租户或平台化区分。"
+              }
+            },
+            "required": [
+              "type",
+              "id",
+              "name",
+              "x_domain_tag"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "TARA assessment report",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "x-tara-report"
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^x-tara-report--[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "report_id": {
+                "type": "string",
+                "description": "TARA评估报告唯一标识"
+              },
+              "name": {
+                "type": "string",
+                "description": "报告名称"
+              },
+              "standard": {
+                "type": "string",
+                "description": "评估依据的标准规范"
+              },
+              "scope": {
+                "type": "string",
+                "description": "评估范围"
+              },
+              "x_domain_tag": {
+                "type": "string",
+                "description": "域/车型/版本数据标签，用于多租户或平台化区分。"
+              }
+            },
+            "required": [
+              "type",
+              "id",
+              "report_id",
+              "name",
+              "x_domain_tag"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "Vehicle asset definition",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "x-vehicle-asset"
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^x-vehicle-asset--[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "asset_id": {
+                "type": "string",
+                "description": "车辆资产唯一标识"
+              },
+              "component_name": {
+                "type": "string",
+                "description": "关联的车辆组件名称"
+              },
+              "asset_item": {
+                "type": "string",
+                "description": "资产分类项"
+              },
+              "function": {
+                "type": "string",
+                "description": "资产核心功能"
+              },
+              "architecture": {
+                "type": "string",
+                "description": "资产架构信息"
+              },
+              "level": {
+                "type": "string",
+                "description": "资产安全等级"
+              },
+              "x_domain_tag": {
+                "type": "string",
+                "description": "域/车型/版本数据标签，用于多租户或平台化区分。"
+              }
+            },
+            "required": [
+              "type",
+              "id",
+              "asset_id",
+              "x_domain_tag"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "Damage scenario definition",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "x-damage-scenario"
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^x-damage-scenario--[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "scenario": {
+                "type": "string",
+                "description": "损害场景描述"
+              },
+              "confidentiality": {
+                "type": "string",
+                "description": "机密性影响等级"
+              },
+              "integrity": {
+                "type": "string",
+                "description": "完整性影响等级"
+              },
+              "availability": {
+                "type": "string",
+                "description": "可用性影响等级"
+              },
+              "x_domain_tag": {
+                "type": "string",
+                "description": "域/车型/版本数据标签，用于多租户或平台化区分。"
+              }
+            },
+            "required": [
+              "type",
+              "id",
+              "scenario",
+              "x_domain_tag"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "Impact assessment definition",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "x-impact-assessment"
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^x-impact-assessment--[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "safety": {
+                "type": "string",
+                "description": "人身安全影响评分"
+              },
+              "property": {
+                "type": "string",
+                "description": "财产损失影响评分"
+              },
+              "operation": {
+                "type": "string",
+                "description": "车辆运营影响评分"
+              },
+              "privacy": {
+                "type": "string",
+                "description": "隐私泄露影响评分"
+              },
+              "sum_score": {
+                "type": "string",
+                "description": "影响评估总分"
+              },
+              "rating": {
+                "type": "string",
+                "description": "影响等级评级",
+                "enum": [
+                  "Negligible",
+                  "Moderate",
+                  "Serious",
+                  "Severe"
+                ]
+              },
+              "x_domain_tag": {
+                "type": "string",
+                "description": "域/车型/版本数据标签，用于多租户或平台化区分。"
+              }
+            },
+            "required": [
+              "type",
+              "id",
+              "safety",
+              "property",
+              "operation",
+              "privacy",
+              "sum_score",
+              "rating",
+              "x_domain_tag"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "Threat scenario definition",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "x-threat-scenario"
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^x-threat-scenario--[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "threat_id": {
+                "type": "string",
+                "description": "威胁场景唯一标识"
+              },
+              "stride": {
+                "type": "string",
+                "description": "STRIDE威胁分类：欺骗/篡改/否认/信息泄露/拒绝服务/权限提升"
+              },
+              "attack_vector": {
+                "type": "string",
+                "description": "攻击向量类型：网络/邻近/本地/物理",
+                "enum": [
+                  "Network",
+                  "Adjacent",
+                  "Local",
+                  "Physical"
+                ]
+              },
+              "cal": {
+                "type": "string",
+                "description": "汽车安全保障等级CAL1-CAL4",
+                "enum": [
+                  "CAL1",
+                  "CAL2",
+                  "CAL3",
+                  "CAL4"
+                ]
+              },
+              "description": {
+                "type": "string",
+                "description": "威胁场景详细描述"
+              },
+              "standard": {
+                "type": "string",
+                "description": "参考标准编号"
+              },
+              "reference": {
+                "type": "string",
+                "description": "外部参考文档/链接"
+              },
+              "x_domain_tag": {
+                "type": "string",
+                "description": "域/车型/版本数据标签，用于多租户或平台化区分。"
+              }
+            },
+            "required": [
+              "type",
+              "id",
+              "stride",
+              "description",
+              "x_domain_tag"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "Vulnerability definition",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "x-vulnerability"
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^x-vulnerability--[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "analysis": {
+                "type": "string",
+                "description": "漏洞分析详情"
+              },
+              "x_domain_tag": {
+                "type": "string",
+                "description": "域/车型/版本数据标签，用于多租户或平台化区分。"
+              }
+            },
+            "required": [
+              "type",
+              "id",
+              "x_domain_tag"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "Attack path definition",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "x-attack-path"
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^x-attack-path--[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "path": {
+                "type": "string",
+                "description": "攻击路径详细描述"
+              },
+              "description": {
+                "type": "string",
+                "description": "攻击路径说明"
+              },
+              "exposed_surface": {
+                "type": "string",
+                "description": "资产暴露攻击面"
+              },
+              "x_domain_tag": {
+                "type": "string",
+                "description": "域/车型/版本数据标签，用于多租户或平台化区分。"
+              }
+            },
+            "required": [
+              "type",
+              "id",
+              "path",
+              "description",
+              "x_domain_tag"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "Attack feasibility assessment",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "x-attack-feasibility"
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^x-attack-feasibility--[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "elapsed_time": {
+                "type": "string",
+                "description": "实施攻击所需时间"
+              },
+              "expertise": {
+                "type": "string",
+                "description": "攻击者专业能力要求",
+                "enum": [
+                  "None",
+                  "Basic",
+                  "Significant",
+                  "Specialized",
+                  "Multiple experts"
+                ]
+              },
+              "knowledge": {
+                "type": "string",
+                "description": "攻击所需知识的保密等级",
+                "enum": [
+                  "Public",
+                  "Internal",
+                  "Confidential",
+                  "Restricted"
+                ]
+              },
+              "window": {
+                "type": "string",
+                "description": "攻击窗口获取难易度",
+                "enum": [
+                  "Easy",
+                  "Difficult",
+                  "Impossible"
+                ]
+              },
+              "equipment": {
+                "type": "string",
+                "description": "攻击所需设备类型",
+                "enum": [
+                  "Off-the-shelf",
+                  "Bespoke",
+                  "Restricted"
+                ]
+              },
+              "sum_score": {
+                "type": "string",
+                "description": "攻击可行性总分"
+              },
+              "rating": {
+                "type": "string",
+                "description": "可行性等级评级",
+                "enum": [
+                  "Very Low",
+                  "Low",
+                  "Moderate",
+                  "High",
+                  "Very High"
+                ]
+              },
+              "summary": {
+                "type": "string",
+                "description": "可行性评估总结"
+              },
+              "x_domain_tag": {
+                "type": "string",
+                "description": "域/车型/版本数据标签，用于多租户或平台化区分。"
+              }
+            },
+            "required": [
+              "type",
+              "id",
+              "elapsed_time",
+              "expertise",
+              "knowledge",
+              "window",
+              "equipment",
+              "sum_score",
+              "rating",
+              "x_domain_tag"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "TARA risk assessment",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "x-tara-risk"
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^x-tara-risk--[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "risk_value": {
+                "type": "string",
+                "description": "风险量化值"
+              },
+              "treatment": {
+                "type": "string",
+                "description": "风险处置方式",
+                "enum": [
+                  "接受/保留风险",
+                  "转移风险",
+                  "降低风险",
+                  "避免风险"
+                ]
+              },
+              "x_domain_tag": {
+                "type": "string",
+                "description": "域/车型/版本数据标签，用于多租户或平台化区分。"
+              }
+            },
+            "required": [
+              "type",
+              "id",
+              "risk_value",
+              "treatment",
+              "x_domain_tag"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "Security objective definition",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "x-security-objective"
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^x-security-objective--[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "description": {
+                "type": "string",
+                "description": "安全目标描述"
+              },
+              "x_domain_tag": {
+                "type": "string",
+                "description": "域/车型/版本数据标签，用于多租户或平台化区分。"
+              }
+            },
+            "required": [
+              "type",
+              "id",
+              "x_domain_tag"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "Security claim definition",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "x-security-claim"
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^x-security-claim--[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "content": {
+                "type": "string",
+                "description": "安全声明内容"
+              },
+              "x_domain_tag": {
+                "type": "string",
+                "description": "域/车型/版本数据标签，用于多租户或平台化区分。"
+              }
+            },
+            "required": [
+              "type",
+              "id",
+              "x_domain_tag"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "Security requirement definition",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "x-security-requirement"
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^x-security-requirement--[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "req_type": {
+                "type": "string",
+                "description": "安全需求类型"
+              },
+              "req_id": {
+                "type": "string",
+                "description": "安全需求唯一标识"
+              },
+              "description": {
+                "type": "string",
+                "description": "安全需求描述"
+              },
+              "assigned_to": {
+                "type": "string",
+                "description": "需求负责人/部门"
+              },
+              "gen_type": {
+                "type": "string",
+                "description": "需求生成类型"
+              },
+              "status": {
+                "type": "string",
+                "description": "需求实现状态"
+              },
+              "planned_version": {
+                "type": "string",
+                "description": "计划实现版本"
+              },
+              "implemented_version": {
+                "type": "string",
+                "description": "实际实现版本"
+              },
+              "x_domain_tag": {
+                "type": "string",
+                "description": "域/车型/版本数据标签，用于多租户或平台化区分。"
+              }
+            },
+            "required": [
+              "type",
+              "id",
+              "x_domain_tag"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "STIX 2.1 relationship object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "relationship"
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^relationship--[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "source_ref": {
+                "type": "string",
+                "description": "关系源对象的STIX ID"
+              },
+              "target_ref": {
+                "type": "string",
+                "description": "关系目标对象的STIX ID"
+              },
+              "relationship_type": {
+                "type": "string",
+                "description": "对象间关联关系类型",
+                "enum": [
+                  "contains",
+                  "has",
+                  "has-impact",
+                  "targets",
+                  "exploits",
+                  "has-path",
+                  "uses",
+                  "has-risk",
+                  "requires",
+                  "has-claim",
+                  "derives"
+                ]
+              },
+              "x_domain_tag": {
+                "type": "string",
+                "description": "域/车型/版本数据标签，用于多租户或平台化区分。"
+              }
+            },
+            "required": [
+              "type",
+              "id",
+              "source_ref",
+              "target_ref",
+              "relationship_type",
+              "x_domain_tag"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      }
+    }
+  },
+  "required": [
+    "type",
+    "id",
+    "objects"
+  ]
+}

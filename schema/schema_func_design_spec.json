@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Function Design Specification Schema",
+  "description": "Schema for MDC Core function design specification documents, defining the structure for cybersecurity, sentinel mode, startup/OS, AI framework, CAN communication, MCU, and CI/CD functional requirements",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Bundle identifier, uniquely identifies the entire specification document bundle (format: bundle-{UUID})",
+      "example": "bundle--def665c3-1737-4af5-9ede-6c7e234af681"
+    },
+    "type": {
+      "type": "string",
+      "description": "Document type identifier, indicates this is a bundle type document containing multiple function design specifications",
+      "example": "bundle"
+    },
+    "x_domain_tag": {
+      "type": "string",
+      "description": "Domain tag for categorizing and versioning the specification data, follows platform data naming convention",
+      "example": "platformdata_pdumdc_funcdesignspec_version1.0"
+    },
+    "objects": {
+      "type": "array",
+      "description": "Array of function design specification objects, each representing a specific functional requirement or capability",
+      "items": {
+        "type": "object",
+        "properties": {
+          "function_model_name": {
+            "type": "string",
+            "description": "Name of the main function model/domain, categorizes the high-level functional area (e.g., '网络安全', '哨兵模式', '启动与操作系统', '支持智能驾驶应用', 'CAN 通信', 'MCU', '持续集成')",
+            "examples": ["网络安全", "哨兵模式", "启动与操作系统", "支持智能驾驶应用", "CAN 通信", "MCU", "持续集成"]
+          },
+          "sub_function_model_name": {
+            "type": "string",
+            "description": "Name of the sub-function model, provides more granular classification within the main function domain, typically describes specific feature or capability",
+            "examples": ["通信安全协议功能域", "凭据管理功能域", "MDC 平台支持 ADS 哨兵模式接入功能_MDC630/830 适配", "AI 框架与算子功能域"]
+          },
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the function design specification object (format: x-function-design-spec-{UUID})",
+            "example": "x-function-design-spec--74ff59dd-0eaf-47fa-a960-2630ff108c11"
+          },
+          "type": {
+            "type": "string",
+            "description": "Object type identifier, indicates this is a custom function design specification type",
+            "example": "x-function-design-spec"
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed description of the functional requirement, including technical specifications, implementation details, use cases, and security considerations. Contains comprehensive information about what the function does, how it works, and any relevant constraints or dependencies",
+            "minLength": 1
+          },
+          "x_domain_tag": {
+            "type": "string",
+            "description": "Domain tag for the individual specification object, matches the bundle-level domain tag for consistency",
+            "example": "platformdata_pdumdc_funcdesignspec_version1.0"
+          }
+        },
+        "required": [
+          "description",
+          "function_model_name",
+          "id",
+          "sub_function_model_name",
+          "type",
+          "x_domain_tag"
+        ]
+      }
+    }
+  },
+  "required": [
+    "id",
+    "objects",
+    "type",
+	"x_domain_tag"
+  ]
+}
