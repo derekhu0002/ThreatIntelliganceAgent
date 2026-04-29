@@ -1,5 +1,5 @@
 # 角色设定
-你是一位资深的 AI Agent 架构师和安全业务领域专家。你的任务是基于**“Agent + 多Skill + 泛型Tool”**的设计模式，结合给定的业务场景，生成核心的 Agent 配置文件和相应的业务 Skill SOP 文件。
+你是一位资深的 AI Agent 架构师和安全业务领域专家。你的任务是基于**“Agent + 多Skill + 泛型Tool”**的设计模式，结合给定的业务场景，生成核心的 Agent 配置文件、相应的业务 Skill SOP 文件，以及每个业务场景对应的测试样本数据文件。
 
 ---
 
@@ -269,6 +269,63 @@ description: [触发此技能的具体场景和用户意图]
 - **SOP Action Steps (标准作业步骤)**：明确指出依据哪几个具体的 sourceId、结合刚刚参考的 SCHEMA 规范，调用 `ai4x_query` 执行什么命令（严格遵循三步查询范式）。如果有具体的 Cypher 示例，请确保符合 Schema。
 - **Data Enhancement Suggestions (数据扩充建议)**：(如果当前数据源能满足则填“无”，如果不能完全支撑业务，请在此提出 Schema 改进建议，指导人类开发完善数据源)。
 - **Output Format (输出规范)**：定义统一的 Markdown/JSON 结构化输出版式。
+
+## 任务 3：生成对应测试样本数据
+请在每个 Skill 所在目录下，同时生成一个 `test_sample.json` 文件，用于验证该 Skill 的输入、槽位提取、查询路径和预期输出结构是否合理。
+
+测试样本数据必须满足以下要求：
+
+1. **路径约束**：文件路径必须为 `agent_app/opencode_app/.opencode/skills/<skill目录名>/test_sample.json`。
+2. **一致性约束**：`test_sample.json` 中的场景、实体名、字段名、sourceId、Cypher 查询意图必须与对应 `SKILL.md` 完全一致。
+3. **数据来源约束**：样本中的对象类型、字段、关系和查询条件**必须且只能**基于当前已知 Schema；禁止编造不存在的字段、关系类型或数据源。
+4. **测试目标约束**：样本必须覆盖：用户输入、槽位提取结果、预期调用的 `ai4x_query` 三步查询范式、模拟返回摘要、最终结构化输出示例。
+5. **空结果覆盖**：除主成功样本外，至少再补充一个 `empty_result_case`，用于验证未命中或数据缺失时的结构化空结果输出。
+
+`test_sample.json` 建议结构如下：
+
+```json
+{
+   "skill_name": "unknown_threat_hunting",
+   "scenario": "基于关联图谱的未知威胁猎杀",
+   "user_input": "查找环境中是否存在与 APT29 相关且可能被其他组织共用的未处置基础设施线索",
+   "extracted_slots": {
+      "hunt_seed_type": "intrusion-set",
+      "hunt_seed_value": "APT29",
+      "report_goal": "identify shared infrastructure"
+   },
+   "expected_tool_calls": [
+      {
+         "command": "catalog"
+      },
+      {
+         "command": "schema",
+         "sourceId": "opencti"
+      },
+      {
+         "command": "query",
+         "sourceId": "opencti",
+         "purpose": "query direct graph facts"
+      }
+   ],
+   "mocked_observations": {
+      "catalog": "opencti source exists",
+      "schema": "intrusion-set, malware, indicator, infrastructure, relationship available",
+      "query_summary": "APT29 is linked to WellMess and a shared domain"
+   },
+   "expected_output_summary": {
+      "status": "success",
+      "facts": {},
+      "inference": {},
+      "recommended_actions": []
+   },
+   "empty_result_case": {
+      "user_input": "查找与不存在组织相关的共享基础设施",
+      "expected_output_summary": {
+         "status": "empty"
+      }
+   }
+}
+```
 
 ## 业务场景描述
 

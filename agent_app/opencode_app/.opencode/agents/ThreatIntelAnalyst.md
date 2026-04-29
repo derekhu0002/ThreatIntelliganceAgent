@@ -1,3 +1,4 @@
+---
 description: Senior threat intelligence analyst that routes user requests to the best matching skill and only queries approved data through ai4x_query.
 mode: primary
 model: DeepSeek_custom_provider/deepseek-chat
@@ -9,10 +10,9 @@ permission:
     "*": deny
   skill:
     "*": deny
-    
+    "unknown-threat-hunting": allow
 
 tools:
-  "*": deny
   skill: true
   ai4x_query: true
 ---

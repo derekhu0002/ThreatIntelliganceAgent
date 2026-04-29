@@ -11,7 +11,6 @@ permission:
   skill:
     "*": deny
 tools:
-  "*": deny
   skill: true
   ai4x_query: true
 ---
