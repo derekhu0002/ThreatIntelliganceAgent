@@ -19,7 +19,7 @@ def test_unknown_threat_hunting_ai_agent_contract() -> None:
     canonical_secops_prompt = _read_workspace_file("agents/ThreatIntelSecOps.md")
     canonical_collaboration_skill = _read_workspace_file("skills/threat-intel-collaboration/SKILL.md")
     scenario_primary_prompt = _read_workspace_file("agents/ThreatIntelUnknownHuntPrimary.md")
-    scenario_skill = _read_workspace_file("skills/unknown-threat-hunting-ai4x/SKILL.md")
+    scenario_skill = _read_workspace_file("skills/unknown_threat_hunting/SKILL.md")
     ai4x_tool = _read_workspace_file("tools/ai4x_query.js")
 
     assert config["default_agent"] == "ThreatIntelPrimary"
@@ -36,28 +36,36 @@ def test_unknown_threat_hunting_ai_agent_contract() -> None:
 
     assert "graph-based unknown threat hunting" in scenario_primary_prompt
     assert "Do not delegate this scenario to a scenario-specific subagent" in scenario_primary_prompt
+    assert "Enforce the 3-Step Paradigm for every external lookup" in scenario_primary_prompt
     assert "Use `ai4x_query` directly in `catalog -> schema -> query` order" in scenario_primary_prompt
     assert "pivot from first-pass IOC hits into a second read-only query" in scenario_primary_prompt
     assert "structured empty-result output" in scenario_primary_prompt
     assert "ai4x_query: true" in scenario_primary_prompt
+    assert "unknown_threat_hunting" in scenario_primary_prompt
 
     assert not (WORKSPACE_ROOT / "agents/ThreatIntelUnknownHuntAnalyst.md").exists()
     assert not (WORKSPACE_ROOT / "agents/ThreatIntelUnknownHuntSecOps.md").exists()
 
-    assert "UNKNOWN THREAT HUNTING OVER AI4X / OPENCTI" in scenario_skill
-    assert "`catalog -> schema -> query`" in scenario_skill
-    assert "`source_id=opencti`" in scenario_skill
-    assert "only the primary scenario agent should execute the flow" in scenario_skill
-    assert "keeps the full flow inside the primary agent" in scenario_skill
-    assert "direct facts from graph-derived inference" in scenario_skill
-    assert "structured empty-result report" in scenario_skill
+    assert "name: unknown_threat_hunting" in scenario_skill
+    assert "Trigger & Context (触发条件与上下文)" in scenario_skill
+    assert "Prerequisites (槽位/前置依赖提取)" in scenario_skill
+    assert "SOP Action Steps (标准作业步骤)" in scenario_skill
+    assert "Data Enhancement Suggestions (数据扩充建议)" in scenario_skill
+    assert "Output Format (输出规范)" in scenario_skill
+    assert '"command": "catalog"' in scenario_skill
+    assert '"command": "schema"' in scenario_skill
+    assert '"sourceId": "opencti"' in scenario_skill
+    assert '"command": "query"' in scenario_skill
+    assert "Fact" in scenario_skill
+    assert "Inference" in scenario_skill
+    assert "空结果" in scenario_skill
     assert "`request_id`" in scenario_skill
-    assert "`target_intrusion_set`" in scenario_skill
+    assert "`hunt_seed`" in scenario_skill
     assert "`derived_leads`" in scenario_skill
     assert "`evidence_paths`" in scenario_skill
-    assert "`recommendations`" in scenario_skill
+    assert "`recommended_actions`" in scenario_skill
     assert "`confidence_statement`" in scenario_skill
 
-    assert 'const ANALYST_AGENTS = new Set(["ThreatIntelAnalyst", "STIX_EvidenceSpecialist", "ThreatIntelAnalyst_test", "ThreatIntelUnknownHuntPrimary"]);' in ai4x_tool
+    assert 'const ANALYST_AGENTS = new Set(["ThreatIntelAnalyst", "STIX_EvidenceSpecialist", "ThreatIntelAnalyst_test", "ThreatIntelUnknownHuntPrimary", "CypherGraphqlConversionWorker"]);' in ai4x_tool
     assert 'const SECOPS_AGENTS = new Set(["ThreatIntelSecOps", "TARA_analyst"]);' in ai4x_tool
     assert "ThreatIntelSecOps must use analyst-provided AI4X data rather than calling ai4x_query directly." in ai4x_tool
