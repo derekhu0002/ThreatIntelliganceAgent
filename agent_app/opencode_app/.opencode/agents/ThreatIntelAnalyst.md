@@ -6,6 +6,10 @@ temperature: 0.1
 permission:
   edit: deny
   bash: deny
+  neo4j_query: deny
+  stix_query: deny
+  db_schema_explorer: deny
+  threat_intel_orchestrator: deny
   task:
     "*": deny
   skill:
@@ -13,6 +17,7 @@ permission:
     "unknown-threat-hunting": allow
 
 tools:
+  "*": false
   skill: true
   ai4x_query: true
 ---

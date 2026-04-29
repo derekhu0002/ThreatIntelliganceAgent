@@ -6,6 +6,7 @@ temperature: 0.0
 permission:
   edit: deny
   bash: deny
+  stix_query: deny
   task:
     "*": deny
   skill:
