@@ -270,59 +270,88 @@ description: [触发此技能的具体场景和用户意图]
 - **Data Enhancement Suggestions (数据扩充建议)**：(如果当前数据源能满足则填“无”，如果不能完全支撑业务，请在此提出 Schema 改进建议，指导人类开发完善数据源)。
 - **Output Format (输出规范)**：定义统一的 Markdown/JSON 结构化输出版式。
 
-## 任务 3：生成对应测试样本数据
-请在每个 Skill 所在目录下，同时生成一个 `test_sample.json` 文件，用于验证该 Skill 的输入、槽位提取、查询路径和预期输出结构是否合理。
+## 任务 3：生成对应数据库测试数据
+请在每个 Skill 所在目录下，同时生成一个用于**向数据库预置测试数据**的文件。该文件用于支撑对应 Skill 的真实查询验证，使 `ai4x_query(command="query")` 能在目标数据源中查到预期结果。
 
-测试样本数据必须满足以下要求：
+测试数据文件必须满足以下要求：
 
-1. **路径约束**：文件路径必须为 `agent_app/opencode_app/.opencode/skills/<skill目录名>/test_sample.json`。
-2. **一致性约束**：`test_sample.json` 中的场景、实体名、字段名、sourceId、Cypher 查询意图必须与对应 `SKILL.md` 完全一致。
-3. **数据来源约束**：样本中的对象类型、字段、关系和查询条件**必须且只能**基于当前已知 Schema；禁止编造不存在的字段、关系类型或数据源。
-4. **测试目标约束**：样本必须覆盖：用户输入、槽位提取结果、预期调用的 `ai4x_query` 三步查询范式、模拟返回摘要、最终结构化输出示例。
-5. **空结果覆盖**：除主成功样本外，至少再补充一个 `empty_result_case`，用于验证未命中或数据缺失时的结构化空结果输出。
+1. **路径约束**：文件路径必须为 `agent_app/opencode_app/.opencode/skills/<skill目录名>/test_seed_data.json`。
+2. **目标约束**：该文件描述的是需要预先写入数据库的数据，不是用户输入示例，不是 mocked response，不是最终报告样例。
+3. **一致性约束**：测试数据中的场景、实体名、字段名、关系类型、`sourceId`、查询目标必须与对应 `SKILL.md` 完全一致，能够支撑 Skill 中定义的查询路径。
+4. **数据来源约束**：测试数据中的对象类型、字段和关系**必须且只能**基于当前已知 Schema；禁止编造不存在的字段、关系类型或数据源。
+5. **可验证性约束**：测试数据至少要覆盖一个“成功命中”场景所需的最小闭环数据，以及一个“空结果”场景说明。空结果场景可以通过备注说明“数据库中不准备该对象”来实现，不要求额外写入无效数据。
+6. **入库可执行性约束**：测试数据必须以接近源数据真实结构的格式表达。若目标 `sourceId` 的 Schema 根结构是 STIX `bundle` 或 bundle 风格对象，则优先输出可直接入库的 `bundle`/`objects` 结构；如果某数据源未来需要其他装载格式，也必须在文件中明确说明。
+7. **验证辅助约束**：文件中应补充 `load_target_source`、`success_case_goal`、`empty_case_description`、`verification_hint` 等字段，便于开发和测试人员理解应将数据加载到哪个库、加载后应验证什么。
 
-`test_sample.json` 建议结构如下：
+`test_seed_data.json` 建议结构如下：
 
 ```json
 {
    "skill_name": "unknown_threat_hunting",
    "scenario": "基于关联图谱的未知威胁猎杀",
-   "user_input": "查找环境中是否存在与 APT29 相关且可能被其他组织共用的未处置基础设施线索",
-   "extracted_slots": {
-      "hunt_seed_type": "intrusion-set",
-      "hunt_seed_value": "APT29",
-      "report_goal": "identify shared infrastructure"
+   "load_target_source": "opencti",
+   "success_case_goal": "让 APT29 -> malware -> indicator/infrastructure -> shared lead 的查询路径可命中",
+   "empty_case_description": "不准备名为 GhostGroup 的 intrusion-set，因此查询该对象时应返回空结果",
+   "verification_hint": {
+      "query_seed": "APT29",
+      "expected_fact_focus": [
+         "APT29",
+         "WellMess",
+         "shared-domain.example",
+         "DarkHotel"
+      ],
+      "expected_inference_focus": [
+         "APT29 与 DarkHotel 可能共享部分基础设施",
+         "需要进一步验证 shared-domain.example 是否为共用 C2 或投递域名"
+      ]
    },
-   "expected_tool_calls": [
-      {
-         "command": "catalog"
-      },
-      {
-         "command": "schema",
-         "sourceId": "opencti"
-      },
-      {
-         "command": "query",
-         "sourceId": "opencti",
-         "purpose": "query direct graph facts"
-      }
-   ],
-   "mocked_observations": {
-      "catalog": "opencti source exists",
-      "schema": "intrusion-set, malware, indicator, infrastructure, relationship available",
-      "query_summary": "APT29 is linked to WellMess and a shared domain"
-   },
-   "expected_output_summary": {
-      "status": "success",
-      "facts": {},
-      "inference": {},
-      "recommended_actions": []
-   },
-   "empty_result_case": {
-      "user_input": "查找与不存在组织相关的共享基础设施",
-      "expected_output_summary": {
-         "status": "empty"
-      }
+   "seed_bundle": {
+      "type": "bundle",
+      "id": "bundle--example-unknown-threat-hunting",
+      "objects": [
+         {
+            "type": "intrusion-set",
+            "id": "intrusion-set--apt29",
+            "name": "APT29"
+         },
+         {
+            "type": "intrusion-set",
+            "id": "intrusion-set--darkhotel",
+            "name": "DarkHotel"
+         },
+         {
+            "type": "malware",
+            "id": "malware--wellmess",
+            "name": "WellMess",
+            "is_family": true
+         },
+         {
+            "type": "infrastructure",
+            "id": "infrastructure--shared-domain",
+            "name": "shared-domain.example"
+         },
+         {
+            "type": "relationship",
+            "id": "relationship--apt29-uses-wellmess",
+            "relationship_type": "uses",
+            "source_ref": "intrusion-set--apt29",
+            "target_ref": "malware--wellmess"
+         },
+         {
+            "type": "relationship",
+            "id": "relationship--apt29-related-shared-domain",
+            "relationship_type": "related-to",
+            "source_ref": "intrusion-set--apt29",
+            "target_ref": "infrastructure--shared-domain"
+         },
+         {
+            "type": "relationship",
+            "id": "relationship--darkhotel-related-shared-domain",
+            "relationship_type": "related-to",
+            "source_ref": "intrusion-set--darkhotel",
+            "target_ref": "infrastructure--shared-domain"
+         }
+      ]
    }
 }
 ```
