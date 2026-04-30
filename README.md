@@ -306,3 +306,6 @@ cd agent_app/opencode_app
 2. 先运行一次 `scripts/run_minimal_closed_loop.py` 的 mock 模式，看完整闭环输出。
 3. 再启动 `agent_app/docker-compose.yml`，切到真实 OPENCODE 模式。
 4. 最后再接入真实 AI4X Platform，验证真实知识查询链路。
+
+
+AgentBuilder 能通过持续对话，帮助团队一步步理清业务目标、关键业务对象、数据依赖、查询路径和输出要求，再结合当前底层已提供的数据源与 Schema，收敛成可执行的 Skill SOP、Agent 配置和测试样例。如果业务真正需要的数据在现有底层数据清单中还不存在，它会明确指出缺口，并给出可落地的数据扩充建议，帮助团队把业务设计、数据建设和 Agent 落地真正串起来。
