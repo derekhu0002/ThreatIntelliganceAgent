@@ -1,5 +1,311 @@
 ---
 name: unknown-threat-hunting
+description: 当用户提供已知威胁实体、报告标题、IOC、攻击模式或漏洞编号，并希望基于关联图谱扩展发现潜在同源团伙、共享基础设施、可疑攻击链或未知威胁候选时触发此技能。
+---
+
+# Trigger & Context (触发条件与上下文)
+
+当用户有以下任一意图时触发本技能：
+
+- 从已知 threat-actor、intrusion-set、恶意软件、工具、基础设施或报告出发，扩展发现未知威胁候选。
+- 希望识别共享基础设施、共享 indicator、共享 attack-pattern、共享 malware 或共享 campaign 的潜在关联。
+- 希望获得“哪些对象值得继续追查、哪些对象证据不足应暂时排除”的猎杀结果。
+
+本技能只使用 `opencti` 数据源进行只读分析，不跨入车辆侧组件、TARA 风险或 SES 需求分析。
+
+# Prerequisites (槽位/前置依赖提取)
+
+优先从用户输入提取以下槽位：
+
+- `entry_type`: 允许值为 `report_title`、`actor_name`、`intrusion_set_name`、`malware_name`、`tool_name`、`indicator_or_infrastructure`、`attack_pattern_name`、`cve`。
+- `entry_value`: 与入口类型对应的实际值。
+- `time_range`: 可选增强条件。若用户提供，则用于缩小查询范围；否则不是硬性前置条件。
+- `hunting_goal`: 默认值为 `expand_unknown_candidates`。
+
+提取与追问规则：
+
+- 所有入口等价，不设固定优先级。
+- 若无法从输入中提取任何可查询入口，必须先追问用户补充一个具体对象名、报告标题、IOC 或漏洞编号。
+- 如果用户只给出模糊描述，停止真实查询，仅返回需要补充的最小入口字段。
+
+# SOP Action Steps (标准作业步骤)
+
+## Step 0. 声明执行边界
+
+在执行查询前，先声明以下规则：
+
+- 仅允许使用 `ai4x_query`。
+- 任何真实查询都必须遵循 `catalog -> schema -> query` 三步查询范式。
+- 所有输出必须严格区分 `Facts` 与 `Inferences`。
+- 本技能不做自动归因，只允许输出“候选关联”或“可能同源”。
+- 空结果和排除项必须结构化输出，不能用模型补全未命中事实。
+
+## Step 1. 确认 opencti 数据源存在
+
+先调用：
+
+```text
+ai4x_query(command="catalog")
+```
+
+检查目录中是否存在 `sourceId="opencti"`。
+
+如果不存在：
+
+- 在 `Gaps` 中输出缺失数据源。
+- 停止后续查询。
+- 不得编造替代数据源。
+
+## Step 2. 获取 opencti Schema
+
+在构造任何 Cypher 前，必须调用：
+
+```text
+ai4x_query(command="schema", sourceId="opencti")
+```
+
+重点确认是否可消费以下对象：
+
+- `report`
+- `intrusion-set`
+- `threat-actor`
+- `campaign`
+- `malware`
+- `tool`
+- `indicator`
+- `infrastructure`
+- `attack-pattern`
+- `vulnerability`
+- `identity`
+- `relationship`
+
+如果 Schema 中缺失某条计划中的对象链路，则在 `Gaps` 中注明并跳过相关扩展分支。
+
+## Step 3. 以用户入口定位初始事实锚点
+
+所有入口等价，按 `entry_type` 选择对应分支。先定位直接命中的对象，再从该对象向外扩展。
+
+### 3A. 报告标题入口
+
+```text
+ai4x_query(
+  command="query",
+  sourceId="opencti",
+  cypher="MATCH (r {type: 'report'}) WHERE toLower(coalesce(r.name, '')) CONTAINS toLower($entry_value) OPTIONAL MATCH (r)-[rel]-(m) RETURN r, rel, m"
+)
+```
+
+### 3B. actor / intrusion-set 入口
+
+```text
+ai4x_query(
+  command="query",
+  sourceId="opencti",
+  cypher="MATCH (n) WHERE n.type IN ['intrusion-set','threat-actor'] AND toLower(coalesce(n.name, '')) CONTAINS toLower($entry_value) OPTIONAL MATCH (n)-[rel]-(m) RETURN n, rel, m"
+)
+```
+
+### 3C. malware / tool / attack-pattern / indicator / infrastructure 入口
+
+```text
+ai4x_query(
+  command="query",
+  sourceId="opencti",
+  cypher="MATCH (n) WHERE n.type IN ['malware','tool','attack-pattern','indicator','infrastructure'] AND toLower(coalesce(n.name, '')) CONTAINS toLower($entry_value) OPTIONAL MATCH (n)-[rel]-(m) RETURN n, rel, m"
+)
+```
+
+### 3D. vulnerability / CVE 入口
+
+```text
+ai4x_query(
+  command="query",
+  sourceId="opencti",
+  cypher="MATCH (v {type: 'vulnerability'}) WHERE toLower(coalesce(v.name, '')) CONTAINS toLower($entry_value) OPTIONAL MATCH (v)-[rel]-(m) RETURN v, rel, m"
+)
+```
+
+入口判定规则：
+
+- 若命中 `report`，优先围绕其邻接对象扩展。
+- 若命中其他对象，则保留该对象为事实锚点，并尝试找到与之相邻的 `report`、`intrusion-set` 或 `campaign`。
+- 若完全未命中，返回结构化空结果。
+
+## Step 4. 构建主猎杀链
+
+本技能的主查询链为：
+
+- `report -> related objects -> shared infrastructure / attack-pattern`
+
+先围绕入口对象扩展以下事实对象：
+
+- `infrastructure`
+- `indicator`
+- `attack-pattern`
+- `malware`
+- `tool`
+- `campaign`
+- `intrusion-set`
+- `threat-actor`
+- `identity`
+- `vulnerability`
+
+推荐主链查询模板：
+
+```text
+ai4x_query(
+  command="query",
+  sourceId="opencti",
+  cypher="MATCH (seed) WHERE toLower(coalesce(seed.name, '')) CONTAINS toLower($entry_value) OPTIONAL MATCH path1=(seed)-[*1..2]-(infra {type: 'infrastructure'}) OPTIONAL MATCH path2=(seed)-[*1..2]-(ap {type: 'attack-pattern'}) OPTIONAL MATCH path3=(seed)-[*1..2]-(mw) WHERE mw.type IN ['malware','tool'] OPTIONAL MATCH path4=(seed)-[*1..2]-(grp) WHERE grp.type IN ['intrusion-set','threat-actor','campaign'] RETURN seed, path1, infra, path2, ap, path3, mw, path4, grp"
+)
+```
+
+事实抽取要求：
+
+- 记录直接命中的对象、对象类型、关系类型和来源 `sourceId=opencti`。
+- 对于 `path` 中未显式暴露的关系含义，只能原样引用底层返回结果，不得自行升格为确定归因语言。
+
+## Step 5. 搜索未知候选对象
+
+目标是寻找与已知入口共享关键对象的其他组织类候选。候选对象类型允许为：
+
+- `intrusion-set`
+- `threat-actor`
+- `campaign`
+
+搜索策略：
+
+1. 从已命中的共享对象出发，优先寻找共享 `infrastructure` 或共享 `indicator` 的其他候选。
+2. 再检查这些候选是否同时具备第二条辅助证据。
+
+允许作为第二条辅助证据的对象或关系：
+
+- 共享 `attack-pattern`
+- 共享 `malware` / `tool`
+- 共享 `indicator`
+- 共享 `report` 邻接关系
+- 共享 `vulnerability`
+- 共享 `identity` / `campaign`
+
+候选搜索查询示例：
+
+```text
+ai4x_query(
+  command="query",
+  sourceId="opencti",
+  cypher="MATCH (seed) WHERE toLower(coalesce(seed.name, '')) CONTAINS toLower($entry_value) MATCH (seed)-[*1..2]-(shared) WHERE shared.type IN ['infrastructure','indicator'] MATCH (candidate)-[*1..2]-(shared) WHERE candidate.type IN ['intrusion-set','threat-actor','campaign'] AND candidate.id <> seed.id OPTIONAL MATCH (seed)-[*1..2]-(aux) WHERE aux.type IN ['attack-pattern','malware','tool','indicator','vulnerability','identity','campaign','report'] OPTIONAL MATCH (candidate)-[*1..2]-(aux) RETURN seed, shared, candidate, collect(DISTINCT aux) AS shared_auxiliary_evidence"
+)
+```
+
+候选输出门槛：
+
+- 至少共享 1 条 `infrastructure` 或 1 个 `indicator`。
+- 并且存在第二条辅助证据。
+- 不满足门槛的对象不得进入 `Unknown Candidates`，而应进入 `Exclusions`。
+
+## Step 6. 形成候选结论与排除项
+
+### 6A. Facts
+
+只保留以下内容：
+
+- 入口对象。
+- 与入口对象直接或近邻相关的 `report`、`infrastructure`、`indicator`、`attack-pattern`、`malware`、`tool`、`campaign`、`intrusion-set`、`threat-actor`、`identity`、`vulnerability`。
+- 命中的共享对象及其关联候选。
+
+### 6B. Inferences
+
+只允许输出以下类型的推断：
+
+- 某候选对象与入口对象“可能同源”或“值得进一步追查”。
+- 某条共享对象链可能说明基础设施复用、行动模式复用或组织协同。
+
+禁止输出：
+
+- “确定属于同一组织”
+- “已经完成归因”
+- “确认是同一攻击者”
+
+### 6C. Exclusions
+
+必须列出搜索过但未达到候选门槛的对象，并说明原因，例如：
+
+- 仅共享单一对象，缺少辅助证据。
+- 与入口对象的路径过长或语义不稳定。
+- 仅存在报告邻接，但无共享基础设施或 indicator。
+
+## Step 7. 生成后续验证建议
+
+建议必须聚焦于进一步验证未知候选，而不是直接给出确定结论。可包含：
+
+- 继续检查共享基础设施是否仍在活跃。
+- 针对共享 indicator 搜索更多 sighting 或报告邻接对象。
+- 对共享 malware / tool 的版本、投递方式、目标集进行二次比对。
+- 对排除项说明还缺哪类证据才值得重新纳入猎杀范围。
+
+# Data Enhancement Suggestions (数据扩充建议)
+
+当前 `opencti` 聚合 Schema 可支撑基本的图谱关联猎杀，但若要更稳定地做未知威胁发现，建议增强如下：
+
+1. 为 `attack-pattern` 增加更稳定的外部标识和 kill chain phase 字段，以便区别“共享对象”与“共享阶段语义”。
+2. 为 `indicator` 与 `infrastructure` 增加统一的时效字段和状态字段，避免历史失效对象对当前猎杀造成误导。
+3. 为 `report` 与 `campaign` 增加更规范的引用来源、时间范围和置信度字段，支持按时间窗和证据新鲜度筛选候选。
+4. 若需要更可靠的候选组织聚类，建议补充同源证据标签或人工验证状态对象，避免所有关联都只能停留在推断层。
+
+# Output Format (输出规范)
+
+最终输出必须采用以下 Markdown 结构：
+
+```markdown
+## Facts
+- Entry Anchor:
+  - sourceId: opencti
+  - object: [入口对象]
+- Shared Evidence:
+  - [对象A(type)] --[relationship]--> [共享对象(type)]
+- Candidate Links:
+  - [共享对象(type)] --[relationship]--> [候选对象(type)]
+
+## Unknown Candidates
+- [候选对象名称]
+  - confidence: high|medium|low
+  - supporting_facts:
+    - [共享基础设施或 indicator]
+    - [第二条辅助证据]
+  - inference: [只允许写“可能同源”或“值得进一步追查”]
+  - review_required: yes
+
+## Exclusions
+- [对象名称]
+  - reason: [为什么未达到候选门槛]
+
+## Gaps
+- Missing Sources:
+  - [缺失 sourceId，若无则写 none]
+- Unresolved Links:
+  - [路径不稳定、语义不清或未命中的链路]
+
+## Recommendations
+- Next Validation Steps:
+  - [进一步验证建议]
+
+## Empty Result Contract
+- query_status: empty|partial|complete
+- retained_facts:
+  - [若有已命中事实则列出，否则为空数组]
+- empty_segments:
+  - [未命中的入口或扩展链路]
+- next_questions:
+  - [建议用户补充的对象名、报告标题、IOC 或时间范围]
+```
+
+输出约束：
+
+- 置信度仅允许使用 `high`、`medium`、`low` 三档，依据证据覆盖度给出。
+- `Unknown Candidates` 仅包含满足门槛的候选。
+- `Exclusions` 必须存在，只要检索过程中出现证据不足的对象就要列出。
+- 不得把关联候选写成确定归因结论。---
+name: unknown-threat-hunting
 description: 当用户希望基于 OpenCTI 关联图谱，从威胁组织或相关 IOC 假设出发，执行未知威胁猎杀、识别共用基础设施或输出结构化猎杀报告时触发。
 ---
 
