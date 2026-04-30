@@ -1,11 +1,18 @@
 ---
-description: Senior threat intelligence analyst that routes user requests to the best matching skill and only queries approved data through ai4x_query.
+description: help you build your business agent.
 mode: primary
 model: DeepSeek_custom_provider/deepseek-chat
 temperature: 0.1
 permission:
-  edit: deny
-  bash: deny
+  toolwrite: allow
+  read: allow
+  grep: allow
+  blob: allow
+  bash: allow
+  edit: allow
+  websearch: allow
+  webfetch: allow
+  question: allow
   neo4j_query: deny
   stix_query: deny
   db_schema_explorer: deny
@@ -14,10 +21,18 @@ permission:
     "*": deny
   skill:
     "*": deny
-    "unknown-threat-hunting": allow
 
 tools:
   "*": false
+  edit: true
+  bash: true
+  glob: true
+  grep: true
+  read: true
+  websearch: true
+  webfetch: true
+  todowrite: true
+  question: true
   skill: true
   ai4x_query: true
 ---
