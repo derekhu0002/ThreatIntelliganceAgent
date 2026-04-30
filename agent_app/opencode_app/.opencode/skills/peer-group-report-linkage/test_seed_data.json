@@ -1,0 +1,180 @@
+{
+  "skill_name": "peer-group-report-linkage",
+  "scenario": "自动化攻击事件报告与同级群组关联",
+  "load_target_source": "opencti",
+  "success_case_goal": "让一个报告命中至少一个直接相关群组，并进一步命中一个共享基础设施与攻击模式的同级候选群组，同时保留一个证据不足的排除项。",
+  "empty_case_description": "不准备名为 Ghost Operations Report 2026 的 report，因此以该标题查询时应返回结构化空结果，并提示用户补充其他报告标题或实体名。",
+  "verification_hint": {
+    "query_seed": "Shared Operations Report 2026",
+    "expected_fact_focus": [
+      "Shared Operations Report 2026",
+      "APT29",
+      "shared-ops-c2.example",
+      "WellMess",
+      "Spearphishing Attachment",
+      "NorthernCascade",
+      "BlueHarbor"
+    ],
+    "expected_inference_focus": [
+      "NorthernCascade 应作为同级候选群组输出",
+      "BlueHarbor 证据不足，应进入 Exclusions",
+      "不能把 NorthernCascade 输出为确定归因结论"
+    ]
+  },
+  "seed_bundle": {
+    "type": "bundle",
+    "id": "bundle--peer-group-report-linkage-opencti",
+    "objects": [
+      {
+        "type": "report",
+        "spec_version": "2.1",
+        "id": "report--shared-operations-report-2026",
+        "name": "Shared Operations Report 2026",
+        "description": "Report documenting a shared operation pattern with overlapping infrastructure and delivery tradecraft.",
+        "published": "2026-01-20T00:00:00Z"
+      },
+      {
+        "type": "intrusion-set",
+        "spec_version": "2.1",
+        "id": "intrusion-set--apt29",
+        "name": "APT29"
+      },
+      {
+        "type": "intrusion-set",
+        "spec_version": "2.1",
+        "id": "intrusion-set--northerncascade",
+        "name": "NorthernCascade"
+      },
+      {
+        "type": "intrusion-set",
+        "spec_version": "2.1",
+        "id": "intrusion-set--blueharbor",
+        "name": "BlueHarbor"
+      },
+      {
+        "type": "infrastructure",
+        "spec_version": "2.1",
+        "id": "infrastructure--shared-ops-c2",
+        "name": "shared-ops-c2.example",
+        "description": "Shared command-and-control infrastructure appearing in related operations."
+      },
+      {
+        "type": "malware",
+        "spec_version": "2.1",
+        "id": "malware--wellmess",
+        "name": "WellMess",
+        "is_family": true,
+        "description": "Malware family observed in the shared operations report."
+      },
+      {
+        "type": "attack-pattern",
+        "spec_version": "2.1",
+        "id": "attack-pattern--spearphishing-attachment",
+        "name": "Spearphishing Attachment",
+        "description": "Adversary sends malicious attachments to establish initial access."
+      },
+      {
+        "type": "campaign",
+        "spec_version": "2.1",
+        "id": "campaign--winter-bridge",
+        "name": "Winter Bridge"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--report-related-apt29",
+        "relationship_type": "related-to",
+        "source_ref": "report--shared-operations-report-2026",
+        "target_ref": "intrusion-set--apt29"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--report-related-infrastructure",
+        "relationship_type": "related-to",
+        "source_ref": "report--shared-operations-report-2026",
+        "target_ref": "infrastructure--shared-ops-c2"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--report-related-malware",
+        "relationship_type": "related-to",
+        "source_ref": "report--shared-operations-report-2026",
+        "target_ref": "malware--wellmess"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--report-related-attack-pattern",
+        "relationship_type": "related-to",
+        "source_ref": "report--shared-operations-report-2026",
+        "target_ref": "attack-pattern--spearphishing-attachment"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--apt29-related-infrastructure",
+        "relationship_type": "related-to",
+        "source_ref": "intrusion-set--apt29",
+        "target_ref": "infrastructure--shared-ops-c2"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--apt29-uses-malware",
+        "relationship_type": "uses",
+        "source_ref": "intrusion-set--apt29",
+        "target_ref": "malware--wellmess"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--apt29-uses-attack-pattern",
+        "relationship_type": "uses",
+        "source_ref": "intrusion-set--apt29",
+        "target_ref": "attack-pattern--spearphishing-attachment"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--apt29-attributed-campaign",
+        "relationship_type": "attributed-to",
+        "source_ref": "campaign--winter-bridge",
+        "target_ref": "intrusion-set--apt29"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--northerncascade-related-infrastructure",
+        "relationship_type": "related-to",
+        "source_ref": "intrusion-set--northerncascade",
+        "target_ref": "infrastructure--shared-ops-c2"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--northerncascade-uses-attack-pattern",
+        "relationship_type": "uses",
+        "source_ref": "intrusion-set--northerncascade",
+        "target_ref": "attack-pattern--spearphishing-attachment"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--northerncascade-attributed-campaign",
+        "relationship_type": "attributed-to",
+        "source_ref": "campaign--winter-bridge",
+        "target_ref": "intrusion-set--northerncascade"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--blueharbor-related-infrastructure",
+        "relationship_type": "related-to",
+        "source_ref": "intrusion-set--blueharbor",
+        "target_ref": "infrastructure--shared-ops-c2"
+      }
+    ]
+  }
+}

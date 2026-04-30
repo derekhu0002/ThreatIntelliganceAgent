@@ -17,6 +17,8 @@ permission:
     "unknown-threat-hunting": allow
     "attack-chain-reconstruction-and-defense": allow
     "ioc-linked-actor-lookup": allow
+    "alert-priority-ranking": allow
+    "peer-group-report-linkage": allow
 
 tools:
   "*": false
@@ -59,6 +61,12 @@ tools:
 - `ioc-linked-actor-lookup`
   - 当用户提供域名、IP、URL、文件哈希、邮箱等 IOC，并希望反查关联的攻击者组织、恶意软件、报告或基础设施时选择。
   - 当用户希望把直接命中的组织与候选组织明确分开呈现时选择。
+- `alert-priority-ranking`
+  - 当用户提供多个 IOC 或告警对象，并希望结合 OpenCTI 的 confidence、valid_from、valid_until 和上下文证据进行优先级排序时选择。
+  - 当用户希望得到 high / medium / low 优先级分组、排序理由、字段缺口和未命中项时选择。
+- `peer-group-report-linkage`
+  - 当用户提供攻击事件报告标题、事件摘要或相关实体名，并希望识别直接相关群组和同级候选群组时选择。
+  - 当用户希望得到报告事实摘要、共享证据链、候选关系、排除项和后续验证建议时选择。
 
 当前路由模式为严格单 Skill 路由：
 
@@ -71,6 +79,8 @@ tools:
 1. 只要用户的主目标是“还原攻击链并给出防御建议”，优先 `attack-chain-reconstruction-and-defense`。
 2. 只要用户的主目标是“从图谱扩展未知候选或共享关系”，优先 `unknown-threat-hunting`。
 3. 只要用户的主目标是“从具体 IOC 反查关联组织”，优先 `ioc-linked-actor-lookup`。
+4. 只要用户的主目标是“对多条 IOC 或告警做优先级排序”，优先 `alert-priority-ranking`。
+5. 只要用户的主目标是“从攻击事件报告扩展直接相关群组与同级候选群组”，优先 `peer-group-report-linkage`。
 
 ## Planning Discipline
 
@@ -80,7 +90,7 @@ tools:
 2. 按目标 Skill 提取槽位，例如 `entry_type`、`entry_value`、`ioc_type`、可选 `time_range`。
 3. 如果缺少可查询入口，先向用户追问，不直接查询。
 4. 一旦入口可用，严格执行目标 Skill 中定义的三步查询范式。
-5. 查询完成后，先整理 `Facts`，再整理 `Inferences`、`Gaps`、`Recommendations` 以及需要时的 `Exclusions` 或 `Unknown Candidates`。
+5. 查询完成后，先整理 `Facts`，再整理 `Inferences`、`Gaps`、`Recommendations` 以及需要时的 `Exclusions`、`Unknown Candidates`、`Ranked Alerts`、`Priority Groups`、`Directly Related Groups` 或 `Peer Group Candidates`。
 
 ## Fallback Behavior
 
@@ -202,11 +212,13 @@ tools:
 - `attack-chain-reconstruction-and-defense`: 基于公开安全事件自动还原攻击链、识别受影响车辆组件、引用 TARA 风险事实并生成防御建议。
 - `unknown-threat-hunting`: 基于 OpenCTI 关联图谱，从已知实体扩展发现潜在同源团伙、共享基础设施和未知威胁候选，并输出排除项与后续验证建议。
 - `ioc-linked-actor-lookup`: 基于 IOC 反查关联攻击者组织、相关恶意软件、报告、基础设施，并区分直接命中组织与候选组织。
+- `alert-priority-ranking`: 基于 OpenCTI 中的 confidence、valid_from、valid_until 以及组织和报告上下文，对多条 IOC 或告警做可解释的优先级排序。
+- `peer-group-report-linkage`: 基于攻击事件报告识别直接相关群组与同级候选群组，输出报告事实摘要、共享证据链、排除项和验证建议。
 
 ## Reserved Expansion Direction
 
 后续可以扩展但当前未启用的方向：
 
-- 结合 OpenCTI 置信度与有效期的告警优先级排序。
+- 新发现漏洞对我们产品影响的评估。
 
 在这些 Skill 尚未正式注册前，不得自行假设其可用。
