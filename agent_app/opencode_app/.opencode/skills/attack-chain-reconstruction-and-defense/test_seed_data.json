@@ -1,0 +1,286 @@
+{
+  "skill_name": "attack-chain-reconstruction-and-defense",
+  "scenario": "基于安全事件的自动化攻击链路还原与防御方案生成",
+  "load_target_source": [
+    "opencti",
+    "vehicle_iobe",
+    "tara"
+  ],
+  "success_case_goal": "让以报告标题为入口的事件能够命中 report -> attack-pattern -> infrastructure，并进一步命中 vehicle_iobe 中的 external peer / exposure surface / ecu，以及 tara 中的 component / threat scenario / attack path / risk，形成最小跨源闭环。",
+  "empty_case_description": "不准备名为 Ghost Infotainment Incident 2026 的 report，因此以该标题查询时应返回结构化空结果，并提示补充 IOC、实体名或时间范围。",
+  "verification_hint": {
+    "query_seed": "Remote Infotainment Phishing Incident 2026",
+    "expected_fact_focus": [
+      "Remote Infotainment Phishing Incident 2026",
+      "Spearphishing Link Delivery",
+      "malicious-telematics-gateway.example",
+      "TelematicsCloudGateway",
+      "Infotainment Remote Access API",
+      "HeadUnit ECU",
+      "Infotainment Domain Controller",
+      "Remote service compromise via infotainment exposure",
+      "High Risk for infotainment remote access path"
+    ],
+    "expected_inference_focus": [
+      "事件可能通过远程信息娱乐暴露面进入车端",
+      "HeadUnit ECU 可能是受影响 ECU 候选，但仍需人工确认组件归属",
+      "基于 attack-pattern 的攻击阶段映射只能作为推断输出"
+    ]
+  },
+  "seed_bundles": {
+    "opencti": {
+      "type": "bundle",
+      "id": "bundle--opencti-attack-chain-reconstruction-and-defense",
+      "objects": [
+        {
+          "type": "report",
+          "spec_version": "2.1",
+          "id": "report--remote-infotainment-phishing-incident-2026",
+          "name": "Remote Infotainment Phishing Incident 2026",
+          "description": "Public report describing a phishing-delivered remote access campaign pivoting through an infotainment-connected external gateway.",
+          "published": "2026-04-14T00:00:00Z"
+        },
+        {
+          "type": "attack-pattern",
+          "spec_version": "2.1",
+          "id": "attack-pattern--spearphishing-link-delivery",
+          "name": "Spearphishing Link Delivery",
+          "description": "Adversary delivers a malicious link that leads the victim environment to attacker-controlled infrastructure."
+        },
+        {
+          "type": "infrastructure",
+          "spec_version": "2.1",
+          "id": "infrastructure--malicious-telematics-gateway",
+          "name": "malicious-telematics-gateway.example",
+          "description": "Attacker-controlled infrastructure impersonating a telematics or infotainment-facing cloud endpoint."
+        },
+        {
+          "type": "malware",
+          "spec_version": "2.1",
+          "id": "malware--remote-session-loader",
+          "name": "RemoteSessionLoader",
+          "is_family": false,
+          "description": "A staged remote-session loader delivered during the campaign."
+        },
+        {
+          "type": "relationship",
+          "spec_version": "2.1",
+          "id": "relationship--report-uses-attack-pattern",
+          "relationship_type": "uses",
+          "source_ref": "report--remote-infotainment-phishing-incident-2026",
+          "target_ref": "attack-pattern--spearphishing-link-delivery"
+        },
+        {
+          "type": "relationship",
+          "spec_version": "2.1",
+          "id": "relationship--report-related-infrastructure",
+          "relationship_type": "related-to",
+          "source_ref": "report--remote-infotainment-phishing-incident-2026",
+          "target_ref": "infrastructure--malicious-telematics-gateway"
+        },
+        {
+          "type": "relationship",
+          "spec_version": "2.1",
+          "id": "relationship--report-related-malware",
+          "relationship_type": "related-to",
+          "source_ref": "report--remote-infotainment-phishing-incident-2026",
+          "target_ref": "malware--remote-session-loader"
+        },
+        {
+          "type": "relationship",
+          "spec_version": "2.1",
+          "id": "relationship--attack-pattern-related-infrastructure",
+          "relationship_type": "related-to",
+          "source_ref": "attack-pattern--spearphishing-link-delivery",
+          "target_ref": "infrastructure--malicious-telematics-gateway"
+        }
+      ]
+    },
+    "vehicle_iobe": {
+      "type": "bundle",
+      "id": "bundle--vehicle-iobe-attack-chain-reconstruction-and-defense",
+      "objects": [
+        {
+          "type": "x-external-peer",
+          "id": "x-external-peer--telematics-cloud-gateway",
+          "name": "TelematicsCloudGateway",
+          "description": "External cloud gateway exposed to infotainment-connected remote services.",
+          "x_domain_tag": "automotive-cybersecurity"
+        },
+        {
+          "type": "x-exposure-surface",
+          "id": "x-exposure-surface--infotainment-remote-access-api",
+          "name": "Infotainment Remote Access API",
+          "description": "Remote infotainment-facing API exposed through telematics connectivity.",
+          "x_domain_tag": "automotive-cybersecurity"
+        },
+        {
+          "type": "x-vehicle-ecu",
+          "id": "x-vehicle-ecu--headunit-ecu",
+          "name": "HeadUnit ECU",
+          "x_ecu_type": "infotainment",
+          "x_software_version": "12.4.1",
+          "x_aliases": [
+            "HU-Primary"
+          ],
+          "x_domain_tag": "automotive-cybersecurity"
+        },
+        {
+          "type": "network-traffic",
+          "id": "network-traffic--telematics-infotainment-session",
+          "name": "Telematics to Infotainment Remote Session",
+          "protocols": [
+            "https"
+          ],
+          "src_ref": "x-external-peer--telematics-cloud-gateway",
+          "dst_ref": "x-exposure-surface--infotainment-remote-access-api",
+          "x_domain_tag": "automotive-cybersecurity"
+        },
+        {
+          "type": "x-message",
+          "id": "x-message--remote-session-bootstrap",
+          "name": "Remote Session Bootstrap",
+          "description": "Bootstrap message for remote infotainment session establishment.",
+          "x_domain_tag": "automotive-cybersecurity"
+        },
+        {
+          "type": "relationship",
+          "id": "relationship--peer-connects-traffic",
+          "relationship_type": "connects_to",
+          "source_ref": "x-external-peer--telematics-cloud-gateway",
+          "target_ref": "network-traffic--telematics-infotainment-session",
+          "x_name": "external peer connects network flow",
+          "x_domain_tag": "automotive-cybersecurity"
+        },
+        {
+          "type": "relationship",
+          "id": "relationship--traffic-via-surface",
+          "relationship_type": "via_channel",
+          "source_ref": "network-traffic--telematics-infotainment-session",
+          "target_ref": "x-exposure-surface--infotainment-remote-access-api",
+          "x_name": "network flow reaches exposure surface",
+          "x_domain_tag": "automotive-cybersecurity"
+        },
+        {
+          "type": "relationship",
+          "id": "relationship--surface-exposes-ecu",
+          "relationship_type": "exposes",
+          "source_ref": "x-exposure-surface--infotainment-remote-access-api",
+          "target_ref": "x-vehicle-ecu--headunit-ecu",
+          "x_name": "surface exposes ecu",
+          "x_domain_tag": "automotive-cybersecurity"
+        },
+        {
+          "type": "relationship",
+          "id": "relationship--message-transmitted-by-traffic",
+          "relationship_type": "transmitted_by",
+          "source_ref": "x-message--remote-session-bootstrap",
+          "target_ref": "network-traffic--telematics-infotainment-session",
+          "x_name": "message transmitted by session flow",
+          "x_domain_tag": "automotive-cybersecurity"
+        },
+        {
+          "type": "relationship",
+          "id": "relationship--peer-related-surface",
+          "relationship_type": "related-to",
+          "source_ref": "x-external-peer--telematics-cloud-gateway",
+          "target_ref": "x-exposure-surface--infotainment-remote-access-api",
+          "x_name": "peer related to infotainment exposure",
+          "x_domain_tag": "automotive-cybersecurity"
+        }
+      ]
+    },
+    "tara": {
+      "type": "bundle",
+      "id": "bundle--tara-attack-chain-reconstruction-and-defense",
+      "objects": [
+        {
+          "type": "x-vehicle-component",
+          "id": "x-vehicle-component--infotainment-domain-controller",
+          "name": "Infotainment Domain Controller",
+          "item": "Infotainment Controller",
+          "description": "Primary component responsible for infotainment domain orchestration.",
+          "x_domain_tag": "automotive-cybersecurity"
+        },
+        {
+          "type": "x-vehicle-asset",
+          "id": "x-vehicle-asset--remote-infotainment-session-asset",
+          "asset_id": "asset-infotainment-remote-session",
+          "component_name": "Infotainment Domain Controller",
+          "asset_item": "Remote infotainment session service",
+          "function": "Remote content and session access",
+          "architecture": "Connected infotainment",
+          "level": "vehicle",
+          "x_domain_tag": "automotive-cybersecurity"
+        },
+        {
+          "type": "x-threat-scenario",
+          "id": "x-threat-scenario--remote-service-compromise-via-infotainment-exposure",
+          "threat_id": "TS-INFOTAINMENT-001",
+          "name": "Remote service compromise via infotainment exposure",
+          "stride": "Spoofing",
+          "attack_vector": "Remote network",
+          "cal": "high",
+          "description": "Remote adversary abuses infotainment-facing exposure to establish unauthorized remote session.",
+          "x_domain_tag": "automotive-cybersecurity"
+        },
+        {
+          "type": "x-attack-path",
+          "id": "x-attack-path--remote-phishing-to-infotainment-session",
+          "name": "Remote phishing to infotainment session path",
+          "description": "Attack path from phishing-delivered remote access to infotainment session establishment.",
+          "x_domain_tag": "automotive-cybersecurity"
+        },
+        {
+          "type": "x-attack-feasibility",
+          "id": "x-attack-feasibility--high-remote-infotainment-feasibility",
+          "name": "High feasibility for remote infotainment access",
+          "description": "Observed exposure and remote access dependency make the path plausible.",
+          "x_domain_tag": "automotive-cybersecurity"
+        },
+        {
+          "type": "x-tara-risk",
+          "id": "x-tara-risk--high-risk-infotainment-remote-access-path",
+          "name": "High Risk for infotainment remote access path",
+          "description": "Risk rating for compromise of infotainment remote access path.",
+          "x_domain_tag": "automotive-cybersecurity"
+        },
+        {
+          "type": "relationship",
+          "id": "relationship--component-related-asset",
+          "relationship_type": "related-to",
+          "source_ref": "x-vehicle-component--infotainment-domain-controller",
+          "target_ref": "x-vehicle-asset--remote-infotainment-session-asset"
+        },
+        {
+          "type": "relationship",
+          "id": "relationship--component-related-threat",
+          "relationship_type": "related-to",
+          "source_ref": "x-vehicle-component--infotainment-domain-controller",
+          "target_ref": "x-threat-scenario--remote-service-compromise-via-infotainment-exposure"
+        },
+        {
+          "type": "relationship",
+          "id": "relationship--threat-related-attack-path",
+          "relationship_type": "related-to",
+          "source_ref": "x-threat-scenario--remote-service-compromise-via-infotainment-exposure",
+          "target_ref": "x-attack-path--remote-phishing-to-infotainment-session"
+        },
+        {
+          "type": "relationship",
+          "id": "relationship--threat-related-feasibility",
+          "relationship_type": "related-to",
+          "source_ref": "x-threat-scenario--remote-service-compromise-via-infotainment-exposure",
+          "target_ref": "x-attack-feasibility--high-remote-infotainment-feasibility"
+        },
+        {
+          "type": "relationship",
+          "id": "relationship--threat-related-risk",
+          "relationship_type": "related-to",
+          "source_ref": "x-threat-scenario--remote-service-compromise-via-infotainment-exposure",
+          "target_ref": "x-tara-risk--high-risk-infotainment-remote-access-path"
+        }
+      ]
+    }
+  }
+}
