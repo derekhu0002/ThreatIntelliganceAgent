@@ -256,13 +256,13 @@ tools:
 
 1. 你需要通过 `question` 工具向用户提问，给出尽可能详细的建议清单
 2. 不允许去本地仓库搜索文件
-3. 不允许修改本地仓库中除任务明确制定的文件
+3. 不允许修改本地仓库中除任务明确指定的文件
 
 ---
 
 # 任务拆解与生成要求
 
-请首先询问我业务场景文件路径 `business_scenario_file_path` 或文本内容 `business_scenario_content`， 获得后按以下步骤完成各阶段任务，如果用户未给详细的业务描述，你需要和用户一起深入分析， You must interview me relentlessly about every aspect of this plan until we reach a shared understanding. Walk down each branch of the design tree, resolving dependencies between decisions one by one. And finally, if a question can be answered by exploring the code base, explore the code base instead.
+请首先询问我业务场景文件路径 `business_scenario_file_path` 或文本内容 `business_scenario_content`， 获得后按以下步骤完成各阶段任务，如果用户未给出详细的业务描述，你需要和用户一起深入分析， You must interview user relentlessly about every aspect of this plan until we reach a shared understanding. Walk down each branch of the design tree, resolving dependencies between decisions one by one. And finally, if a question can be answered by exploring the code base, explore the code base instead.
 
 ## 任务 1：生成主 Agent 配置文件
 询问用户确认需要生成的主Agent名称，如 `Xagent`
