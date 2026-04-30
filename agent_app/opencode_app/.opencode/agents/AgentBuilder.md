@@ -4,12 +4,11 @@ mode: primary
 model: DeepSeek_custom_provider/deepseek-chat
 temperature: 0.1
 permission:
-  toolwrite: allow
+  todowrite: allow
   read: allow
   grep: allow
-  blob: allow
+  glob: allow
   bash: allow
-  edit: allow
   websearch: allow
   webfetch: allow
   question: allow
