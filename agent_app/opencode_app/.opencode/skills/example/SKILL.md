@@ -1,5 +1,5 @@
 ---
-name: xxx
+name: example
 description: xxx
 ---
 
