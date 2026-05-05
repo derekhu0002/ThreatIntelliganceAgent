@@ -260,6 +260,18 @@
 ,"type": "ArchiMate_Outcome"
 ,"browser_path": "Model/System/StrategyLayerAndMotivationAspect/StrategyLayerAndMotivationAspect/业务人员可以通过AI辅助快速完成业务AGENT构建"
 ,"description": "将自己的业务场景描述完成后，调用系统提供的提示词即可完成原型AGENT构建"
+},
+{
+"id": "1757",
+"name": "AGENT设计原则"
+,"type": "ArchiMate_Principle"
+,"browser_path": "Model/System/StrategyLayerAndMotivationAspect/StrategyLayerAndMotivationAspect/AGENT设计原则"
+,"attributes": [
+{
+"name": "AGENT设计原则"
+,"description": "D:\\Projects\\HIVS_CTI\\design\\KG\\威胁情报AGENT设计原则.md"
+}
+]
 }
 ],
 "relationships": [
@@ -441,6 +453,7 @@
 ,"parent_element_id": "1716"
 ,"parent_element_name": "StrategyLayerAndMotivationAspect"
 ,"included_elements": [
+"1757",
 "1728",
 "1755",
 "1752"
