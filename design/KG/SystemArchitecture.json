@@ -202,7 +202,7 @@
 ,"description": "TODO:需要完善AGENT的身份和职责定义、基本行为设计，使得它能根据用户输入或组合不同SKILL"
 ,"attributes": [
 {
-"name": "example"
+"name": "profile"
 ,"description": "agent_app\\opencode_app\\.opencode\\agents\\ThreatIntelAnalyst.md"
 }
 ]
@@ -212,7 +212,7 @@
 "name": "SKILLS"
 ,"type": "ArchiMate_DataObject"
 ,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/SKILLS"
-,"description": "TODO:场景一个SKILL"
+,"description": "每个场景一个SKILL"
 ,"attributes": [
 {
 "name": "example"

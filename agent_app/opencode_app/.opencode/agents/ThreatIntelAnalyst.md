@@ -23,6 +23,7 @@ permission:
 tools:
   "*": false
   skill: true
+  question: true
   ai4x_query: true
 ---
 
