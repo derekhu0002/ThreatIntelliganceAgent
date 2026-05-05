@@ -33,10 +33,6 @@
 ,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer"
 ,"subdiagram_views": [
 {
-"view_id": "187",
-"view_name": "ThreatIntelliganceAgentRuntimeView"
-},
-{
 "view_id": "180",
 "view_name": "Overview"
 }
@@ -126,6 +122,12 @@
 "name": "Agents"
 ,"type": "ArchiMate_ApplicationComponent"
 ,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Agents"
+,"subdiagram_views": [
+{
+"view_id": "188",
+"view_name": "Agents"
+}
+]
 ,"testcases": [
 {
 "name": "AI4X-Platform数据消费-模拟OPENCODE-真实AI4X",
@@ -173,6 +175,12 @@
 ,"type": "ArchiMate_Node"
 ,"browser_path": "Model/System/TechnologyLayer/TechnologyLayer/OPENCODE RUNTIME"
 ,"description": "真实opencode服务，访问地址为：http://127.0.0.1:8124"
+,"attributes": [
+{
+"name": "official_docs"
+,"description": "https://opencode.ai/docs"
+}
+]
 },
 {
 "id": "1745",
@@ -193,17 +201,29 @@
 ,"type": "ArchiMate_ApplicationComponent,_TOOL_"
 ,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Tools/ai4x_query"
 ,"description": "  description: \"Discover and query the real AI4X Platform API Center.\",\r\n  args: {\r\n    command: tool.schema.enum([\"catalog\", \"schema\", \"query\"]),\r\n    sourceId: tool.schema.string().optional(),\r\n    cypher: tool.schema.string().optional(),\r\n    paramsJson: tool.schema.string().optional(),\r\n    limit: tool.schema.number().int().optional(),\r\n    baseUrl: tool.schema.string().optional(),\r\n    pythonBin: tool.schema.string().optional(),\r\n  }"
+,"attributes": [
+{
+"name": "IMPLEMENTATION"
+,"description": "agent_app\\opencode_app\\.opencode\\tools\\ai4x_query.js"
+}
+]
 },
 {
 "id": "1749",
 "name": "ThreatIntelAnalyst"
 ,"type": "ArchiMate_ApplicationComponent"
-,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/ThreatIntelAnalyst"
+,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Agents/ThreatIntelAnalyst"
 ,"description": "TODO:需要完善AGENT的身份和职责定义、基本行为设计，使得它能根据用户输入或组合不同SKILL"
 ,"attributes": [
 {
 "name": "profile"
 ,"description": "agent_app\\opencode_app\\.opencode\\agents\\ThreatIntelAnalyst.md"
+}
+]
+,"subdiagram_views": [
+{
+"view_id": "187",
+"view_name": "ThreatIntelliganceAgentRuntimeView"
 }
 ]
 },
@@ -217,10 +237,6 @@
 {
 "name": "example"
 ,"description": "agent_app\\opencode_app\\.opencode\\skills\\example\\SKILL.md"
-},
-{
-"name": "需要覆盖的业务场景"
-,"description": "D:\\Projects\\HIVS_CTI\\scenarios\\AI辅助威胁情报大颗粒业务场景总览.md"
 }
 ]
 },
@@ -243,8 +259,8 @@
 ,"browser_path": "Model/System/BusinessLayer/BusinessLayer/业务场景"
 ,"attributes": [
 {
-"name": "基于“关联图谱”的未知威胁猎杀"
-,"description": "businesscases\\威胁情报分析\\基于“关联图谱”的未知威胁猎杀.md"
+"name": "GITHUB-REPO"
+,"description": "https://github.com/derekhu0002/HIVS_CTI/tree/main/scenarios"
 }
 ]
 },
@@ -270,6 +286,30 @@
 {
 "name": "AGENT设计原则"
 ,"description": "D:\\Projects\\HIVS_CTI\\design\\KG\\威胁情报AGENT设计原则.md"
+}
+]
+},
+{
+"id": "1758",
+"name": "AttackPathAgent"
+,"type": "ArchiMate_ApplicationComponent"
+,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Agents/AttackPathAgent"
+,"attributes": [
+{
+"name": "profile"
+,"description": "agent_app\\opencode_app\\.opencode\\agents\\AttackPathAgent.md"
+}
+]
+},
+{
+"id": "1759",
+"name": "ThreatIntelAttributionAnalyst"
+,"type": "ArchiMate_ApplicationComponent"
+,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Agents/ThreatIntelAttributionAnalyst"
+,"attributes": [
+{
+"name": "profile"
+,"description": "agent_app\\opencode_app\\.opencode\\agents\\ThreatIntelAttributionAnalyst.md"
 }
 ]
 }
@@ -352,8 +392,8 @@
 },
 {
 "id":"1784"
-,"statement":"Tools --(ArchiMate_Composition)--> ai4x_query"
-,"name":"ArchiMate_Composition"
+,"statement":"Tools --(用户融合数据获取)--> ai4x_query"
+,"name":"用户融合数据获取"
 ,"super_type": "ArchiMate_Composition"
 ,"source_id":"1739"
 ,"target_id":"1748"
@@ -463,6 +503,39 @@
 ]
 },
 {
+"view_id": "187",
+"view_name": "ThreatIntelliganceAgentRuntimeView"
+,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Agents/ThreatIntelAnalyst/ThreatIntelliganceAgentRuntimeView"
+,"parent_element_id": "1749"
+,"parent_element_name": "ThreatIntelAnalyst"
+,"included_elements": [
+"1748",
+"1749",
+"1745",
+"1751"
+]
+,"included_relationships": [
+"1788",
+"1789",
+"1790"
+]
+},
+{
+"view_id": "188",
+"view_name": "Agents"
+,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Agents/Agents"
+,"parent_element_id": "1738"
+,"parent_element_name": "Agents"
+,"included_elements": [
+"1749",
+"1758",
+"1759"
+]
+,"included_relationships": [
+
+]
+},
+{
 "view_id": "179",
 "view_name": "BusinessLayer"
 ,"browser_path": "Model/System/BusinessLayer/BusinessLayer/BusinessLayer"
@@ -476,24 +549,6 @@
 ,"included_relationships": [
 "1792",
 "1793"
-]
-},
-{
-"view_id": "187",
-"view_name": "ThreatIntelliganceAgentRuntimeView"
-,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/ThreatIntelliganceAgentRuntimeView"
-,"parent_element_id": "1718"
-,"parent_element_name": "ApplicationLayer"
-,"included_elements": [
-"1748",
-"1749",
-"1745",
-"1751"
-]
-,"included_relationships": [
-"1788",
-"1789",
-"1790"
 ]
 },
 {
