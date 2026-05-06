@@ -312,8 +312,8 @@
 ,"description": "agent_app\\opencode_app\\.opencode\\agents\\SupplyChainRiskAgent.md"
 },
 {
-"name": "skill-supply-chain-component-impact"
-,"description": "agent_app\\opencode_app\\.opencode\\skills\\supply-chain-component-impact\\SKILL.md"
+"name": "skill-supply-chain-dependency-governance"
+,"description": "agent_app\\opencode_app\\.opencode\\skills\\supply-chain-dependency-governance\\SKILL.md"
 }
 ]
 }

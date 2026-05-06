@@ -92,30 +92,32 @@ def _read_workspace_file(relative_path: str) -> str:
 
 def test_supply_chain_risk_agent_contract() -> None:
     agent_prompt = _read_workspace_file("agents/SupplyChainRiskAgent.md")
-    skill_prompt = _read_workspace_file("skills/supply-chain-component-impact/SKILL.md")
+    skill_prompt = _read_workspace_file("skills/supply-chain-dependency-governance/SKILL.md")
     ai4x_tool = _read_workspace_file("tools/ai4x_query.js")
     architecture = json.loads((REPO_ROOT / "design/KG/SystemArchitecture.json").read_text(encoding="utf-8"))
 
     assert "biz.supply-chain-risk-assessment" in agent_prompt
-    assert "supply-chain-component-impact" in agent_prompt
+    assert "supply-chain-dependency-governance" in agent_prompt
     assert "严格单 Skill 路由" in agent_prompt
     assert "catalog -> schema -> query" in agent_prompt
-    assert "cve2oss" in agent_prompt
+    assert "SBOM/SCA" in agent_prompt
     assert "vehicle_iobe" in agent_prompt
     assert "Boundary Notes" in agent_prompt
     assert "ai4x_query: true" in agent_prompt
+    assert "biz.vulnerability-impact-assessment" in agent_prompt
 
-    assert "name: supply-chain-component-impact" in skill_prompt
+    assert "name: supply-chain-dependency-governance" in skill_prompt
     assert "Trigger & Context (触发条件与上下文)" in skill_prompt
     assert "Prerequisites (槽位/前置依赖提取)" in skill_prompt
     assert "SOP Action Steps (标准作业步骤)" in skill_prompt
     assert "Output Format (输出规范)" in skill_prompt
     assert 'ai4x_query(command="catalog")' in skill_prompt
-    assert 'ai4x_query(command="schema", sourceId="cve2oss")' in skill_prompt
+    assert 'ai4x_query(command="schema", sourceId="vehicle_iobe")' in skill_prompt
     assert 'sourceId="vehicle_iobe"' in skill_prompt
     assert "Ranked Impacts" in skill_prompt
     assert "Confidence Statement" in skill_prompt
     assert "Empty Result Contract" in skill_prompt
+    assert "SBOM/SCA" in skill_prompt
     assert '"SupplyChainRiskAgent"' in ai4x_tool
 
     supply_chain_agent = next(
@@ -126,7 +128,7 @@ def test_supply_chain_risk_agent_contract() -> None:
         "agent_app\\opencode_app\\.opencode\\agents\\SupplyChainRiskAgent.md"
     )
     assert supply_chain_agent["attributes"][1]["description"] == (
-        "agent_app\\opencode_app\\.opencode\\skills\\supply-chain-component-impact\\SKILL.md"
+        "agent_app\\opencode_app\\.opencode\\skills\\supply-chain-dependency-governance\\SKILL.md"
     )
 
 
