@@ -316,6 +316,22 @@
 ,"description": "agent_app\\opencode_app\\.opencode\\skills\\supply-chain-dependency-governance\\SKILL.md"
 }
 ]
+},
+{
+"id": "1763",
+"name": "VulnerabilityImpactAgent"
+,"type": "ArchiMate_ApplicationComponent"
+,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Agents/VulnerabilityImpactAgent"
+,"attributes": [
+{
+"name": "profile"
+,"description": "agent_app\\opencode_app\\.opencode\\agents\\VulnerabilityImpactAgent.md"
+},
+{
+"name": "skill-vuln-impact-cve-evaluation"
+,"description": "agent_app\\opencode_app\\.opencode\\skills\\vuln-impact-cve-evaluation\\SKILL.md"
+}
+]
 }
 ],
 "relationships": [
@@ -453,6 +469,7 @@
 ,"parent_element_id": "1738"
 ,"parent_element_name": "Agents"
 ,"included_elements": [
+"1763",
 "1762",
 "1760",
 "1761",
