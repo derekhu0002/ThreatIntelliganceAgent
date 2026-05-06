@@ -336,6 +336,22 @@
 ,"description": "agent_app\\opencode_app\\.opencode\\skills\\vuln-impact-cve-evaluation\\SKILL.md"
 }
 ]
+},
+{
+"id": "1764",
+"name": "IOCTriageAgent"
+,"type": "ArchiMate_ApplicationComponent"
+,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Agents/IOCTriageAgent"
+,"attributes": [
+{
+"name": "profile"
+,"description": "agent_app\\opencode_app\\.opencode\\agents\\IOCTriageAgent.md"
+},
+{
+"name": "skill-ioc-triage-indicator-priority"
+,"description": "agent_app\\opencode_app\\.opencode\\skills\\ioc-triage-indicator-priority\\SKILL.md"
+}
+]
 }
 ],
 "relationships": [
@@ -477,6 +493,7 @@
 "1761",
 "1762",
 "1763",
+"1764",
 "1749",
 "1758",
 "1759"
