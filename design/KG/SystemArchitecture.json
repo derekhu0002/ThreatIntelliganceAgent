@@ -67,55 +67,7 @@
 "name": "业务和数据分离原则"
 ,"type": "ArchiMate_Principle"
 ,"browser_path": "Model/System/StrategyLayerAndMotivationAspect/StrategyLayerAndMotivationAspect/业务和数据分离原则"
-,"subdiagram_views": [
-{
-"view_id": "185",
-"view_name": "业务和数据分离原则"
-}
-]
-},
-{
-"id": "1731",
-"name": "扩展前端"
-,"type": "Class"
-,"browser_path": "Model/System/StrategyLayerAndMotivationAspect/StrategyLayerAndMotivationAspect/业务和数据分离原则/扩展前端"
-},
-{
-"id": "1732",
-"name": "OPENCODE SERVER后台"
-,"type": "Class"
-,"browser_path": "Model/System/StrategyLayerAndMotivationAspect/StrategyLayerAndMotivationAspect/业务和数据分离原则/OPENCODE SERVER后台"
-},
-{
-"id": "1733",
-"name": "后台数据服务"
-,"type": "Class"
-,"browser_path": "Model/System/StrategyLayerAndMotivationAspect/StrategyLayerAndMotivationAspect/业务和数据分离原则/后台数据服务"
-},
-{
-"id": "1734",
-"name": "PUSH Listener"
-,"type": "Class"
-,"browser_path": "Model/System/StrategyLayerAndMotivationAspect/StrategyLayerAndMotivationAspect/业务和数据分离原则/PUSH Listener"
-},
-{
-"id": "1735",
-"name": "AGENT"
-,"type": "Class"
-,"browser_path": "Model/System/StrategyLayerAndMotivationAspect/StrategyLayerAndMotivationAspect/业务和数据分离原则/OPENCODE SERVER后台/AGENT"
-,"description": "根据获取的SCHEMA指导当前图数据库中有哪些数据和关系，并结合当前目标自动形成CYPHER查询语句，然后调用工具进查询或操作后台NEO4J数据库"
-},
-{
-"id": "1736",
-"name": "TOOL"
-,"type": "Class"
-,"browser_path": "Model/System/StrategyLayerAndMotivationAspect/StrategyLayerAndMotivationAspect/业务和数据分离原则/OPENCODE SERVER后台/TOOL"
-},
-{
-"id": "1737",
-"name": "STIX SCHEMA"
-,"type": "Class"
-,"browser_path": "Model/System/StrategyLayerAndMotivationAspect/StrategyLayerAndMotivationAspect/业务和数据分离原则/OPENCODE SERVER后台/STIX SCHEMA"
+,"description": "系统应将业务语义处理、任务决策与底层数据访问能力严格解耦；业务侧通过稳定的 schema 和 tool contract 使用数据能力，而不直接依赖具体数据库、接口协议或后端实现细节。"
 },
 {
 "id": "1738",
@@ -316,60 +268,6 @@
 ],
 "relationships": [
 {
-"id":"1773"
-,"statement":"扩展前端 --(和对话交互)--> OPENCODE SERVER后台"
-,"name":"和对话交互"
-,"source_id":"1731"
-,"target_id":"1732"
-,"source_name":"扩展前端"
-,"target_name":"OPENCODE SERVER后台"
-},
-{
-"id":"1774"
-,"statement":"TOOL --(访问数据)--> 后台数据服务"
-,"name":"访问数据"
-,"source_id":"1736"
-,"target_id":"1733"
-,"source_name":"TOOL"
-,"target_name":"后台数据服务"
-},
-{
-"id":"1775"
-,"statement":"PUSH Listener --(推送情报信息)--> OPENCODE SERVER后台"
-,"name":"推送情报信息"
-,"source_id":"1734"
-,"target_id":"1732"
-,"source_name":"PUSH Listener"
-,"target_name":"OPENCODE SERVER后台"
-},
-{
-"id":"1776"
-,"statement":"AGENT --(aggregates)--> OPENCODE SERVER后台"
-,"name":"aggregates"
-,"source_id":"1735"
-,"target_id":"1732"
-,"source_name":"AGENT"
-,"target_name":"OPENCODE SERVER后台"
-},
-{
-"id":"1777"
-,"statement":"AGENT --(获取语义)--> STIX SCHEMA"
-,"name":"获取语义"
-,"source_id":"1735"
-,"target_id":"1737"
-,"source_name":"AGENT"
-,"target_name":"STIX SCHEMA"
-},
-{
-"id":"1778"
-,"statement":"AGENT --(查询数据)--> TOOL"
-,"name":"查询数据"
-,"source_id":"1735"
-,"target_id":"1736"
-,"source_name":"AGENT"
-,"target_name":"TOOL"
-},
-{
 "id":"1780"
 ,"statement":"Agents --(use)--> Tools"
 ,"name":"use"
@@ -462,30 +360,6 @@
 }
 ],
 "views": [
-{
-"view_id": "185",
-"view_name": "业务和数据分离原则"
-,"browser_path": "Model/System/StrategyLayerAndMotivationAspect/StrategyLayerAndMotivationAspect/业务和数据分离原则/业务和数据分离原则"
-,"parent_element_id": "1728"
-,"parent_element_name": "业务和数据分离原则"
-,"included_elements": [
-"1731",
-"1732",
-"1733",
-"1734",
-"1735",
-"1736",
-"1737"
-]
-,"included_relationships": [
-"1773",
-"1774",
-"1775",
-"1776",
-"1777",
-"1778"
-]
-},
 {
 "view_id": "178",
 "view_name": "StrategyLayerAndMotivationAspect"
