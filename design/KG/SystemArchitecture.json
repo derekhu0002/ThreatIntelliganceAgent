@@ -277,6 +277,11 @@
 ,"attributes": [
 {
 "name": "profile"
+,"description": "agent_app\\opencode_app\\.opencode\\agents\\SecuritySituationalAwarenessAgent.md"
+},
+{
+"name": "skill-security-posture-window-summary"
+,"description": "agent_app\\opencode_app\\.opencode\\skills\\security-posture-window-summary\\SKILL.md"
 }
 ]
 },
