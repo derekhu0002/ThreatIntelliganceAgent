@@ -250,6 +250,10 @@
 {
 "name": "profile"
 ,"description": "agent_app\\opencode_app\\.opencode\\agents\\AttackPathAgent.md"
+},
+{
+"name": "skill-attack-path-entry-to-target"
+,"description": "agent_app\\opencode_app\\.opencode\\skills\\attack-path-entry-to-target\\SKILL.md"
 }
 ]
 },
@@ -262,6 +266,33 @@
 {
 "name": "profile"
 ,"description": "agent_app\\opencode_app\\.opencode\\agents\\ThreatIntelAttributionAnalyst.md"
+}
+]
+},
+{
+"id": "1760",
+"name": "SecuritySituationalAwarenessAgent"
+,"type": "ArchiMate_ApplicationComponent"
+,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Agents/SecuritySituationalAwarenessAgent"
+,"attributes": [
+{
+"name": "profile"
+}
+]
+},
+{
+"id": "1761",
+"name": "IncidentResponseAgent"
+,"type": "ArchiMate_ApplicationComponent"
+,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Agents/IncidentResponseAgent"
+,"attributes": [
+{
+"name": "profile"
+,"description": "agent_app\\opencode_app\\.opencode\\agents\\IncidentResponseAgent.md"
+},
+{
+"name": "skill-incident-response-alert-triage"
+,"description": "agent_app\\opencode_app\\.opencode\\skills\\incident-response-alert-triage\\SKILL.md"
 }
 ]
 }
@@ -401,6 +432,8 @@
 ,"parent_element_id": "1738"
 ,"parent_element_name": "Agents"
 ,"included_elements": [
+"1760",
+"1761",
 "1749",
 "1758",
 "1759"

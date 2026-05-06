@@ -90,53 +90,62 @@ def _read_workspace_file(relative_path: str) -> str:
     return (WORKSPACE_ROOT / relative_path).read_text(encoding="utf-8")
 
 
-def test_security_situational_awareness_agent_contract() -> None:
-    agent_prompt = _read_workspace_file("agents/SecuritySituationalAwarenessAgent.md")
-    skill_prompt = _read_workspace_file("skills/supply-chain-component-impact/SKILL.md")
+def test_incident_response_agent_contract() -> None:
+    agent_prompt = _read_workspace_file("agents/IncidentResponseAgent.md")
+    skill_prompt = _read_workspace_file("skills/incident-response-alert-triage/SKILL.md")
     ai4x_tool = _read_workspace_file("tools/ai4x_query.js")
+    architecture = json.loads((REPO_ROOT / "design/KG/SystemArchitecture.json").read_text(encoding="utf-8"))
 
-    assert "biz.supply-chain-risk-assessment" in agent_prompt
-    assert "supply-chain-component-impact" in agent_prompt
+    assert "biz.incident-response-orchestration" in agent_prompt
+    assert "incident-response-alert-triage" in agent_prompt
     assert "严格单 Skill 路由" in agent_prompt
     assert "catalog -> schema -> query" in agent_prompt
-    assert "cve2oss" in agent_prompt
+    assert "opencti" in agent_prompt
     assert "vehicle_iobe" in agent_prompt
-    assert "Ranked Impacts" in agent_prompt
+    assert "Response Actions" in agent_prompt
     assert "Empty Result Contract" in agent_prompt
     assert "ai4x_query: true" in agent_prompt
 
-    assert "name: supply-chain-component-impact" in skill_prompt
+    assert "name: incident-response-alert-triage" in skill_prompt
     assert "Trigger & Context (触发条件与上下文)" in skill_prompt
     assert "Prerequisites (槽位/前置依赖提取)" in skill_prompt
     assert "SOP Action Steps (标准作业步骤)" in skill_prompt
     assert "Output Format (输出规范)" in skill_prompt
     assert 'ai4x_query(command="catalog")' in skill_prompt
-    assert 'ai4x_query(command="schema", sourceId="cve2oss")' in skill_prompt
+    assert 'ai4x_query(command="schema", sourceId="opencti")' in skill_prompt
     assert 'sourceId="vehicle_iobe"' in skill_prompt
     assert "Facts" in skill_prompt
     assert "Inferred Assessments" in skill_prompt
-    assert "Ranked Impacts" in skill_prompt
+    assert "Response Actions" in skill_prompt
     assert "Empty Result Contract" in skill_prompt
-    assert '"SecuritySituationalAwarenessAgent"' in ai4x_tool
+    assert '"IncidentResponseAgent"' in ai4x_tool
+
+    incident_response_agent = next(
+        element for element in architecture["elements"] if element["name"] == "IncidentResponseAgent"
+    )
+    assert incident_response_agent["browser_path"].endswith("/IncidentResponseAgent")
+    assert incident_response_agent["attributes"][0]["description"] == (
+        "agent_app\\opencode_app\\.opencode\\agents\\IncidentResponseAgent.md"
+    )
 
 
-def test_ai4x_query_tool_allows_security_situational_awareness_agent(tmp_path: Path) -> None:
+def test_ai4x_query_tool_allows_incident_response_agent(tmp_path: Path) -> None:
     if os.name == "nt":
         pytest.skip("Windows cmd wrapper cannot reliably fake pythonBin execution for ai4x_query in this harness.")
 
     tool_path = WORKSPACE_ROOT / "tools/ai4x_query.js"
     fake_python = _write_fake_python_executable(
         tmp_path,
-        json.dumps({"version": "test", "total_databases": 1, "databases": [{"source_id": "cve2oss"}]}),
+        json.dumps({"version": "test", "total_databases": 1, "databases": [{"source_id": "opencti"}]}),
     )
 
     completed = _run_tool_module(
         tool_path,
         {"command": "catalog", "pythonBin": str(fake_python)},
-        agent="SecuritySituationalAwarenessAgent",
+        agent="IncidentResponseAgent",
     )
 
     assert completed.returncode == 0, completed.stderr
     payload = json.loads(completed.stdout)
     assert payload["version"] == "test"
-    assert payload["databases"][0]["source_id"] == "cve2oss"
+    assert payload["databases"][0]["source_id"] == "opencti"
