@@ -300,6 +300,22 @@
 ,"description": "agent_app\\opencode_app\\.opencode\\skills\\incident-response-alert-triage\\SKILL.md"
 }
 ]
+},
+{
+"id": "1762",
+"name": "SupplyChainRiskAgent"
+,"type": "ArchiMate_ApplicationComponent"
+,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Agents/SupplyChainRiskAgent"
+,"attributes": [
+{
+"name": "profile"
+,"description": "agent_app\\opencode_app\\.opencode\\agents\\SupplyChainRiskAgent.md"
+},
+{
+"name": "skill-supply-chain-component-impact"
+,"description": "agent_app\\opencode_app\\.opencode\\skills\\supply-chain-component-impact\\SKILL.md"
+}
+]
 }
 ],
 "relationships": [
@@ -437,6 +453,7 @@
 ,"parent_element_id": "1738"
 ,"parent_element_name": "Agents"
 ,"included_elements": [
+"1762",
 "1760",
 "1761",
 "1749",
