@@ -11,7 +11,7 @@ description: 当用户提供 IP、域名、文件哈希、恶意软件、TTP 或
 - 希望获得从线索到组织、再到技术和工具的完整证据链。
 - 希望输出可解释、可回溯的威胁溯源分析报告，而不是只看单个对象详情。
 
-本技能默认以 `opencti` 为主数据源做只读分析；只有在 `catalog` 明确显示存在其他授权来源且确有必要时，才可在同样的三步查询范式内扩展。
+本技能默认以 `opencti` 为主数据源做只读分析；只有在 `catalog` 明确显示存在其他授权来源且确有必要时，才可在同样的渐进式查询范式内扩展。
 
 # Prerequisites (槽位/前置依赖提取)
 
@@ -37,7 +37,7 @@ description: 当用户提供 IP、域名、文件哈希、恶意软件、TTP 或
 执行任何查询前，先声明：
 
 - 所有外部数据交互只能通过 `ai4x_query` 完成。
-- 任何真实查询必须遵循 `catalog -> schema -> query` 三步查询范式。
+- 任何真实查询必须先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。
 - 必须严格区分 `Facts` 与 `Inferences`。
 - 候选组织必须绑定可回溯的证据路径。
 - 当没有足够证据时，允许输出“未形成稳定归因”的空结论报告。
@@ -67,6 +67,7 @@ ai4x_query(command="catalog")
 
 ```text
 ai4x_query(command="schema", sourceId="opencti")
+ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship", typeName="...")
 ```
 
 重点确认以下对象是否可消费：
@@ -264,7 +265,7 @@ ai4x_query(
 执行本技能时，至少满足以下验收条件：
 
 1. 查询前已完成必要槽位提取与必要澄清。
-2. 所有真实查询遵循 `catalog -> schema -> query`。
+2. 所有真实查询遵循渐进式查询顺序；若命中 `opencti`，需要时追加 `detail`。
 3. 输出明确分离 `Facts` 与 `Inferred Assessments`。
 4. 每个候选组织都可映射到至少一条 `Evidence Paths`。
 5. 当证据不足时，输出空结论或部分命中报告，而不是强行归因。

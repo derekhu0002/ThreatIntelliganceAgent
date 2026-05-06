@@ -262,6 +262,7 @@ cd agent_app/opencode_app
 
 - schema catalog 发现
 - source schema 获取
+- progressive detail schema 获取（用于 `opencti`）
 - universal query 执行
 
 如果没有可用的 AI4X 环境，相关真实集成调用会失败；这不是 listener 本身的逻辑错误，而是运行依赖未满足。

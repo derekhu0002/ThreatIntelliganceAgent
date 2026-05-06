@@ -127,6 +127,7 @@
 
 - 支持发现 AI4X Platform 可用数据源
 - 支持读取指定 `source_id` 的 schema
+- 支持对 `opencti` 执行渐进式 schema detail 下钻
 - 支持通过统一查询 API 执行只读查询
 
 业务价值：
@@ -139,6 +140,12 @@
 1. Agent 侧 `ai4x_query.js`
 2. 调用 Python CLI `agent_app/opencode_app/tools/ai4x_cli.py`
 3. 再由 `services/ai4x_client.py` 访问 AI4X Platform API Center
+
+当前约束：
+
+- `opencti` 的 `schema` 只视为最小目录，不再按“先拿全量字段定义再查询”的方式使用。
+- 若需要具体对象或关系字段，必须继续调用 detail 接口下钻，再构造查询。
+- 验收链路可通过 `ThreatIntelAnalyst_test` 这个 acceptance-only agent 验证本地 tool runtime 到真实 AI4X 的端到端路径，而不污染生产 analyst 角色契约。
 
 ### 2.5 结构化结果校验与 Neo4j 验证写回
 

@@ -36,7 +36,7 @@ description: 当用户提供安全事件标题、IOC、实体名或CVE，并希�
 在执行任何查询前，先声明以下约束：
 
 - 仅使用 `ai4x_query`。
-- 严格遵守 `catalog -> schema -> query` 三步查询范式。
+- 严格遵守渐进式查询顺序：先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。
 - 不编造字段、关系、对象或数据源。
 - 输出必须明确区分 `Facts` 与 `Inferences`。
 - 任一链路未命中时，保留已命中的事实，并对未命中部分返回结构化空结果。
@@ -60,6 +60,7 @@ description: 当用户提供安全事件标题、IOC、实体名或CVE，并希�
 在构造任何 Cypher 前，必须获取并检查 Schema：
 
 1. `ai4x_query(command="schema", sourceId="opencti")`
+2. 如需具体对象或关系字段：`ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship", typeName="...")`
 2. `ai4x_query(command="schema", sourceId="vehicle_iobe")`
 3. `ai4x_query(command="schema", sourceId="tara")`
 

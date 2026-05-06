@@ -99,7 +99,8 @@ def test_security_situational_awareness_agent_contract() -> None:
     assert "biz.security-posture-awareness" in agent_prompt
     assert "security-posture-window-summary" in agent_prompt
     assert "严格单 Skill 路由" in agent_prompt
-    assert "catalog -> schema -> query" in agent_prompt
+    assert "渐进式查询" in agent_prompt
+    assert "detail" in agent_prompt
     assert "opencti" in agent_prompt
     assert "vehicle_iobe" in agent_prompt
     assert "Boundary Notes" in agent_prompt

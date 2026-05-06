@@ -22,6 +22,12 @@ const ai4xSchemaResultSchema = z.object({
   source_id: nonEmptyString,
   schema: z.unknown(),
 }).passthrough();
+const ai4xSchemaDetailResultSchema = z.object({
+  source_id: nonEmptyString,
+  detail_kind: nonEmptyString,
+  type_name: nonEmptyString,
+  schema: z.unknown(),
+}).passthrough();
 const ai4xQueryResultSchema = z.object({
   source_id: nonEmptyString,
   items: z.array(z.unknown()).optional(),
@@ -98,6 +104,17 @@ function buildCliArgs(args) {
 
   if (args.command === "schema") {
     cliArgs.push("--source-id", args.sourceId);
+  }
+
+  if (args.command === "detail") {
+    cliArgs.push(
+      "--source-id",
+      args.sourceId,
+      "--detail-kind",
+      args.detailKind,
+      "--type-name",
+      args.typeName,
+    );
   }
 
   if (args.command === "query") {
@@ -179,6 +196,8 @@ function parseValidatedCliOutput(stdout, command) {
     ? ai4xCatalogSchema
     : command === "schema"
       ? ai4xSchemaResultSchema
+      : command === "detail"
+        ? ai4xSchemaDetailResultSchema
       : ai4xQueryResultSchema;
   const validated = schema.safeParse(payload);
   if (!validated.success) {
@@ -188,10 +207,12 @@ function parseValidatedCliOutput(stdout, command) {
 }
 
 export default tool({
-  description: "Discover and query the real AI4X Platform API Center.",
+  description: "Discover, progressively inspect schema, and query the real AI4X Platform API Center.",
   args: {
-    command: tool.schema.enum(["catalog", "schema", "query"]),
+    command: tool.schema.enum(["catalog", "schema", "detail", "query"]),
     sourceId: tool.schema.string().optional(),
+    detailKind: tool.schema.string().optional(),
+    typeName: tool.schema.string().optional(),
     cypher: tool.schema.string().optional(),
     paramsJson: tool.schema.string().optional(),
     limit: tool.schema.number().int().optional(),
@@ -206,6 +227,10 @@ export default tool({
 
     if (args.command !== "catalog") {
       nonEmptyString.parse(args.sourceId);
+    }
+    if (args.command === "detail") {
+      nonEmptyString.parse(args.detailKind);
+      nonEmptyString.parse(args.typeName);
     }
     if (args.command === "query") {
       nonEmptyString.parse(args.cypher);
@@ -222,6 +247,8 @@ export default tool({
         repoRoot,
         command: args.command,
         sourceId: args.sourceId || null,
+        detailKind: args.detailKind || null,
+        typeName: args.typeName || null,
         baseUrl: args.baseUrl || null,
       },
     });

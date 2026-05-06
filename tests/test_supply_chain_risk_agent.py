@@ -99,7 +99,8 @@ def test_supply_chain_risk_agent_contract() -> None:
     assert "biz.supply-chain-risk-assessment" in agent_prompt
     assert "supply-chain-dependency-governance" in agent_prompt
     assert "严格单 Skill 路由" in agent_prompt
-    assert "catalog -> schema -> query" in agent_prompt
+    assert "渐进式查询" in agent_prompt
+    assert "detail" in agent_prompt
     assert "SBOM/SCA" in agent_prompt
     assert "vehicle_iobe" in agent_prompt
     assert "Boundary Notes" in agent_prompt

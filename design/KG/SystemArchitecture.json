@@ -144,6 +144,10 @@
 {
 "name": "INTRODUCTION"
 ,"description": "D:\\Projects\\AI4X-Platform\\INTRODUCTION.md"
+},
+{
+"name": "意图架构"
+,"description": "D:\\Projects\\AI4X-Platform\\design\\KG\\SystemArchitecture.json"
 }
 ]
 },
@@ -469,10 +473,10 @@
 ,"parent_element_id": "1738"
 ,"parent_element_name": "Agents"
 ,"included_elements": [
-"1763",
-"1762",
 "1760",
 "1761",
+"1762",
+"1763",
 "1749",
 "1758",
 "1759"

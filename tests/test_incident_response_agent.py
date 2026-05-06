@@ -99,7 +99,8 @@ def test_incident_response_agent_contract() -> None:
     assert "biz.incident-response-orchestration" in agent_prompt
     assert "incident-response-alert-triage" in agent_prompt
     assert "严格单 Skill 路由" in agent_prompt
-    assert "catalog -> schema -> query" in agent_prompt
+    assert "渐进式查询" in agent_prompt
+    assert "detail" in agent_prompt
     assert "opencti" in agent_prompt
     assert "vehicle_iobe" in agent_prompt
     assert "Response Actions" in agent_prompt

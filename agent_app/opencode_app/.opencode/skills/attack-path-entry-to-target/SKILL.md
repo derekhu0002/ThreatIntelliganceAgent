@@ -43,7 +43,7 @@ description: 当用户提供入口点、目标资产或平台范围，并希望�
 执行任何查询前，先声明：
 
 - 所有外部数据交互只能通过 `ai4x_query` 完成。
-- 任何真实查询必须遵循 `catalog -> schema -> query` 三步查询范式。
+- 任何真实查询必须先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。
 - 必须严格区分 `Facts` 与 `Inferred Assessments`。
 - `x-attack-path` 是威胁模型模板，不等于已证实攻击事实。
 - 当没有足够证据时，允许输出“未形成稳定高置信路径”的空结论报告。
@@ -83,6 +83,7 @@ ai4x_query(command="schema", sourceId="tara")
 ```text
 ai4x_query(command="schema", sourceId="ses")
 ai4x_query(command="schema", sourceId="opencti")
+ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship", typeName="...")
 ```
 
 重点确认以下对象是否可消费：
@@ -276,7 +277,7 @@ ai4x_query(
 执行本技能时，至少满足以下验收条件：
 
 1. 查询前已完成入口点、目标资产和范围的必要澄清。
-2. 所有真实查询遵循 `catalog -> schema -> query`。
+2. 所有真实查询遵循渐进式查询顺序；若命中 `opencti`，需要时追加 `detail`。
 3. 输出明确分离 `Facts` 与 `Inferred Assessments`。
 4. 每条主要候选路径都可映射到至少一条路径证据。
 5. 当证据不足时，输出空结论或部分命中报告，而不是强行给出高置信路径。

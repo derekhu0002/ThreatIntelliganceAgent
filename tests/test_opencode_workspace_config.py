@@ -462,6 +462,19 @@ def test_canonical_agent_descriptors_expose_traceable_role_intent() -> None:
     assert "Return structured SecOps output to the primary agent" in secops_text
 
 
+def test_ai4x_acceptance_agent_descriptor_exists_and_is_toolchain_scoped() -> None:
+    agent_text = (AGENTS_DIR / "ThreatIntelAnalyst_test.md").read_text(encoding="utf-8")
+
+    assert "ThreatIntelAnalyst_test" in agent_text
+    assert "acceptance-only ai4x integration analyst harness" in agent_text.casefold()
+    assert "ai4x_query: true" in agent_text
+    assert 'ai4x_query(command="catalog")' in agent_text
+    assert 'ai4x_query(command="schema", sourceId="...")' in agent_text
+    assert 'ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship", typeName="...")' in agent_text
+    assert 'ai4x_query(command="query", sourceId="...", cypher="...")' in agent_text
+    assert '"*": deny' in agent_text
+
+
 def test_collaboration_skill_exposes_traceable_delegation_contract() -> None:
     # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
     # @ArchitectureID: ELM-APP-PROC-THREAT-COLLAB-SKILL

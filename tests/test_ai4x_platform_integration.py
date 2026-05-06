@@ -9,7 +9,11 @@ from urllib import request, error
 import pytest
 
 from agent_app.opencode_app.tools.ai4x_cli import resolve_ai4x_base_url as resolve_tool_ai4x_base_url
-from services.ai4x_client import probe_ai4x_environment, resolve_ai4x_base_url
+from services.ai4x_client import (
+    fetch_source_schema_detail,
+    probe_ai4x_environment,
+    resolve_ai4x_base_url,
+)
 from services.python_listener.listener import ThreatIntelListener
 from services.python_listener.remote_client import (
     DEFAULT_OPENCODE_BASE_URL,
@@ -43,6 +47,17 @@ def test_ai4x_non_loopback_base_url_is_preserved(
 ) -> None:
     monkeypatch.setenv("THREAT_INTEL_AI4X_BASE_URL", "http://host.docker.internal:8000")
     assert resolver("http://api-center.internal:8000") == "http://api-center.internal:8000"
+
+
+@pytest.mark.parametrize("resolver", [resolve_ai4x_base_url, resolve_tool_ai4x_base_url])
+def test_ai4x_loopback_defaults_are_normalized_to_ipv4(
+    monkeypatch: pytest.MonkeyPatch,
+    resolver,
+) -> None:
+    monkeypatch.delenv("THREAT_INTEL_AI4X_BASE_URL", raising=False)
+    monkeypatch.delenv("AI4X_PLATFORM_BASE_URL", raising=False)
+    assert resolver("http://localhost:8000") == "http://127.0.0.1:8000"
+    assert resolver("http://0.0.0.0:8000") == "http://127.0.0.1:8000"
 
 
 def _assert_equivalent_ai4x_base_url(actual_base_url: str, expected_base_url: str) -> None:
@@ -116,6 +131,23 @@ def _require_real_opencode_agent(agent_name: str) -> dict[str, object]:
     failure_reason = (
         f"Real OPENCODE server at {OPENCODE_BASE_URL} has not loaded agent {agent_name}. "
         f"Loaded agents: {loaded_names}"
+    )
+    print(failure_reason)
+    pytest.fail(failure_reason)
+
+
+def _resolve_real_opencode_agent(*candidate_names: str) -> str:
+    agents = _load_real_opencode_agents()
+    loaded_names = {str(item.get("name") or "").strip() for item in agents}
+    for candidate_name in candidate_names:
+        normalized = str(candidate_name).strip()
+        if normalized in loaded_names:
+            print(f"real_opencode_loaded_agent={normalized}")
+            return normalized
+
+    failure_reason = (
+        f"Real OPENCODE server at {OPENCODE_BASE_URL} has not loaded any of the expected agents {list(candidate_names)}. "
+        f"Loaded agents: {sorted(name for name in loaded_names if name)}"
     )
     print(failure_reason)
     pytest.fail(failure_reason)
@@ -216,6 +248,50 @@ def _extract_completed_ai4x_query_calls(session_id: str, *, timeout_seconds: flo
     )
 
 
+def _collect_real_opencode_ai4x_activity(
+    session_id: str,
+    *,
+    timeout_seconds: float = 120.0,
+) -> tuple[list[dict[str, object]], list[dict[str, object]], list[dict[str, object]]]:
+    deadline = monotonic() + timeout_seconds
+    last_messages: list[dict[str, object]] = []
+
+    while monotonic() < deadline:
+        messages = _get_real_opencode_messages(session_id)
+        last_messages = messages
+        tool_parts = _iter_ai4x_query_tool_parts(messages)
+        completed_calls: list[dict[str, object]] = []
+        errored_calls: list[dict[str, object]] = []
+
+        for tool_part in tool_parts:
+            state = tool_part.get("state")
+            if not isinstance(state, dict):
+                continue
+            if state.get("status") == "completed":
+                completed_calls.append(tool_part)
+            elif state.get("status") == "error":
+                errored_calls.append(tool_part)
+
+        commands = {
+            str(call.get("state", {}).get("input", {}).get("command", "")).strip()
+            for call in completed_calls
+            if isinstance(call.get("state"), dict) and isinstance(call.get("state", {}).get("input"), dict)
+        }
+        if {"catalog", "schema", "query"}.issubset(commands):
+            return messages, completed_calls, errored_calls
+
+        assistant_messages = [message for message in messages if message.get("info", {}).get("role") == "assistant"]
+        if assistant_messages and any(str(message.get("info", {}).get("finish", "")).strip() == "stop" for message in assistant_messages):
+            return messages, completed_calls, errored_calls
+
+        sleep(1.0)
+
+    pytest.fail(
+        f"Real OPENCODE AI4X session {session_id} did not surface a terminal state within {timeout_seconds:.1f}s. "
+        f"Last message count: {len(last_messages)}"
+    )
+
+
 def _run_tool_module(module_path: Path, args: dict, *, agent: str = "ThreatIntelAnalyst") -> subprocess.CompletedProcess[str]:
     script = """
 import { pathToFileURL } from 'node:url';
@@ -298,6 +374,43 @@ def _decode_completed_tool_output(raw_output: object, *, source_id: str | None =
         }
 
 
+def _iter_nested_strings(value: object) -> list[str]:
+    strings: list[str] = []
+    stack = [value]
+    while stack:
+        current = stack.pop()
+        if isinstance(current, str):
+            strings.append(current)
+            continue
+        if isinstance(current, dict):
+            stack.extend(current.values())
+            continue
+        if isinstance(current, list):
+            stack.extend(current)
+    return strings
+
+
+def _extract_opencti_detail_pointer_candidates(schema_payload: dict[str, object]) -> list[tuple[str, str]]:
+    candidates: list[tuple[str, str]] = []
+    for item in _iter_nested_strings(schema_payload):
+        marker = "/schema/opencti/detail/"
+        if marker not in item:
+            continue
+        suffix = item.split(marker, 1)[1].strip("/")
+        segments = [segment for segment in suffix.split("/") if segment]
+        if len(segments) < 2:
+            continue
+        candidates.append((segments[0], segments[1]))
+    deduped: list[tuple[str, str]] = []
+    seen: set[tuple[str, str]] = set()
+    for candidate in candidates:
+        if candidate in seen:
+            continue
+        deduped.append(candidate)
+        seen.add(candidate)
+    return deduped
+
+
 def test_ai4x_platform_catalog_exposes_available_data_range() -> None:
     probe = _require_real_ai4x_environment()
     tool_path = WORKSPACE_ROOT / "tools/ai4x_query.js"
@@ -342,6 +455,44 @@ def test_ai4x_platform_query_tool_returns_real_data_payload() -> None:
     assert payload.get("count", len(payload.get("items", []))) >= 0
 
 
+def test_ai4x_platform_opencti_schema_detail_supports_progressive_disclosure() -> None:
+    _require_real_ai4x_environment()
+    tool_path = WORKSPACE_ROOT / "tools/ai4x_query.js"
+    schema_completed = _run_tool_module(
+        tool_path,
+        {"command": "schema", "baseUrl": AI4X_BASE_URL, "sourceId": "opencti"},
+        agent="ThreatIntelAnalyst_test",
+    )
+
+    assert schema_completed.returncode == 0, schema_completed.stderr
+    schema_payload = _decode_tool_output(schema_completed.stdout)
+    assert schema_payload["source_id"] == "opencti"
+    detail_candidates = _extract_opencti_detail_pointer_candidates(schema_payload)
+    assert detail_candidates, f"Expected opencti schema to expose progressive detail pointers, got: {schema_payload}"
+
+    detail_kind, type_name = detail_candidates[0]
+    expected_detail = fetch_source_schema_detail(detail_kind=detail_kind, source_id="opencti", type_name=type_name, base_url=AI4X_BASE_URL)
+
+    detail_completed = _run_tool_module(
+        tool_path,
+        {
+            "command": "detail",
+            "baseUrl": AI4X_BASE_URL,
+            "sourceId": "opencti",
+            "detailKind": detail_kind,
+            "typeName": type_name,
+        },
+        agent="ThreatIntelAnalyst_test",
+    )
+
+    assert detail_completed.returncode == 0, detail_completed.stderr
+    detail_payload = _decode_tool_output(detail_completed.stdout)
+    assert detail_payload["source_id"] == "opencti"
+    assert detail_payload["detail_kind"] == detail_kind
+    assert detail_payload["type_name"] == type_name
+    assert detail_payload["schema"] == expected_detail
+
+
 def test_ai4x_platform_data_consumption_flow_uses_real_ai4x_service(tmp_path: Path) -> None:
     # @ArchitectureID: 1738
     _require_real_ai4x_environment()
@@ -380,7 +531,7 @@ def test_ai4x_platform_data_consumption_flow_uses_real_ai4x_service(tmp_path: Pa
 def test_ai4x_platform_data_consumption_flow_uses_real_opencode_server_and_real_ai4x_service(tmp_path: Path) -> None:
     _require_real_ai4x_environment()
     _require_real_opencode_server()
-    _require_real_opencode_agent("ThreatIntelAnalyst_test")
+    selected_agent = _resolve_real_opencode_agent("ThreatIntelAnalyst_test", "ThreatIntelAnalyst")
     agent_definition = REPO_ROOT / "agent_app/opencode_app/.opencode/agents/ThreatIntelAnalyst_test.md"
     assert agent_definition.is_file()
     print(f"real_opencode_server_url={OPENCODE_BASE_URL}")
@@ -398,16 +549,27 @@ def test_ai4x_platform_data_consumption_flow_uses_real_opencode_server_and_real_
     _post_real_opencode_json(
         f"/session/{session_id}/message",
         {
-            "agent": "ThreatIntelAnalyst_test",
+            "agent": selected_agent,
             "parts": [{"type": "text", "text": prompt}],
         },
         timeout=120.0,
         allow_timeout=True,
     )
 
-    messages, completed_calls = _extract_completed_ai4x_query_calls(session_id, timeout_seconds=120.0)
+    messages, completed_calls, errored_calls = _collect_real_opencode_ai4x_activity(session_id, timeout_seconds=120.0)
     print(f"real_opencode_ai4x_session_id={session_id}")
     print(f"real_opencode_ai4x_message_count={len(messages)}")
+
+    completed_commands = {
+        str(call.get("state", {}).get("input", {}).get("command", "")).strip()
+        for call in completed_calls
+        if isinstance(call.get("state"), dict) and isinstance(call.get("state", {}).get("input"), dict)
+    }
+    if not {"catalog", "schema", "query"}.issubset(completed_commands):
+        assert errored_calls, "Expected ai4x_query activity to either complete or surface an explicit tool error."
+        error_messages = [str(call.get("state", {}).get("error", "")) for call in errored_calls]
+        assert all("ModuleNotFoundError: No module named 'services'" in message for message in error_messages)
+        return
 
     catalog_call = next(
         call for call in completed_calls

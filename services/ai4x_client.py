@@ -6,7 +6,7 @@ import json
 import os
 from typing import Any
 from urllib import error, request
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlunparse
 
 
 DEFAULT_AI4X_BASE_URL = "http://localhost:8000"
@@ -33,6 +33,24 @@ def _prefer_container_reachable_base_url(resolved: str, configured_fallback: str
     return fallback
 
 
+def _normalize_python_loopback_base_url(resolved: str) -> str:
+    parsed = urlparse(resolved)
+    hostname = parsed.hostname
+    if hostname not in {"localhost", "0.0.0.0", "::1"}:
+        return resolved
+
+    port = f":{parsed.port}" if parsed.port is not None else ""
+    auth = ""
+    if parsed.username:
+        auth = parsed.username
+        if parsed.password:
+            auth = f"{auth}:{parsed.password}"
+        auth = f"{auth}@"
+
+    normalized_netloc = f"{auth}127.0.0.1{port}"
+    return urlunparse(parsed._replace(netloc=normalized_netloc))
+
+
 def resolve_ai4x_base_url(base_url: str | None = None) -> str:
     configured_fallback = (
         os.environ.get("THREAT_INTEL_AI4X_BASE_URL")
@@ -46,7 +64,8 @@ def resolve_ai4x_base_url(base_url: str | None = None) -> str:
     ).strip()
     if not resolved:
         raise AI4XPlatformError("AI4X base URL must be a non-empty string.")
-    return _prefer_container_reachable_base_url(resolved.rstrip("/"), configured_fallback)
+    preferred = _prefer_container_reachable_base_url(resolved.rstrip("/"), configured_fallback)
+    return _normalize_python_loopback_base_url(preferred)
 
 
 def _resolve_timeout_seconds(timeout_seconds: float | None = None) -> float:
@@ -156,6 +175,31 @@ def fetch_source_schema(
     return _request_json(
         "GET",
         f"{API_CENTER_PREFIX}/schema/{normalized_source_id}",
+        base_url=base_url,
+        timeout_seconds=timeout_seconds,
+    )
+
+
+def fetch_source_schema_detail(
+    source_id: str,
+    detail_kind: str,
+    type_name: str,
+    *,
+    base_url: str | None = None,
+    timeout_seconds: float | None = None,
+) -> dict[str, Any]:
+    normalized_source_id = str(source_id).strip()
+    normalized_detail_kind = str(detail_kind).strip().strip("/")
+    normalized_type_name = str(type_name).strip().strip("/")
+    if not normalized_source_id:
+        raise AI4XPlatformError("source_id must be a non-empty string.")
+    if not normalized_detail_kind:
+        raise AI4XPlatformError("detail_kind must be a non-empty string.")
+    if not normalized_type_name:
+        raise AI4XPlatformError("type_name must be a non-empty string.")
+    return _request_json(
+        "GET",
+        f"{API_CENTER_PREFIX}/schema/{normalized_source_id}/detail/{normalized_detail_kind}/{normalized_type_name}",
         base_url=base_url,
         timeout_seconds=timeout_seconds,
     )

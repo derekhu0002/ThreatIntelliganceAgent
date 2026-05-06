@@ -43,7 +43,7 @@ description: 当用户希望从事件摘要、告警编号、IOC、资产异常�
 执行任何查询前，先声明：
 
 - 所有外部数据交互只能通过 `ai4x_query` 完成。
-- 任何真实查询必须遵循 `catalog -> schema -> query` 三步查询范式。
+- 任何真实查询必须先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。
 - 必须严格区分 `Facts` 与 `Inferred Assessments`。
 - 平台外的 SIEM、EDR、SOAR 或日志系统只能作为外部补充上下文，而不是平台原生事实源。
 - 当缺少关键遥测、主机日志或版本事实时，允许输出“待人工确认”的结构化报告。
@@ -100,6 +100,12 @@ ai4x_query(command="schema", sourceId="cve2oss")
 - `ecu_func`: `ecu_name`、`related_functions`
 
 如果 Schema 未覆盖计划使用的字段或对象，必须在 `Gaps` 中说明并缩减后续查询链。
+
+对 `opencti` 额外适用：`schema(opencti)` 只用于确认对象类型、关系类型和 detail 指针；若要确认具体字段，再调用：
+
+```text
+ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship", typeName="...")
+```
 
 ## Step 3. 提取事件主线索
 
@@ -290,7 +296,7 @@ ai4x_query(
 执行本技能时，至少满足以下验收条件：
 
 1. 查询前已完成事件入口、范围和输出目标的必要澄清。
-2. 所有真实查询遵循 `catalog -> schema -> query`。
+2. 所有真实查询遵循渐进式查询顺序；若命中 `opencti`，需要时追加 `detail`。
 3. 输出明确分离 `Facts` 与 `Inferred Assessments`。
 4. 核心响应动作必须能映射到至少一条可回溯事实链。
 5. 当缺少现场证据或平台数据源时，输出待确认或空结果报告，而不是强行给出高置信处置结论。

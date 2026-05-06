@@ -41,7 +41,7 @@ description: 当用户提供多个 IOC 或告警对象，并希望结合 OpenCTI
 执行查询前先声明：
 
 - 所有外部数据交互只能通过 `ai4x_query` 完成。
-- 任何真实查询必须遵循 `catalog -> schema -> query` 三步查询范式。
+- 任何真实查询必须先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。
 - 不能编造 `confidence`、`valid_from`、`valid_until`。
 - 排序必须区分事实依据和解释性推断。
 - 若字段缺失，只能降低确定性并写入缺口，不能由模型补全。
@@ -62,12 +62,13 @@ ai4x_query(command="catalog")
 - 停止排序流程。
 - 不得编造替代数据源或虚构排序结果。
 
-## Step 2. 获取 opencti Schema
+## Step 2. 读取 opencti 最小目录并按需下钻 Detail
 
 在构造任何 Cypher 前，必须调用：
 
 ```text
 ai4x_query(command="schema", sourceId="opencti")
+ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship", typeName="...")
 ```
 
 重点确认以下对象或字段是否可消费：

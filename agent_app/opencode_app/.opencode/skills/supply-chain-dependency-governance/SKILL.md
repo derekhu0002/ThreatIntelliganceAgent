@@ -45,7 +45,7 @@ description: 当用户希望基于组件、供应商、采购对象或 SBOM/SCA 
 执行任何查询前，先声明：
 
 - 所有外部数据交互只能通过 `ai4x_query` 完成。
-- 任何真实查询必须遵循 `catalog -> schema -> query` 三步查询范式。
+- 任何真实查询必须先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。
 - 必须严格区分 `Direct Facts` 与 `Inferred Assessments`。
 - 平台外的 `SBOM/SCA`、采购或供应商主数据只能作为外部补充上下文，而不是平台原生事实源。
 - 当缺少组件版本、供应商确认或暴露面事实时，允许输出“待人工确认”的结构化报告。
@@ -94,6 +94,12 @@ ai4x_query(command="schema", sourceId="func_design_spec")
 
 ```text
 ai4x_query(command="schema", sourceId="cve2oss")
+```
+
+对 `opencti` 额外适用：`schema(opencti)` 只用于确认对象类型、关系类型和 detail 指针；若要确认具体字段，再调用：
+
+```text
+ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship", typeName="...")
 ```
 
 重点确认以下对象或字段是否可消费：

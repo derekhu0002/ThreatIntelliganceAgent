@@ -43,7 +43,7 @@ description: 当用户希望在明确时间窗和范围内汇总整体安全态�
 执行任何查询前，先声明：
 
 - 所有外部数据交互只能通过 `ai4x_query` 完成。
-- 任何真实查询必须遵循 `catalog -> schema -> query` 三步查询范式。
+- 任何真实查询必须先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。
 - 必须严格区分 `Direct Facts` 与 `Inferred Assessments`。
 - 平台外的事件摘要、告警热度或资产台账只能作为外部补充上下文，而不是平台原生事实源。
 - 当缺少关键字段、时间窗映射或范围锚点时，允许输出带边界说明的结构化报告。
@@ -102,6 +102,12 @@ ai4x_query(command="schema", sourceId="cve2oss")
 - `func_design_spec`: `function_model_name`、`description`
 
 如果 Schema 未覆盖计划使用的字段或对象，必须在 `Boundary Notes` 中说明并缩减后续查询链。
+
+对 `opencti` 额外适用：`schema(opencti)` 只用于确认对象类型、关系类型和 detail 指针；若要确认具体字段，再调用：
+
+```text
+ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship", typeName="...")
+```
 
 ## Step 3. 拉取态势主信号
 

@@ -67,7 +67,7 @@ tools:
 1. 判断请求是否属于 `biz.threat-attribution`。
 2. 识别并标准化 `target_type`、`target_value`、可选 `time_range`、`focus_dimension`、`report_depth`。
 3. 如果目标、分析方向或输出深度不明确，先发起少量高价值澄清。
-4. 一旦入口可用，严格执行 `catalog -> schema -> query`。
+4. 一旦入口可用，严格执行渐进式查询顺序：`catalog -> schema`；若命中 `opencti` 则按需 `detail`；最后 `query`。
 5. 先整理 `Facts`，再整理 `Candidate Intrusion Sets`、`Evidence Paths`、`Inferred Assessments`、`Gaps` 和 `Recommendations`。
 
 ## Clarification Rules
@@ -90,7 +90,7 @@ tools:
 
 - 编造其他工具名。
 - 跳过授权 Skill 自行写查询策略。
-- 绕过 `catalog -> schema -> query` 顺序。
+- 绕过渐进式查询顺序，尤其禁止把 `opencti` 的最小目录误当作全量字段定义。
 
 ## Data Boundary
 
@@ -133,7 +133,8 @@ tools:
 
 1. `ai4x_query(command="catalog")`
 2. `ai4x_query(command="schema", sourceId="...")`
-3. `ai4x_query(command="query", sourceId="...", cypher="...")`
+3. 若 `sourceId="opencti"` 且需要具体对象或关系字段，再调用 `ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship", typeName="...")`
+4. `ai4x_query(command="query", sourceId="...", cypher="...")`
 
 如果任何一步未满足执行前提：
 

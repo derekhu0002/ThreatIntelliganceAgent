@@ -35,7 +35,7 @@ description: 当用户提供已知威胁实体、报告标题、IOC、攻击模�
 在执行查询前，先声明以下规则：
 
 - 仅允许使用 `ai4x_query`。
-- 任何真实查询都必须遵循 `catalog -> schema -> query` 三步查询范式。
+- 任何真实查询都必须先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。
 - 所有输出必须严格区分 `Facts` 与 `Inferences`。
 - 本技能不做自动归因，只允许输出“候选关联”或“可能同源”。
 - 空结果和排除项必须结构化输出，不能用模型补全未命中事实。
@@ -56,12 +56,13 @@ ai4x_query(command="catalog")
 - 停止后续查询。
 - 不得编造替代数据源。
 
-## Step 2. 获取 opencti Schema
+## Step 2. 读取 opencti 最小目录并按需下钻 Detail
 
 在构造任何 Cypher 前，必须调用：
 
 ```text
 ai4x_query(command="schema", sourceId="opencti")
+ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship", typeName="...")
 ```
 
 重点确认是否可消费以下对象：
@@ -425,7 +426,7 @@ Schema 审核要求：
 
 ## Step 5. Optional Query Phase C - 环境命中验证
 
-如果 `schema(opencti)` 明确包含 `sighting` 与 `observed-data`，可对高价值 `indicator` 或 `infrastructure` 追加一次验证查询，用于区分“纯情报线索”和“已在环境中被观测的线索”。
+如果 `opencti` 最小目录或对应 `detail` schema 明确显示 `sighting` 与 `observed-data`，可对高价值 `indicator` 或 `infrastructure` 追加一次验证查询，用于区分“纯情报线索”和“已在环境中被观测的线索”。
 
 建议查询示例：
 

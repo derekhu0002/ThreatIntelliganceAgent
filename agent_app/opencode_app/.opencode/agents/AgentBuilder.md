@@ -217,7 +217,7 @@ tools:
 
 #### 7. `opencti`
 
-**定位**：外部 OpenCTI 威胁情报数据源的聚合 STIX Schema 目录。
+**定位**：外部 OpenCTI 威胁情报数据源的渐进式 STIX Schema 目录入口。
 
 **Schema 根结构**：聚合目录对象，而不是单个业务 Bundle。
 
@@ -236,11 +236,12 @@ tools:
 
 1. **唯一的数据工具 (`ai4x_query`)**：
    - 所有的外部数据交互**只能**通过唯一泛型工具 `ai4x_query` 完成，绝对禁止编造其他工具（如 `query_neo4j` 或 `query_cve`）。
-2. **三步查询范式 (The 3-Step Paradigm)**：
-   - 技能的 SOP 中涉及任何实际查询前，必须强制遵循流水线：
+2. **渐进式查询范式 (The Progressive Query Paradigm)**：
+    - 技能的 SOP 中涉及任何实际查询前，必须强制遵循流水线：
      - **第一步 (Catalog)**：调用 `ai4x_query(command="catalog")` 确认该场景需要的数据源 (`sourceId`) 是否存在。
-     - **第二步 (Schema)**：调用 `ai4x_query(command="schema", sourceId="xxx")` 获取目标数据源的具体字段和关系规范。
-     - **第三步 (Query)**：根据刚获取到的 Schema 构造 Cypher 语句，调用 `ai4x_query(command="query", sourceId="xxx", cypher="...")` 发起真实查询。
+       - **第二步 (Schema)**：调用 `ai4x_query(command="schema", sourceId="xxx")` 获取目标数据源的模式入口；若 `sourceId="opencti"`，此结果只应视为最小目录而非全量字段定义。
+       - **第三步 (Detail, OpenCTI only)**：若 `opencti` 查询需要具体对象或关系字段，再调用 `ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship", typeName="...")` 按需下钻。
+       - **第四步 (Query)**：根据刚确认的 Schema 或 Detail 结果构造 Cypher 语句，调用 `ai4x_query(command="query", sourceId="xxx", cypher="...")` 发起真实查询。
 3. **事实与推断分离**：
    - 查询返回的“直接事实（Fact）”与“图谱推断（Inference）”必须在输出给用户时明确分离；若未命中任何目标，必须返回结构化的“空结果”，禁止大模型幻觉编造数据。
 4. **【重要】数据不足时的处理机制（Schema 建议）**：
@@ -315,7 +316,7 @@ description: [触发此技能的具体场景和用户意图]
 *(这里是正文)*
 - **Trigger & Context (触发条件与上下文)**
 - **Prerequisites (槽位/前置依赖提取)**
-- **SOP Action Steps (标准作业步骤)**：明确指出依据哪几个具体的 sourceId、结合刚刚参考的 SCHEMA 规范，调用 `ai4x_query` 执行什么命令（严格遵循三步查询范式）。如果有具体的 Cypher 示例，请确保符合 Schema。
+- **SOP Action Steps (标准作业步骤)**：明确指出依据哪几个具体的 sourceId、结合刚刚参考的 SCHEMA 规范，调用 `ai4x_query` 执行什么命令（严格遵循渐进式查询范式；`opencti` 需要时追加 `detail`）。如果有具体的 Cypher 示例，请确保符合 Schema。
 - **Data Enhancement Suggestions (数据扩充建议)**：(如果当前数据源能满足则填“无”，如果不能完全支撑业务，请在此提出 Schema 改进建议，指导人类开发完善数据源)。
 - **Output Format (输出规范)**：定义统一的 Markdown/JSON 结构化输出版式。
 
