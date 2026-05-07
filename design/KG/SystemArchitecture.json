@@ -371,7 +371,23 @@
 },
 {
 "name": "skill-unknown-threat-hunt-graph-hypothesis"
-,"description": "agent_app\\opencode_app\\.opencode\\skills\\unknown-threat-hunt-graph-hypothesis\\SKILL.md"
+,"description": "D:\\Projects\\ThreatIntelliganceAgent\\agent_app\\opencode_app\\.opencode\\skills\\unknown-threat-hunt-graph-hypothesis\\SKILL.md"
+}
+]
+},
+{
+"id": "1766",
+"name": "IncidentReportingAgent"
+,"type": "ArchiMate_ApplicationComponent"
+,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Agents/IncidentReportingAgent"
+,"attributes": [
+{
+"name": "profile"
+,"description": "agent_app\\opencode_app\\.opencode\\agents\\IncidentReportingAgent.md"
+},
+{
+"name": "skill-incident-report-generation"
+,"description": "agent_app\\opencode_app\\.opencode\\skills\\incident-report-generation\\SKILL.md"
 }
 ]
 }
@@ -467,26 +483,6 @@
 ,"target_id":"1755"
 ,"source_name":"AGENT构建"
 ,"target_name":"业务人员可以通过AI辅助快速完成业务AGENT构建"
-},
-{
-"id":"1795"
-,"statement":"ThreatHunterAgent --(ArchiMate_Triggering)--> ai4x_query"
-,"name":"ArchiMate_Triggering"
-,"super_type": "ArchiMate_Triggering"
-,"source_id":"1765"
-,"target_id":"1748"
-,"source_name":"ThreatHunterAgent"
-,"target_name":"ai4x_query"
-},
-{
-"id":"1796"
-,"statement":"ThreatHunterAgent --(ArchiMate_Access)--> SKILLS"
-,"name":"ArchiMate_Access"
-,"super_type": "ArchiMate_Access"
-,"source_id":"1765"
-,"target_id":"1751"
-,"source_name":"ThreatHunterAgent"
-,"target_name":"SKILLS"
 }
 ],
 "views": [
@@ -537,6 +533,7 @@
 "1763",
 "1764",
 "1765",
+"1766",
 "1749",
 "1758",
 "1759"
