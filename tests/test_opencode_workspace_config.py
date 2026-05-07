@@ -2,6 +2,7 @@ import json
 import os
 import subprocess
 import stat
+import sys
 from pathlib import Path
 
 import pytest
@@ -124,6 +125,8 @@ def test_opencode_app_contains_local_tool_runtime_dependencies() -> None:
     # @ArchitectureID: ELM-TECH-ARTIFACT-OPENCODE-WORKSPACE
     assert (REPO_ROOT / "agent_app/opencode_app/tools/__init__.py").is_file()
     assert (REPO_ROOT / "agent_app/opencode_app/tools/ai4x_cli.py").is_file()
+    assert (REPO_ROOT / "agent_app/opencode_app/services/__init__.py").is_file()
+    assert (REPO_ROOT / "agent_app/opencode_app/services/ai4x_client.py").is_file()
     assert (REPO_ROOT / "agent_app/opencode_app/tools/stix_cli/__main__.py").is_file()
     assert (REPO_ROOT / "agent_app/opencode_app/tools/stix_cli/semantic_query.py").is_file()
     assert (REPO_ROOT / "agent_app/opencode_app/data/stix_samples/threat_intel_bundle.json").is_file()
@@ -136,6 +139,31 @@ def test_external_duplicate_agent_runtime_files_are_removed() -> None:
     assert not (REPO_ROOT / "tools/stix_cli/__main__.py").exists()
     assert not (REPO_ROOT / "tools/stix_cli/semantic_query.py").exists()
     assert not (REPO_ROOT / "data/stix_samples/threat_intel_bundle.json").exists()
+
+
+def test_ai4x_cli_imports_inside_isolated_opencode_runtime() -> None:
+    # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
+    # @ArchitectureID: ELM-TECH-ARTIFACT-OPENCODE-WORKSPACE
+    isolated_runtime_root = REPO_ROOT / "agent_app/opencode_app"
+
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import tools.ai4x_cli as cli; print(cli.resolve_ai4x_base_url('http://localhost:8000'))",
+        ],
+        cwd=isolated_runtime_root,
+        capture_output=True,
+        text=True,
+        env={
+            **os.environ,
+            "PYTHONPATH": str(isolated_runtime_root),
+        },
+        check=False,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    assert completed.stdout.strip() == "http://127.0.0.1:8000"
 
 
 def test_stix_query_tool_rejects_non_analyst_agents() -> None:
