@@ -11,63 +11,52 @@ def _read_workspace_file(relative_path: str) -> str:
 
 
 def test_unknown_threat_hunting_ai_agent_contract() -> None:
-    # @ArchitectureID: {79AC0CAE-94BD-414f-9814-2BD51686FC36}
-    config = json.loads((WORKSPACE_ROOT / "opencode.json").read_text(encoding="utf-8"))
-    workspace_contract = json.loads((WORKSPACE_ROOT / "workspace.contract.json").read_text(encoding="utf-8"))
-    canonical_primary_prompt = _read_workspace_file("agents/ThreatIntelPrimary.md")
-    canonical_analyst_prompt = _read_workspace_file("agents/ThreatIntelAnalyst.md")
-    canonical_secops_prompt = _read_workspace_file("agents/ThreatIntelSecOps.md")
-    canonical_collaboration_skill = _read_workspace_file("skills/threat-intel-collaboration/SKILL.md")
-    scenario_primary_prompt = _read_workspace_file("agents/ThreatIntelUnknownHuntPrimary.md")
-    scenario_skill = _read_workspace_file("skills/unknown-threat-hunting/SKILL.md")
+    agent_prompt = _read_workspace_file("agents/ThreatHunterAgent.md")
+    scenario_skill = _read_workspace_file("skills/unknown-threat-hunt-graph-hypothesis/SKILL.md")
     ai4x_tool = _read_workspace_file("tools/ai4x_query.js")
+    architecture = json.loads((REPO_ROOT / "design/KG/SystemArchitecture.json").read_text(encoding="utf-8"))
 
-    assert config["default_agent"] == "ThreatIntelPrimary"
-    assert workspace_contract["agent_roles"] == {
-        "primary": "ThreatIntelPrimary",
-        "analyst": "ThreatIntelAnalyst",
-        "secops": "ThreatIntelSecOps",
-    }
+    assert "ThreatHunterAgent" in agent_prompt
+    assert "biz.unknown-threat-hunting" in agent_prompt
+    assert "严格单 Skill 路由" in agent_prompt
+    assert "默认由单一主 AGENT 完成全链路" in agent_prompt
+    assert "catalog -> schema -> query" in agent_prompt
+    assert "Pending Confirmations" in agent_prompt
+    assert "Boundary Notes" in agent_prompt
+    assert "ai4x_query: true" in agent_prompt
 
-    assert "graph-based unknown threat hunting requests" not in canonical_primary_prompt
-    assert "start from the target `intrusion-set`" not in canonical_analyst_prompt
-    assert "Never call `ai4x_query` directly. In the unknown threat hunting flow" not in canonical_secops_prompt
-    assert "Unknown threat hunting over AI4X / OpenCTI" not in canonical_collaboration_skill
-
-    assert "graph-based unknown threat hunting" in scenario_primary_prompt
-    assert "Do not delegate this scenario to a scenario-specific subagent" in scenario_primary_prompt
-    assert "progressive discovery" in scenario_primary_prompt
-    assert "detail` for `opencti`" in scenario_primary_prompt
-    assert "pivot from first-pass IOC hits into a second read-only query" in scenario_primary_prompt
-    assert "structured empty-result output" in scenario_primary_prompt
-    assert "ai4x_query: true" in scenario_primary_prompt
-    assert "unknown_threat_hunting" in scenario_primary_prompt
-
-    assert not (WORKSPACE_ROOT / "agents/ThreatIntelUnknownHuntAnalyst.md").exists()
-    assert not (WORKSPACE_ROOT / "agents/ThreatIntelUnknownHuntSecOps.md").exists()
-
-    assert "name: unknown-threat-hunting" in scenario_skill
+    assert "name: unknown-threat-hunt-graph-hypothesis" in scenario_skill
     assert "Trigger & Context (触发条件与上下文)" in scenario_skill
     assert "Prerequisites (槽位/前置依赖提取)" in scenario_skill
     assert "SOP Action Steps (标准作业步骤)" in scenario_skill
-    assert "Data Enhancement Suggestions (数据扩充建议)" in scenario_skill
     assert "Output Format (输出规范)" in scenario_skill
-    assert '"command": "catalog"' in scenario_skill
-    assert '"command": "schema"' in scenario_skill
-    assert '"sourceId": "opencti"' in scenario_skill
-    assert '"command": "query"' in scenario_skill
-    assert "Fact" in scenario_skill
-    assert "Inference" in scenario_skill
-    assert "空结果" in scenario_skill
+    assert "Structured Response Contract (结构化响应契约)" in scenario_skill
+    assert 'ai4x_query(command="catalog")' in scenario_skill
+    assert 'ai4x_query(command="schema", sourceId="opencti")' in scenario_skill
+    assert 'ai4x_query(command="schema", sourceId="vehicle_iobe")' in scenario_skill
+    assert 'ai4x_query(command="query", sourceId="opencti"' in scenario_skill
+    assert "Direct Facts" in scenario_skill
+    assert "Ranked Leads" in scenario_skill
+    assert "Pending Confirmations" in scenario_skill
+    assert "Boundary Notes" in scenario_skill
     assert "`request_id`" in scenario_skill
-    assert "`hunt_seed`" in scenario_skill
-    assert "`derived_leads`" in scenario_skill
+    assert "`ranked_leads`" in scenario_skill
     assert "`evidence_paths`" in scenario_skill
     assert "`recommended_actions`" in scenario_skill
-    assert "`confidence_statement`" in scenario_skill
+    assert "`pending_confirmations`" in scenario_skill
+    assert "`boundary_notes`" in scenario_skill
 
-    assert 'ThreatIntelUnknownHuntPrimary' in ai4x_tool
+    assert 'ThreatHunterAgent' in ai4x_tool
     assert 'ThreatIntelAnalyst_test' in ai4x_tool
     assert 'ThreatIntelSecOps' in ai4x_tool
     assert 'TARA_analyst' in ai4x_tool
     assert "ThreatIntelSecOps must use analyst-provided AI4X data rather than calling ai4x_query directly." in ai4x_tool
+
+    threat_hunter_agent = next(element for element in architecture["elements"] if element["name"] == "ThreatHunterAgent")
+    assert threat_hunter_agent["browser_path"].endswith("/ThreatHunterAgent")
+    assert threat_hunter_agent["attributes"][0]["description"] == (
+        "agent_app\\opencode_app\\.opencode\\agents\\ThreatHunterAgent.md"
+    )
+    assert threat_hunter_agent["attributes"][1]["description"] == (
+        "agent_app\\opencode_app\\.opencode\\skills\\unknown-threat-hunt-graph-hypothesis\\SKILL.md"
+    )

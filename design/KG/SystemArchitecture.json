@@ -55,6 +55,12 @@
 "name": "ProjectManagement"
 ,"type": "ArchiMate_Assessment"
 ,"browser_path": "Model/System/ProjectManagement/ProjectManagement"
+,"attributes": [
+{
+"name": "GRAPH_USAGE_GUIDE"
+,"description": "将本文件作为意图架构知识图谱与行动约束入口使用，而不是静态清单。阅读和行动时遵循以下规则：1. 优先把本图谱当作当前任务的第一事实来源，先通读相关元素、relationships、views、attributes、testcases，再决定是否继续读取代码、测试、脚本、文档或其它外部文件。2. 本图谱以Archimate建模语言为主，辅之其它建模语言（如UML等）；所有Archimate元素的语义都以Archimate标准定义为准，不得仅凭元素名称或自然语言习惯随意改写。3. 凡属性、description、browser_path、acceptanceCriteria或其它字段指向仓库路径、#file、#sym 或外部模型线索时，应将其视为需要按需追溯的证据入口；引用内容用于补充上下文，不得推翻图谱中已经明确写出的原则、约束、显性testcase与关系语义。4. 该图谱中若存在 `Archimate_principle`、`Archimate_constrain` 等元素，你必须优先识别并严格服从；它们是硬约束，用来限制你的推理、设计与行动边界，你不能超过这些约束。5. 遇到信息冲突时，按以下优先级处理：硬约束元素与原则 &gt; 显性testcase及意图架构显式语义 &gt; 元素、关系、视图、attributes中的明确描述 &gt; 被引用文件或符号 &gt; 当前代码现状；代码只是实现证据，不会自动覆盖意图。6. 显性testcase是意图架构验收基线。除非任务明确属于意图架构设计并要求更新基线，否则你不得擅自新增、删除、重建或改写显性testcase的目标、挂载对象、断言口径与范围；编码或修复阶段只能补齐其可执行入口、支撑性实现、支撑性测试与运行环境。7. 修改边界必须清晰：意图架构设计阶段负责更新意图元素、关系、视图与显性testcase；实现架构设计阶段负责维护实现架构；编码阶段默认修改代码、测试、脚本和文档，不得把实现偏差直接回写成意图漂移。8. 分析问题时必须沿追溯链理解上下文，不得只看单个元素名称或单段description；至少应综合相关元素、关系、视图、上下游依赖、引用文件与测试挂载点后再下结论。9. 当图谱信息不完整时，可以基于仓库证据做最小必要推断，但必须显式标记假设，且不得臆造不存在的外部接口、SLA、部署事实、组织流程或新的显性验收基线。10. 若需要新增支撑性测试、实现护栏或运行环境说明，应优先写入实现架构、代码、测试与对应文档的正确落点，而不是污染意图层。11. 最终输出必须能说明：你读取了哪些图谱证据，遵守了哪些原则或约束，哪些结论是仓库已证实事实，哪些内容只是带标记的最小假设。"
+}
+]
 ,"subdiagram_views": [
 {
 "view_id": "182",
@@ -352,6 +358,22 @@
 ,"description": "agent_app\\opencode_app\\.opencode\\skills\\ioc-triage-indicator-priority\\SKILL.md"
 }
 ]
+},
+{
+"id": "1765",
+"name": "ThreatHunterAgent"
+,"type": "ArchiMate_ApplicationComponent"
+,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Agents/ThreatHunterAgent"
+,"attributes": [
+{
+"name": "profile"
+,"description": "agent_app\\opencode_app\\.opencode\\agents\\ThreatHunterAgent.md"
+},
+{
+"name": "skill-unknown-threat-hunt-graph-hypothesis"
+,"description": "agent_app\\opencode_app\\.opencode\\skills\\unknown-threat-hunt-graph-hypothesis\\SKILL.md"
+}
+]
 }
 ],
 "relationships": [
@@ -445,6 +467,26 @@
 ,"target_id":"1755"
 ,"source_name":"AGENT构建"
 ,"target_name":"业务人员可以通过AI辅助快速完成业务AGENT构建"
+},
+{
+"id":"1795"
+,"statement":"ThreatHunterAgent --(ArchiMate_Triggering)--> ai4x_query"
+,"name":"ArchiMate_Triggering"
+,"super_type": "ArchiMate_Triggering"
+,"source_id":"1765"
+,"target_id":"1748"
+,"source_name":"ThreatHunterAgent"
+,"target_name":"ai4x_query"
+},
+{
+"id":"1796"
+,"statement":"ThreatHunterAgent --(ArchiMate_Access)--> SKILLS"
+,"name":"ArchiMate_Access"
+,"super_type": "ArchiMate_Access"
+,"source_id":"1765"
+,"target_id":"1751"
+,"source_name":"ThreatHunterAgent"
+,"target_name":"SKILLS"
 }
 ],
 "views": [
@@ -494,6 +536,7 @@
 "1762",
 "1763",
 "1764",
+"1765",
 "1749",
 "1758",
 "1759"
