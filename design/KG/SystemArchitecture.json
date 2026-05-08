@@ -6,7 +6,6 @@
 "id": "1716",
 "name": "StrategyLayerAndMotivationAspect"
 ,"type": "ArchiMate_Assessment"
-,"browser_path": "Model/System/StrategyLayerAndMotivationAspect/StrategyLayerAndMotivationAspect"
 ,"subdiagram_views": [
 {
 "view_id": "178",
@@ -18,7 +17,6 @@
 "id": "1717",
 "name": "BusinessLayer"
 ,"type": "ArchiMate_Assessment"
-,"browser_path": "Model/System/BusinessLayer/BusinessLayer"
 ,"subdiagram_views": [
 {
 "view_id": "179",
@@ -30,7 +28,6 @@
 "id": "1718",
 "name": "ApplicationLayer"
 ,"type": "ArchiMate_Assessment"
-,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer"
 ,"subdiagram_views": [
 {
 "view_id": "180",
@@ -42,7 +39,6 @@
 "id": "1719",
 "name": "TechnologyLayer"
 ,"type": "ArchiMate_Assessment"
-,"browser_path": "Model/System/TechnologyLayer/TechnologyLayer"
 ,"subdiagram_views": [
 {
 "view_id": "181",
@@ -54,7 +50,6 @@
 "id": "1720",
 "name": "ProjectManagement"
 ,"type": "ArchiMate_Assessment"
-,"browser_path": "Model/System/ProjectManagement/ProjectManagement"
 ,"attributes": [
 {
 "name": "GRAPH_USAGE_GUIDE"
@@ -72,14 +67,12 @@
 "id": "1728",
 "name": "业务和数据分离原则"
 ,"type": "ArchiMate_Principle"
-,"browser_path": "Model/System/StrategyLayerAndMotivationAspect/StrategyLayerAndMotivationAspect/业务和数据分离原则"
 ,"description": "系统应将业务语义处理、任务决策与底层数据访问能力严格解耦；业务侧通过稳定的 schema 和 tool contract 使用数据能力，而不直接依赖具体数据库、接口协议或后端实现细节。"
 },
 {
 "id": "1738",
 "name": "Agents"
 ,"type": "ArchiMate_ApplicationComponent"
-,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Agents"
 ,"subdiagram_views": [
 {
 "view_id": "188",
@@ -101,7 +94,6 @@
 "id": "1739",
 "name": "Tools"
 ,"type": "ArchiMate_ApplicationComponent"
-,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Tools"
 ,"subdiagram_views": [
 {
 "view_id": "186",
@@ -131,7 +123,6 @@
 "id": "1744",
 "name": "OPENCODE RUNTIME"
 ,"type": "ArchiMate_Node"
-,"browser_path": "Model/System/TechnologyLayer/TechnologyLayer/OPENCODE RUNTIME"
 ,"description": "真实opencode服务，访问地址为：http://127.0.0.1:8124"
 ,"attributes": [
 {
@@ -144,7 +135,6 @@
 "id": "1745",
 "name": "AI4X-Platform"
 ,"type": "ArchiMate_ApplicationService,_EXTERNAL_SYSTEM_"
-,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/AI4X-Platform"
 ,"description": "https://github.com/Auto-Iven/AI4X-Platform/tree/Skills-VulImpAssess"
 ,"attributes": [
 {
@@ -161,8 +151,7 @@
 "id": "1748",
 "name": "ai4x_query"
 ,"type": "ArchiMate_ApplicationComponent,_TOOL_"
-,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Tools/ai4x_query"
-,"description": "  description: \"Discover, progressively inspect schema, and query the real AI4X Platform API Center.\",\r\n  args: {\r\n    command: tool.schema.enum([\"catalog\", \"schema\", \"detail\", \"query\"]),\r\n    sourceId: tool.schema.string().optional(),\r\n    detailKind: tool.schema.enum([\"object\", \"relationship-type\", \"relationship-schema\"]).optional(),\r\n    typeName: tool.schema.string().optional(),\r\n    cypher: tool.schema.string().optional(),\r\n    paramsJson: tool.schema.string().optional(),\r\n    limit: tool.schema.number().int().optional(),\r\n    baseUrl: tool.schema.string().optional(),\r\n    pythonBin: tool.schema.string().optional(),\r\n  }"
+,"description": "  description: \"Discover and query the real AI4X Platform API Center.\",\r\n  args: {\r\n    command: tool.schema.enum([\"catalog\", \"schema\", \"query\"]),\r\n    sourceId: tool.schema.string().optional(),\r\n    cypher: tool.schema.string().optional(),\r\n    paramsJson: tool.schema.string().optional(),\r\n    limit: tool.schema.number().int().optional(),\r\n    baseUrl: tool.schema.string().optional(),\r\n    pythonBin: tool.schema.string().optional(),\r\n  }"
 ,"attributes": [
 {
 "name": "IMPLEMENTATION"
@@ -174,7 +163,6 @@
 "id": "1749",
 "name": "ThreatIntelAnalyst"
 ,"type": "ArchiMate_ApplicationComponent"
-,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Agents/ThreatIntelAnalyst"
 ,"description": "TODO:需要完善AGENT的身份和职责定义、基本行为设计，使得它能根据用户输入或组合不同SKILL"
 ,"attributes": [
 {
@@ -193,7 +181,6 @@
 "id": "1751",
 "name": "SKILLS"
 ,"type": "ArchiMate_DataObject"
-,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/SKILLS"
 ,"description": "每个场景一个SKILL"
 ,"attributes": [
 {
@@ -206,7 +193,6 @@
 "id": "1752",
 "name": "AGENT构建"
 ,"type": "ArchiMate_WorkPackage"
-,"browser_path": "Model/System/ProjectManagement/ProjectManagement/AGENT构建"
 ,"attributes": [
 {
 "name": "AI辅助AGENT构建"
@@ -218,7 +204,6 @@
 "id": "1753",
 "name": "业务场景"
 ,"type": "ArchiMate_BusinessProcess"
-,"browser_path": "Model/System/BusinessLayer/BusinessLayer/业务场景"
 ,"attributes": [
 {
 "name": "GITHUB-REPO"
@@ -230,20 +215,17 @@
 "id": "1754",
 "name": "人类"
 ,"type": "ArchiMate_BusinessActor"
-,"browser_path": "Model/System/BusinessLayer/BusinessLayer/人类"
 },
 {
 "id": "1755",
 "name": "业务人员可以通过AI辅助快速完成业务AGENT构建"
 ,"type": "ArchiMate_Outcome"
-,"browser_path": "Model/System/StrategyLayerAndMotivationAspect/StrategyLayerAndMotivationAspect/业务人员可以通过AI辅助快速完成业务AGENT构建"
 ,"description": "将自己的业务场景描述完成后，调用系统提供的提示词即可完成原型AGENT构建"
 },
 {
 "id": "1757",
 "name": "AGENT设计原则"
 ,"type": "ArchiMate_Principle"
-,"browser_path": "Model/System/StrategyLayerAndMotivationAspect/StrategyLayerAndMotivationAspect/AGENT设计原则"
 ,"attributes": [
 {
 "name": "AGENT设计原则"
@@ -255,7 +237,6 @@
 "id": "1758",
 "name": "AttackPathAgent"
 ,"type": "ArchiMate_ApplicationComponent"
-,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Agents/AttackPathAgent"
 ,"attributes": [
 {
 "name": "profile"
@@ -271,7 +252,6 @@
 "id": "1759",
 "name": "ThreatIntelAttributionAnalyst"
 ,"type": "ArchiMate_ApplicationComponent"
-,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Agents/ThreatIntelAttributionAnalyst"
 ,"attributes": [
 {
 "name": "profile"
@@ -283,7 +263,6 @@
 "id": "1760",
 "name": "SecuritySituationalAwarenessAgent"
 ,"type": "ArchiMate_ApplicationComponent"
-,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Agents/SecuritySituationalAwarenessAgent"
 ,"attributes": [
 {
 "name": "profile"
@@ -299,7 +278,6 @@
 "id": "1761",
 "name": "IncidentResponseAgent"
 ,"type": "ArchiMate_ApplicationComponent"
-,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Agents/IncidentResponseAgent"
 ,"attributes": [
 {
 "name": "profile"
@@ -315,7 +293,6 @@
 "id": "1762",
 "name": "SupplyChainRiskAgent"
 ,"type": "ArchiMate_ApplicationComponent"
-,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Agents/SupplyChainRiskAgent"
 ,"attributes": [
 {
 "name": "profile"
@@ -331,7 +308,6 @@
 "id": "1763",
 "name": "VulnerabilityImpactAgent"
 ,"type": "ArchiMate_ApplicationComponent"
-,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Agents/VulnerabilityImpactAgent"
 ,"attributes": [
 {
 "name": "profile"
@@ -347,7 +323,6 @@
 "id": "1764",
 "name": "IOCTriageAgent"
 ,"type": "ArchiMate_ApplicationComponent"
-,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Agents/IOCTriageAgent"
 ,"attributes": [
 {
 "name": "profile"
@@ -363,7 +338,6 @@
 "id": "1765",
 "name": "ThreatHunterAgent"
 ,"type": "ArchiMate_ApplicationComponent"
-,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Agents/ThreatHunterAgent"
 ,"attributes": [
 {
 "name": "profile"
@@ -379,7 +353,6 @@
 "id": "1766",
 "name": "IncidentReportingAgent"
 ,"type": "ArchiMate_ApplicationComponent"
-,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Agents/IncidentReportingAgent"
 ,"attributes": [
 {
 "name": "profile"
@@ -489,7 +462,6 @@
 {
 "view_id": "178",
 "view_name": "StrategyLayerAndMotivationAspect"
-,"browser_path": "Model/System/StrategyLayerAndMotivationAspect/StrategyLayerAndMotivationAspect/StrategyLayerAndMotivationAspect"
 ,"parent_element_id": "1716"
 ,"parent_element_name": "StrategyLayerAndMotivationAspect"
 ,"included_elements": [
@@ -505,7 +477,6 @@
 {
 "view_id": "187",
 "view_name": "ThreatIntelliganceAgentRuntimeView"
-,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Agents/ThreatIntelAnalyst/ThreatIntelliganceAgentRuntimeView"
 ,"parent_element_id": "1749"
 ,"parent_element_name": "ThreatIntelAnalyst"
 ,"included_elements": [
@@ -523,7 +494,6 @@
 {
 "view_id": "188",
 "view_name": "Agents"
-,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Agents/Agents"
 ,"parent_element_id": "1738"
 ,"parent_element_name": "Agents"
 ,"included_elements": [
@@ -545,7 +515,6 @@
 {
 "view_id": "179",
 "view_name": "BusinessLayer"
-,"browser_path": "Model/System/BusinessLayer/BusinessLayer/BusinessLayer"
 ,"parent_element_id": "1717"
 ,"parent_element_name": "BusinessLayer"
 ,"included_elements": [
@@ -561,7 +530,6 @@
 {
 "view_id": "186",
 "view_name": "Tools"
-,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Tools/Tools"
 ,"parent_element_id": "1739"
 ,"parent_element_name": "Tools"
 ,"included_elements": [
@@ -574,7 +542,6 @@
 {
 "view_id": "180",
 "view_name": "Overview"
-,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Overview"
 ,"parent_element_id": "1718"
 ,"parent_element_name": "ApplicationLayer"
 ,"included_elements": [
@@ -594,7 +561,6 @@
 {
 "view_id": "181",
 "view_name": "TechnologyLayer"
-,"browser_path": "Model/System/TechnologyLayer/TechnologyLayer/TechnologyLayer"
 ,"parent_element_id": "1719"
 ,"parent_element_name": "TechnologyLayer"
 ,"included_elements": [
@@ -607,7 +573,6 @@
 {
 "view_id": "182",
 "view_name": "ProjectManagement"
-,"browser_path": "Model/System/ProjectManagement/ProjectManagement/ProjectManagement"
 ,"parent_element_id": "1720"
 ,"parent_element_name": "ProjectManagement"
 ,"included_elements": [
@@ -620,7 +585,6 @@
 {
 "view_id": "177",
 "view_name": "SystemArchitecture"
-,"browser_path": "Model/System/SystemArchitecture"
 ,"included_elements": [
 "1716",
 "1717",
