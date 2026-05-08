@@ -83,7 +83,7 @@ ai4x_query(command="schema", sourceId="tara")
 ```text
 ai4x_query(command="schema", sourceId="ses")
 ai4x_query(command="schema", sourceId="opencti")
-ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship", typeName="...")
+ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")
 ```
 
 重点确认以下对象是否可消费：

@@ -76,7 +76,7 @@ ai4x_query(command="schema", sourceId="opencti")
 若需要确认具体字段，再调用：
 
 ```text
-ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship", typeName="indicator|relationship|report|malware|infrastructure|intrusion-set|attack-pattern")
+ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="indicator|report|malware|infrastructure|intrusion-set|attack-pattern|related-to|relationship")
 ```
 
 重点确认以下对象是否可消费：

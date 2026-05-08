@@ -104,7 +104,7 @@ ai4x_query(command="schema", sourceId="cve2oss")
 对 `opencti` 额外适用：`schema(opencti)` 只用于确认对象类型、关系类型和 detail 指针；若要确认具体字段，再调用：
 
 ```text
-ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship", typeName="...")
+ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")
 ```
 
 ## Step 3. 提取事件主线索

@@ -13,6 +13,7 @@ DEFAULT_AI4X_BASE_URL = "http://localhost:8000"
 DEFAULT_AI4X_TIMEOUT_SECONDS = 15.0
 API_CENTER_PREFIX = "/api/v1/api-center"
 LOOPBACK_HOSTNAMES = {"localhost", "127.0.0.1", "0.0.0.0", "::1"}
+SUPPORTED_OPENCTI_DETAIL_KINDS = {"object", "relationship-type", "relationship-schema"}
 
 
 class AI4XPlatformError(RuntimeError):
@@ -191,6 +192,10 @@ def fetch_source_schema_detail(
         raise AI4XPlatformError("source_id must be a non-empty string.")
     if not normalized_detail_kind:
         raise AI4XPlatformError("detail_kind must be a non-empty string.")
+    if normalized_source_id == "opencti" and normalized_detail_kind not in SUPPORTED_OPENCTI_DETAIL_KINDS:
+        raise AI4XPlatformError(
+            "OpenCTI detail_kind must be one of: object, relationship-type, relationship-schema."
+        )
     if not normalized_type_name:
         raise AI4XPlatformError("type_name must be a non-empty string.")
     return _request_json(

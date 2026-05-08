@@ -10,9 +10,11 @@ import { z } from "zod";
 
 const FILE_DIR = path.dirname(fileURLToPath(import.meta.url));
 const LOCAL_WORKSPACE_ROOT = path.resolve(FILE_DIR, "..", "..");
+const OPENCTI_DETAIL_KINDS = ["object", "relationship-type", "relationship-schema"];
 const ANALYST_AGENTS = new Set(["ThreatIntelAnalyst", "AttackPathAgent", "ThreatIntelAnalyst_test", "ThreatIntelUnknownHuntPrimary", "ThreatHunterAgent", "CypherGraphqlConversionWorker", "IncidentResponseAgent", "SecuritySituationalAwarenessAgent", "SupplyChainRiskAgent", "VulnerabilityImpactAgent", "IOCTriageAgent", "IncidentReportingAgent"]);
 const SECOPS_AGENTS = new Set(["ThreatIntelSecOps", "TARA_analyst"]);
 const nonEmptyString = z.string().trim().min(1);
+const openctiDetailKindSchema = z.enum(OPENCTI_DETAIL_KINDS);
 const ai4xCatalogSchema = z.object({
   version: z.string().optional(),
   total_databases: z.number().int().nonnegative().optional(),
@@ -211,7 +213,7 @@ export default tool({
   args: {
     command: tool.schema.enum(["catalog", "schema", "detail", "query"]),
     sourceId: tool.schema.string().optional(),
-    detailKind: tool.schema.string().optional(),
+    detailKind: tool.schema.enum(OPENCTI_DETAIL_KINDS).optional(),
     typeName: tool.schema.string().optional(),
     cypher: tool.schema.string().optional(),
     paramsJson: tool.schema.string().optional(),
@@ -229,7 +231,7 @@ export default tool({
       nonEmptyString.parse(args.sourceId);
     }
     if (args.command === "detail") {
-      nonEmptyString.parse(args.detailKind);
+      openctiDetailKindSchema.parse(args.detailKind);
       nonEmptyString.parse(args.typeName);
     }
     if (args.command === "query") {

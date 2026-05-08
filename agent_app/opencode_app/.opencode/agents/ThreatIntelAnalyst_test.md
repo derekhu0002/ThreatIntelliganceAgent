@@ -35,7 +35,7 @@ tools:
 
 1. `ai4x_query(command="catalog")`
 2. `ai4x_query(command="schema", sourceId="...")`
-3. 若 `sourceId="opencti"` 且需要具体对象或关系字段，再调用 `ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship", typeName="...")`
+3. 若 `sourceId="opencti"` 且需要具体对象或关系字段，再调用 `ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")`
 4. `ai4x_query(command="query", sourceId="...", cypher="...")`
 
 约束：

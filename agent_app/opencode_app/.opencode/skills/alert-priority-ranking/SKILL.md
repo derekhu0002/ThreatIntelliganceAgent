@@ -68,7 +68,7 @@ ai4x_query(command="catalog")
 
 ```text
 ai4x_query(command="schema", sourceId="opencti")
-ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship", typeName="...")
+ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")
 ```
 
 重点确认以下对象或字段是否可消费：

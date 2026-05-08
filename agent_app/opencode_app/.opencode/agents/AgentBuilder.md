@@ -240,7 +240,7 @@ tools:
     - 技能的 SOP 中涉及任何实际查询前，必须强制遵循流水线：
      - **第一步 (Catalog)**：调用 `ai4x_query(command="catalog")` 确认该场景需要的数据源 (`sourceId`) 是否存在。
        - **第二步 (Schema)**：调用 `ai4x_query(command="schema", sourceId="xxx")` 获取目标数据源的模式入口；若 `sourceId="opencti"`，此结果只应视为最小目录而非全量字段定义。
-       - **第三步 (Detail, OpenCTI only)**：若 `opencti` 查询需要具体对象或关系字段，再调用 `ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship", typeName="...")` 按需下钻。
+      - **第三步 (Detail, OpenCTI only)**：若 `opencti` 查询需要具体对象或关系字段，再调用 `ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")` 按需下钻。
        - **第四步 (Query)**：根据刚确认的 Schema 或 Detail 结果构造 Cypher 语句，调用 `ai4x_query(command="query", sourceId="xxx", cypher="...")` 发起真实查询。
 3. **事实与推断分离**：
    - 查询返回的“直接事实（Fact）”与“图谱推断（Inference）”必须在输出给用户时明确分离；若未命中任何目标，必须返回结构化的“空结果”，禁止大模型幻觉编造数据。

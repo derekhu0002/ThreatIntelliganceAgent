@@ -498,7 +498,7 @@ def test_ai4x_acceptance_agent_descriptor_exists_and_is_toolchain_scoped() -> No
     assert "ai4x_query: true" in agent_text
     assert 'ai4x_query(command="catalog")' in agent_text
     assert 'ai4x_query(command="schema", sourceId="...")' in agent_text
-    assert 'ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship", typeName="...")' in agent_text
+    assert 'ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")' in agent_text
     assert 'ai4x_query(command="query", sourceId="...", cypher="...")' in agent_text
     assert '"*": deny' in agent_text
 

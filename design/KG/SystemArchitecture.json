@@ -162,7 +162,7 @@
 "name": "ai4x_query"
 ,"type": "ArchiMate_ApplicationComponent,_TOOL_"
 ,"browser_path": "Model/System/ApplicationLayer/ApplicationLayer/Tools/ai4x_query"
-,"description": "  description: \"Discover and query the real AI4X Platform API Center.\",\r\n  args: {\r\n    command: tool.schema.enum([\"catalog\", \"schema\", \"query\"]),\r\n    sourceId: tool.schema.string().optional(),\r\n    cypher: tool.schema.string().optional(),\r\n    paramsJson: tool.schema.string().optional(),\r\n    limit: tool.schema.number().int().optional(),\r\n    baseUrl: tool.schema.string().optional(),\r\n    pythonBin: tool.schema.string().optional(),\r\n  }"
+,"description": "  description: \"Discover, progressively inspect schema, and query the real AI4X Platform API Center.\",\r\n  args: {\r\n    command: tool.schema.enum([\"catalog\", \"schema\", \"detail\", \"query\"]),\r\n    sourceId: tool.schema.string().optional(),\r\n    detailKind: tool.schema.enum([\"object\", \"relationship-type\", \"relationship-schema\"]).optional(),\r\n    typeName: tool.schema.string().optional(),\r\n    cypher: tool.schema.string().optional(),\r\n    paramsJson: tool.schema.string().optional(),\r\n    limit: tool.schema.number().int().optional(),\r\n    baseUrl: tool.schema.string().optional(),\r\n    pythonBin: tool.schema.string().optional(),\r\n  }"
 ,"attributes": [
 {
 "name": "IMPLEMENTATION"

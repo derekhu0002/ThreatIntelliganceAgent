@@ -32,7 +32,11 @@ def build_parser() -> argparse.ArgumentParser:
 
     detail_parser = subparsers.add_parser("detail", help="Fetch one progressive AI4X schema detail view")
     detail_parser.add_argument("--source-id", required=True, help="AI4X source_id to inspect.")
-    detail_parser.add_argument("--detail-kind", required=True, help="Schema detail kind, for example object or relationship.")
+    detail_parser.add_argument(
+        "--detail-kind",
+        required=True,
+        help="Schema detail kind: object, relationship-type, or relationship-schema.",
+    )
     detail_parser.add_argument("--type-name", required=True, help="Concrete type name to inspect.")
 
     query_parser = subparsers.add_parser("query", help="Execute one AI4X universal query")
