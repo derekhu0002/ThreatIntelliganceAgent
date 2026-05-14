@@ -25,9 +25,10 @@ Apply it as a working protocol:
 
 1. Use the graph as the first fact source, read it as modeled architecture rather than informal prose, and preserve ArchiMate semantics instead of rewriting them by naming intuition.
 2. Treat `attributes`, `description`, `browser_path`, `acceptanceCriteria`, `#file:...`, and `#sym:...` as evidence pointers; follow them on demand, but do not let referenced evidence override explicit graph semantics.
-3. Treat explicit testcase baselines as stable acceptance boundaries unless the user is explicitly redesigning intent architecture; do not add, delete, rebuild, or redefine them during ordinary implementation or repair work.
-4. Keep stage boundaries explicit: intent design updates intent, implementation architecture design updates contracts and testcase ownership, coding updates implementation only, and support tests or runtime notes belong in implementation assets rather than the intent layer.
-5. Do not conclude from isolated names or descriptions; use nearby relationships, views, upstream and downstream context, and referenced evidence together, make only minimal assumptions, and clearly separate repository-confirmed facts from assumptions in the final explanation.
+3. When only local architecture context is needed for a specific element or testcase, prefer the repository subgraph CLI `npm run argo:subgraph -- --elementId <id>` or `npm run argo:subgraph -- --testcaseName "<name>"` instead of defaulting to full-graph ingestion.
+4. Treat explicit testcase baselines as stable acceptance boundaries unless the user is explicitly redesigning intent architecture; do not add, delete, rebuild, or redefine them during ordinary implementation or repair work.
+5. Keep stage boundaries explicit: intent design updates intent, implementation architecture design updates contracts and testcase ownership, coding updates implementation only, and support tests or runtime notes belong in implementation assets rather than the intent layer.
+6. Do not conclude from isolated names or descriptions; use nearby relationships, views, upstream and downstream context, and referenced evidence together, make only minimal assumptions, and clearly separate repository-confirmed facts from assumptions in the final explanation.
 
 ## Architecture Layers
 
