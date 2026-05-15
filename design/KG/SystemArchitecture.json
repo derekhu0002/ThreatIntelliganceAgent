@@ -5,6 +5,7 @@
 {
 "id": "1716",
 "name": "StrategyLayerAndMotivationAspect"
+,"parent": "0"
 ,"type": "ArchiMate_Assessment"
 ,"subdiagram_views": [
 {
@@ -16,6 +17,7 @@
 {
 "id": "1717",
 "name": "BusinessLayer"
+,"parent": "0"
 ,"type": "ArchiMate_Assessment"
 ,"subdiagram_views": [
 {
@@ -27,6 +29,7 @@
 {
 "id": "1718",
 "name": "ApplicationLayer"
+,"parent": "0"
 ,"type": "ArchiMate_Assessment"
 ,"subdiagram_views": [
 {
@@ -38,6 +41,7 @@
 {
 "id": "1719",
 "name": "TechnologyLayer"
+,"parent": "0"
 ,"type": "ArchiMate_Assessment"
 ,"subdiagram_views": [
 {
@@ -49,13 +53,8 @@
 {
 "id": "1720",
 "name": "ProjectManagement"
+,"parent": "0"
 ,"type": "ArchiMate_Assessment"
-,"attributes": [
-{
-"name": "GRAPH_USAGE_GUIDE"
-,"description": "将本文件作为意图架构知识图谱与行动约束入口使用，而不是静态清单。阅读和行动时遵循以下规则：1. 优先把本图谱当作当前任务的第一事实来源，先通读相关元素、relationships、views、attributes、testcases，再决定是否继续读取代码、测试、脚本、文档或其它外部文件。2. 本图谱以Archimate建模语言为主，辅之其它建模语言（如UML等）；所有Archimate元素的语义都以Archimate标准定义为准，不得仅凭元素名称或自然语言习惯随意改写。3. 凡属性、description、browser_path、acceptanceCriteria或其它字段指向仓库路径、#file、#sym 或外部模型线索时，应将其视为需要按需追溯的证据入口；引用内容用于补充上下文，不得推翻图谱中已经明确写出的原则、约束、显性testcase与关系语义。4. 该图谱中若存在 `Archimate_principle`、`Archimate_constrain` 等元素，你必须优先识别并严格服从；它们是硬约束，用来限制你的推理、设计与行动边界，你不能超过这些约束。5. 遇到信息冲突时，按以下优先级处理：硬约束元素与原则 &gt; 显性testcase及意图架构显式语义 &gt; 元素、关系、视图、attributes中的明确描述 &gt; 被引用文件或符号 &gt; 当前代码现状；代码只是实现证据，不会自动覆盖意图。6. 显性testcase是意图架构验收基线。除非任务明确属于意图架构设计并要求更新基线，否则你不得擅自新增、删除、重建或改写显性testcase的目标、挂载对象、断言口径与范围；编码或修复阶段只能补齐其可执行入口、支撑性实现、支撑性测试与运行环境。7. 修改边界必须清晰：意图架构设计阶段负责更新意图元素、关系、视图与显性testcase；实现架构设计阶段负责维护实现架构；编码阶段默认修改代码、测试、脚本和文档，不得把实现偏差直接回写成意图漂移。8. 分析问题时必须沿追溯链理解上下文，不得只看单个元素名称或单段description；至少应综合相关元素、关系、视图、上下游依赖、引用文件与测试挂载点后再下结论。9. 当图谱信息不完整时，可以基于仓库证据做最小必要推断，但必须显式标记假设，且不得臆造不存在的外部接口、SLA、部署事实、组织流程或新的显性验收基线。10. 若需要新增支撑性测试、实现护栏或运行环境说明，应优先写入实现架构、代码、测试与对应文档的正确落点，而不是污染意图层。11. 最终输出必须能说明：你读取了哪些图谱证据，遵守了哪些原则或约束，哪些结论是仓库已证实事实，哪些内容只是带标记的最小假设。"
-}
-]
 ,"subdiagram_views": [
 {
 "view_id": "182",
@@ -66,12 +65,14 @@
 {
 "id": "1728",
 "name": "业务和数据分离原则"
+,"parent": "1716"
 ,"type": "ArchiMate_Principle"
 ,"description": "系统应将业务语义处理、任务决策与底层数据访问能力严格解耦；业务侧通过稳定的 schema 和 tool contract 使用数据能力，而不直接依赖具体数据库、接口协议或后端实现细节。"
 },
 {
 "id": "1738",
 "name": "Agents"
+,"parent": "1718"
 ,"type": "ArchiMate_ApplicationComponent"
 ,"subdiagram_views": [
 {
@@ -93,6 +94,7 @@
 {
 "id": "1739",
 "name": "Tools"
+,"parent": "1718"
 ,"type": "ArchiMate_ApplicationComponent"
 ,"subdiagram_views": [
 {
@@ -122,6 +124,7 @@
 {
 "id": "1744",
 "name": "OPENCODE RUNTIME"
+,"parent": "1719"
 ,"type": "ArchiMate_Node"
 ,"description": "真实opencode服务，访问地址为：http://127.0.0.1:8124"
 ,"attributes": [
@@ -134,6 +137,7 @@
 {
 "id": "1745",
 "name": "AI4X-Platform"
+,"parent": "1718"
 ,"type": "ArchiMate_ApplicationService,_EXTERNAL_SYSTEM_"
 ,"description": "https://github.com/Auto-Iven/AI4X-Platform/tree/Skills-VulImpAssess"
 ,"attributes": [
@@ -150,6 +154,7 @@
 {
 "id": "1748",
 "name": "ai4x_query"
+,"parent": "1739"
 ,"type": "ArchiMate_ApplicationComponent,_TOOL_"
 ,"description": "  description: \"Discover and query the real AI4X Platform API Center.\",\r\n  args: {\r\n    command: tool.schema.enum([\"catalog\", \"schema\", \"query\"]),\r\n    sourceId: tool.schema.string().optional(),\r\n    cypher: tool.schema.string().optional(),\r\n    paramsJson: tool.schema.string().optional(),\r\n    limit: tool.schema.number().int().optional(),\r\n    baseUrl: tool.schema.string().optional(),\r\n    pythonBin: tool.schema.string().optional(),\r\n  }"
 ,"attributes": [
@@ -162,6 +167,7 @@
 {
 "id": "1749",
 "name": "ThreatIntelAnalyst"
+,"parent": "1738"
 ,"type": "ArchiMate_ApplicationComponent"
 ,"description": "TODO:需要完善AGENT的身份和职责定义、基本行为设计，使得它能根据用户输入或组合不同SKILL"
 ,"attributes": [
@@ -180,6 +186,7 @@
 {
 "id": "1751",
 "name": "SKILLS"
+,"parent": "1718"
 ,"type": "ArchiMate_DataObject"
 ,"description": "每个场景一个SKILL"
 ,"attributes": [
@@ -192,6 +199,7 @@
 {
 "id": "1752",
 "name": "AGENT构建"
+,"parent": "1720"
 ,"type": "ArchiMate_WorkPackage"
 ,"attributes": [
 {
@@ -203,6 +211,7 @@
 {
 "id": "1753",
 "name": "业务场景"
+,"parent": "1717"
 ,"type": "ArchiMate_BusinessProcess"
 ,"attributes": [
 {
@@ -214,17 +223,20 @@
 {
 "id": "1754",
 "name": "人类"
+,"parent": "1717"
 ,"type": "ArchiMate_BusinessActor"
 },
 {
 "id": "1755",
 "name": "业务人员可以通过AI辅助快速完成业务AGENT构建"
+,"parent": "1716"
 ,"type": "ArchiMate_Outcome"
 ,"description": "将自己的业务场景描述完成后，调用系统提供的提示词即可完成原型AGENT构建"
 },
 {
 "id": "1757",
 "name": "AGENT设计原则"
+,"parent": "1716"
 ,"type": "ArchiMate_Principle"
 ,"attributes": [
 {
@@ -236,6 +248,7 @@
 {
 "id": "1758",
 "name": "AttackPathAgent"
+,"parent": "1738"
 ,"type": "ArchiMate_ApplicationComponent"
 ,"attributes": [
 {
@@ -251,6 +264,7 @@
 {
 "id": "1759",
 "name": "ThreatIntelAttributionAnalyst"
+,"parent": "1738"
 ,"type": "ArchiMate_ApplicationComponent"
 ,"attributes": [
 {
@@ -262,6 +276,7 @@
 {
 "id": "1760",
 "name": "SecuritySituationalAwarenessAgent"
+,"parent": "1738"
 ,"type": "ArchiMate_ApplicationComponent"
 ,"attributes": [
 {
@@ -277,6 +292,7 @@
 {
 "id": "1761",
 "name": "IncidentResponseAgent"
+,"parent": "1738"
 ,"type": "ArchiMate_ApplicationComponent"
 ,"attributes": [
 {
@@ -292,6 +308,7 @@
 {
 "id": "1762",
 "name": "SupplyChainRiskAgent"
+,"parent": "1738"
 ,"type": "ArchiMate_ApplicationComponent"
 ,"attributes": [
 {
@@ -307,6 +324,7 @@
 {
 "id": "1763",
 "name": "VulnerabilityImpactAgent"
+,"parent": "1738"
 ,"type": "ArchiMate_ApplicationComponent"
 ,"attributes": [
 {
@@ -322,6 +340,7 @@
 {
 "id": "1764",
 "name": "IOCTriageAgent"
+,"parent": "1738"
 ,"type": "ArchiMate_ApplicationComponent"
 ,"attributes": [
 {
@@ -337,6 +356,7 @@
 {
 "id": "1765",
 "name": "ThreatHunterAgent"
+,"parent": "1738"
 ,"type": "ArchiMate_ApplicationComponent"
 ,"attributes": [
 {
@@ -352,6 +372,7 @@
 {
 "id": "1766",
 "name": "IncidentReportingAgent"
+,"parent": "1738"
 ,"type": "ArchiMate_ApplicationComponent"
 ,"attributes": [
 {
