@@ -1,5 +1,6 @@
 import json
 import os
+import ssl
 import subprocess
 from pathlib import Path
 from time import monotonic, sleep
@@ -85,6 +86,111 @@ def test_ai4x_base_url_can_fall_back_to_repo_env_file(
 
     try:
         assert resolver() == "http://ai4x.internal:9000"
+    finally:
+        module._load_repo_env_values.cache_clear()
+
+
+@pytest.mark.parametrize("module", [root_ai4x_client, isolated_runtime_ai4x_client])
+def test_ai4x_https_uses_custom_ca_file_from_repo_env(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    module,
+) -> None:
+    env_file = tmp_path / ".env"
+    cert_file = tmp_path / "ai4x-ca.pem"
+    cert_file.write_text("dummy-ca", encoding="utf-8")
+    env_file.write_text(f"THREAT_INTEL_AI4X_CA_CERT_FILE={cert_file}\n", encoding="utf-8")
+
+    calls: list[str | None] = []
+
+    def fake_create_default_context(*, cafile=None):
+        calls.append(cafile)
+        return ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+
+    monkeypatch.setattr(module, "REPO_ENV_FILE", env_file)
+    module._load_repo_env_values.cache_clear()
+    monkeypatch.setattr(module.ssl, "create_default_context", fake_create_default_context)
+    monkeypatch.delenv("THREAT_INTEL_AI4X_CA_CERT_FILE", raising=False)
+    monkeypatch.delenv("AI4X_PLATFORM_CA_CERT_FILE", raising=False)
+
+    try:
+        context = module._build_ssl_context("https://ai4sec.xx.com")
+        assert context is not None
+        assert calls == [str(cert_file)]
+    finally:
+        module._load_repo_env_values.cache_clear()
+
+
+@pytest.mark.parametrize("module", [root_ai4x_client, isolated_runtime_ai4x_client])
+def test_ai4x_https_resolves_relative_ca_file_from_repo_env_location(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    module,
+) -> None:
+    cert_dir = tmp_path / "certs"
+    cert_dir.mkdir()
+    cert_file = cert_dir / "ai4x-root-ca.pem"
+    cert_file.write_text("dummy-ca", encoding="utf-8")
+    env_file = tmp_path / ".env"
+    env_file.write_text("THREAT_INTEL_AI4X_CA_CERT_FILE=certs/ai4x-root-ca.pem\n", encoding="utf-8")
+
+    calls: list[str | None] = []
+
+    def fake_create_default_context(*, cafile=None):
+        calls.append(cafile)
+        return ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+
+    monkeypatch.setattr(module, "REPO_ENV_FILE", env_file)
+    module._load_repo_env_values.cache_clear()
+    monkeypatch.setattr(module.ssl, "create_default_context", fake_create_default_context)
+    monkeypatch.delenv("THREAT_INTEL_AI4X_CA_CERT_FILE", raising=False)
+    monkeypatch.delenv("AI4X_PLATFORM_CA_CERT_FILE", raising=False)
+
+    try:
+        context = module._build_ssl_context("https://ai4sec.xx.com")
+        assert context is not None
+        assert calls == [str(cert_file.resolve())]
+    finally:
+        module._load_repo_env_values.cache_clear()
+
+
+@pytest.mark.parametrize("module", [root_ai4x_client, isolated_runtime_ai4x_client])
+def test_ai4x_https_can_skip_ssl_verify_when_explicitly_enabled(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    module,
+) -> None:
+    env_file = tmp_path / ".env"
+    env_file.write_text("THREAT_INTEL_AI4X_SKIP_SSL_VERIFY=1\n", encoding="utf-8")
+
+    monkeypatch.setattr(module, "REPO_ENV_FILE", env_file)
+    module._load_repo_env_values.cache_clear()
+
+    try:
+        context = module._build_ssl_context("https://ai4sec.xx.com")
+        assert context is not None
+        assert context.check_hostname is False
+        assert context.verify_mode == ssl.CERT_NONE
+    finally:
+        module._load_repo_env_values.cache_clear()
+
+
+@pytest.mark.parametrize("module", [root_ai4x_client, isolated_runtime_ai4x_client])
+def test_ai4x_https_ca_file_must_exist(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    module,
+) -> None:
+    env_file = tmp_path / ".env"
+    missing_cert_file = tmp_path / "missing-ca.pem"
+    env_file.write_text(f"THREAT_INTEL_AI4X_CA_CERT_FILE={missing_cert_file}\n", encoding="utf-8")
+
+    monkeypatch.setattr(module, "REPO_ENV_FILE", env_file)
+    module._load_repo_env_values.cache_clear()
+
+    try:
+        with pytest.raises(module.AI4XPlatformError, match="CA certificate file does not exist"):
+            module._build_ssl_context("https://ai4sec.xx.com")
     finally:
         module._load_repo_env_values.cache_clear()
 

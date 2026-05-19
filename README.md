@@ -135,6 +135,8 @@ python3 -m pip install -r requirements.txt
 - `THREAT_INTEL_AI4X_AUTH_MODE`：`none` / `apikey` / `jwt`
 - `THREAT_INTEL_AI4X_API_KEY`：AI4X API Key
 - `THREAT_INTEL_AI4X_JWT`：AI4X JWT
+- `THREAT_INTEL_AI4X_CA_CERT_FILE`：HTTPS 场景下用于校验证书链的 CA PEM 文件路径
+- `THREAT_INTEL_AI4X_SKIP_SSL_VERIFY=1`：临时跳过 HTTPS 证书校验，仅建议排障时使用
 
 ### 4.5 稳定环境变量配置方案
 
@@ -160,6 +162,30 @@ Copy-Item .env.example .env
 
 ```dotenv
 THREAT_INTEL_AI4X_BASE_URL=http://your-ai4x-host:8000
+THREAT_INTEL_AI4X_AUTH_MODE=none
+```
+
+如果 AI4X 地址是内网 HTTPS，例如 `https://ai4sec.xx.com/`，优先配置受信任 CA：
+
+```dotenv
+THREAT_INTEL_AI4X_BASE_URL=https://ai4sec.xx.com
+THREAT_INTEL_AI4X_CA_CERT_FILE=C:/certs/ai4x-root-ca.pem
+THREAT_INTEL_AI4X_AUTH_MODE=none
+```
+
+`THREAT_INTEL_AI4X_CA_CERT_FILE` 也可以使用相对路径；相对路径会按仓库根目录 `.env` 所在位置解析，例如：
+
+```dotenv
+THREAT_INTEL_AI4X_BASE_URL=https://ai4sec.xx.com
+THREAT_INTEL_AI4X_CA_CERT_FILE=certs/ai4x-root-ca.pem
+THREAT_INTEL_AI4X_AUTH_MODE=none
+```
+
+只有在临时排障、确认是证书链问题时，才建议短时间使用：
+
+```dotenv
+THREAT_INTEL_AI4X_BASE_URL=https://ai4sec.xx.com
+THREAT_INTEL_AI4X_SKIP_SSL_VERIFY=1
 THREAT_INTEL_AI4X_AUTH_MODE=none
 ```
 

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import ssl
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -63,6 +64,18 @@ def _resolve_setting(*names: str) -> str:
             return value
 
     return ""
+
+
+def _resolve_bool_setting(*names: str) -> bool:
+    resolved = _resolve_setting(*names).lower()
+    return resolved in {"1", "true", "yes", "on"}
+
+
+def _resolve_repo_relative_path(raw_path: str) -> Path:
+    candidate = Path(raw_path).expanduser()
+    if candidate.is_absolute():
+        return candidate
+    return (REPO_ENV_FILE.parent / candidate).resolve()
 
 
 def _prefer_container_reachable_base_url(resolved: str, configured_fallback: str | None) -> str:
@@ -142,6 +155,26 @@ def _build_auth_headers() -> dict[str, str]:
     raise AI4XPlatformError(f"Unsupported AI4X auth mode: {mode}")
 
 
+def _build_ssl_context(base_url: str) -> ssl.SSLContext | None:
+    if urlparse(base_url).scheme.lower() != "https":
+        return None
+
+    if _resolve_bool_setting("THREAT_INTEL_AI4X_SKIP_SSL_VERIFY", "AI4X_PLATFORM_SKIP_SSL_VERIFY"):
+        context = ssl.create_default_context()
+        context.check_hostname = False
+        context.verify_mode = ssl.CERT_NONE
+        return context
+
+    ca_cert_file = _resolve_setting("THREAT_INTEL_AI4X_CA_CERT_FILE", "AI4X_PLATFORM_CA_CERT_FILE")
+    if ca_cert_file:
+        normalized_ca_cert_file = _resolve_repo_relative_path(ca_cert_file)
+        if not normalized_ca_cert_file.is_file():
+            raise AI4XPlatformError(f"AI4X CA certificate file does not exist: {normalized_ca_cert_file}")
+        return ssl.create_default_context(cafile=str(normalized_ca_cert_file))
+
+    return ssl.create_default_context()
+
+
 def _request_json(
     method: str,
     path: str,
@@ -153,6 +186,7 @@ def _request_json(
     resolved_base_url = resolve_ai4x_base_url(base_url)
     resolved_timeout_seconds = _resolve_timeout_seconds(timeout_seconds)
     url = f"{resolved_base_url}{path}"
+    ssl_context = _build_ssl_context(resolved_base_url)
     body = None if payload is None else json.dumps(payload, ensure_ascii=False).encode("utf-8")
     headers = {
         "Accept": "application/json",
@@ -161,7 +195,10 @@ def _request_json(
     if body is not None:
         headers["Content-Type"] = "application/json"
 
-    opener = request.build_opener(request.ProxyHandler({}))
+    handlers: list[request.BaseHandler] = [request.ProxyHandler({})]
+    if ssl_context is not None:
+        handlers.append(request.HTTPSHandler(context=ssl_context))
+    opener = request.build_opener(*handlers)
     http_request = request.Request(url, data=body, headers=headers, method=method.upper())
 
     try:
