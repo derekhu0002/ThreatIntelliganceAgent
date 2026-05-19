@@ -136,6 +136,40 @@ python3 -m pip install -r requirements.txt
 - `THREAT_INTEL_AI4X_API_KEY`：AI4X API Key
 - `THREAT_INTEL_AI4X_JWT`：AI4X JWT
 
+### 4.5 稳定环境变量配置方案
+
+仓库根目录现在支持把 AI4X 相关配置固定在 `.env` 中，供三类入口共享：
+
+- 根目录 Python 代码，例如 `services/ai4x_client.py`
+- OPENCODE 隔离运行时，例如 `agent_app/opencode_app/tools/ai4x_cli.py`
+- Docker Compose 中的 OPENCODE 容器，`agent_app/docker-compose.yml`
+
+推荐做法：
+
+1. 复制仓库根目录的 `.env.example` 为 `.env`
+2. 把 `THREAT_INTEL_AI4X_BASE_URL` 改成你的真实 AI4X 地址
+3. 如需鉴权，再补 `THREAT_INTEL_AI4X_AUTH_MODE` 和对应凭据
+
+PowerShell：
+
+```powershell
+Copy-Item .env.example .env
+```
+
+最小示例：
+
+```dotenv
+THREAT_INTEL_AI4X_BASE_URL=http://your-ai4x-host:8000
+THREAT_INTEL_AI4X_AUTH_MODE=none
+```
+
+优先级规则：
+
+- 显式命令行参数最高，例如 `--base-url`
+- 当前进程环境变量次之，例如 PowerShell 中的 `$env:THREAT_INTEL_AI4X_BASE_URL`
+- 仓库根目录 `.env` 再次之
+- 代码内默认值最后兜底
+
 ## 5. 如何使用这个系统
 
 下面按“最容易上手”到“真实集成”给出三条路径。

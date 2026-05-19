@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 import os
+from functools import lru_cache
+from pathlib import Path
 from typing import Any
 from urllib import error, request
 from urllib.parse import urlparse, urlunparse
@@ -14,10 +16,53 @@ DEFAULT_AI4X_TIMEOUT_SECONDS = 15.0
 API_CENTER_PREFIX = "/api/v1/api-center"
 LOOPBACK_HOSTNAMES = {"localhost", "127.0.0.1", "0.0.0.0", "::1"}
 SUPPORTED_OPENCTI_DETAIL_KINDS = {"object", "relationship-type", "relationship-schema"}
+REPO_ENV_FILE = Path(__file__).resolve().parents[3] / ".env"
 
 
 class AI4XPlatformError(RuntimeError):
     """Raised when AI4X Platform API Center access fails."""
+
+
+@lru_cache(maxsize=1)
+def _load_repo_env_values() -> dict[str, str]:
+    if not REPO_ENV_FILE.is_file():
+        return {}
+
+    values: dict[str, str] = {}
+    for raw_line in REPO_ENV_FILE.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if line.startswith("export "):
+            line = line[7:].strip()
+        if "=" not in line:
+            continue
+
+        key, value = line.split("=", 1)
+        normalized_key = key.strip()
+        normalized_value = value.strip()
+        if not normalized_key:
+            continue
+        if len(normalized_value) >= 2 and normalized_value[0] == normalized_value[-1] and normalized_value[0] in {"'", '"'}:
+            normalized_value = normalized_value[1:-1]
+        values[normalized_key] = normalized_value
+
+    return values
+
+
+def _resolve_setting(*names: str) -> str:
+    for name in names:
+        value = str(os.environ.get(name) or "").strip()
+        if value:
+            return value
+
+    repo_env_values = _load_repo_env_values()
+    for name in names:
+        value = str(repo_env_values.get(name) or "").strip()
+        if value:
+            return value
+
+    return ""
 
 
 def _prefer_container_reachable_base_url(resolved: str, configured_fallback: str | None) -> str:
@@ -53,11 +98,7 @@ def _normalize_python_loopback_base_url(resolved: str) -> str:
 
 
 def resolve_ai4x_base_url(base_url: str | None = None) -> str:
-    configured_fallback = (
-        os.environ.get("THREAT_INTEL_AI4X_BASE_URL")
-        or os.environ.get("AI4X_PLATFORM_BASE_URL")
-        or ""
-    )
+    configured_fallback = _resolve_setting("THREAT_INTEL_AI4X_BASE_URL", "AI4X_PLATFORM_BASE_URL")
     resolved = str(base_url or configured_fallback or DEFAULT_AI4X_BASE_URL).strip()
     if not resolved:
         raise AI4XPlatformError("AI4X base URL must be a non-empty string.")
@@ -66,7 +107,7 @@ def resolve_ai4x_base_url(base_url: str | None = None) -> str:
 
 
 def _resolve_timeout_seconds(timeout_seconds: float | None = None) -> float:
-    configured = os.environ.get("THREAT_INTEL_AI4X_TIMEOUT_SECONDS", "").strip()
+    configured = _resolve_setting("THREAT_INTEL_AI4X_TIMEOUT_SECONDS")
     if timeout_seconds is not None:
         return float(timeout_seconds)
     if not configured:
@@ -83,22 +124,17 @@ def _resolve_timeout_seconds(timeout_seconds: float | None = None) -> float:
 
 
 def _build_auth_headers() -> dict[str, str]:
-    mode = str(
-        os.environ.get("THREAT_INTEL_AI4X_AUTH_MODE")
-        or os.environ.get("AI4X_PLATFORM_AUTH_MODE")
-        or "none"
-    ).strip().lower()
+    mode = _resolve_setting("THREAT_INTEL_AI4X_AUTH_MODE", "AI4X_PLATFORM_AUTH_MODE") or "none"
+    mode = mode.lower()
     if mode == "none":
         return {}
     if mode == "apikey":
-        api_key = str(
-            os.environ.get("THREAT_INTEL_AI4X_API_KEY") or os.environ.get("AI4X_PLATFORM_API_KEY") or ""
-        ).strip()
+        api_key = _resolve_setting("THREAT_INTEL_AI4X_API_KEY", "AI4X_PLATFORM_API_KEY")
         if not api_key:
             raise AI4XPlatformError("AI4X auth mode is apikey but no API key is configured.")
         return {"X-API-Key": api_key}
     if mode == "jwt":
-        token = str(os.environ.get("THREAT_INTEL_AI4X_JWT") or os.environ.get("AI4X_PLATFORM_JWT") or "").strip()
+        token = _resolve_setting("THREAT_INTEL_AI4X_JWT", "AI4X_PLATFORM_JWT")
         if not token:
             raise AI4XPlatformError("AI4X auth mode is jwt but no JWT token is configured.")
         return {"Authorization": f"Bearer {token}"}

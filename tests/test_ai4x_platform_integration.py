@@ -8,7 +8,9 @@ from urllib import request, error
 
 import pytest
 
+from agent_app.opencode_app.services import ai4x_client as isolated_runtime_ai4x_client
 from agent_app.opencode_app.tools.ai4x_cli import resolve_ai4x_base_url as resolve_tool_ai4x_base_url
+from services import ai4x_client as root_ai4x_client
 from services.ai4x_client import (
     fetch_source_schema_detail,
     probe_ai4x_environment,
@@ -58,6 +60,33 @@ def test_ai4x_loopback_defaults_are_normalized_to_ipv4(
     monkeypatch.delenv("AI4X_PLATFORM_BASE_URL", raising=False)
     assert resolver("http://localhost:8000") == "http://127.0.0.1:8000"
     assert resolver("http://0.0.0.0:8000") == "http://127.0.0.1:8000"
+
+
+@pytest.mark.parametrize(
+    ("module", "resolver"),
+    [
+        (root_ai4x_client, resolve_ai4x_base_url),
+        (isolated_runtime_ai4x_client, isolated_runtime_ai4x_client.resolve_ai4x_base_url),
+    ],
+)
+def test_ai4x_base_url_can_fall_back_to_repo_env_file(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    module,
+    resolver,
+) -> None:
+    env_file = tmp_path / ".env"
+    env_file.write_text('THREAT_INTEL_AI4X_BASE_URL="http://ai4x.internal:9000"\n', encoding="utf-8")
+
+    monkeypatch.delenv("THREAT_INTEL_AI4X_BASE_URL", raising=False)
+    monkeypatch.delenv("AI4X_PLATFORM_BASE_URL", raising=False)
+    monkeypatch.setattr(module, "REPO_ENV_FILE", env_file)
+    module._load_repo_env_values.cache_clear()
+
+    try:
+        assert resolver() == "http://ai4x.internal:9000"
+    finally:
+        module._load_repo_env_values.cache_clear()
 
 
 def _assert_equivalent_ai4x_base_url(actual_base_url: str, expected_base_url: str) -> None:
