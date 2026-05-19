@@ -4,11 +4,13 @@ mode: primary
 model: DeepSeek_custom_provider/deepseek-chat
 temperature: 0.0
 permission:
-  edit: deny
-  bash: deny
+  edit: allow
+  bash: allow
   task:
     "*": deny
 tools:
+  edit: true
+  bash: true
   skill: true
   ai4x_query: true
 ---
