@@ -38,7 +38,7 @@ description: 当用户提供已确认事件摘要、恶意软件、IOC、攻击�
 执行查询前先声明：
 
 - 所有外部数据交互只能通过 `ai4x_query` 完成。
-- 任何真实查询必须先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。
+- 任何真实查询必须先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。对 `opencti` 的 query 默认采用平台 `auto` 策略，优先提交更容易被 GraphQL 支持的最小只读查询，由平台在不支持时自动回落 replica。
 - 必须严格区分 `Core Facts` 与 `Inferred Assessments`。
 - 不能自动处置、自动通知或自动归因，只能输出结构化事件报告和待复核关联发现。
 - 必须输出结构化边界说明和空结果片段。

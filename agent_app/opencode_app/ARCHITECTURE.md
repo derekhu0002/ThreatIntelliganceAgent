@@ -24,6 +24,7 @@ Reference root contract: `OVERALL_ARCHITECTURE.md`
 - Upstream callers are `.opencode/tools/*.js` only.
 - `tools/ai4x_cli.py` may depend on runtime-local `services/ai4x_client.py`.
 - Runtime-local services may call external systems.
+- For `source_id=opencti`, the runtime bridge must keep backend selection inside AI4X Platform's unified `query/universal` boundary: default `auto` mode prefers GraphQL and only falls back to replica when GraphQL cannot serve the requested read shape.
 - This runtime must not depend on root tests, root `.opencode/agents`, or unrelated repository helpers.
 
 ## Implements Mapping

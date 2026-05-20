@@ -98,6 +98,9 @@ These families are stable only as control-plane decomposition. They do not bypas
   - `agents/*` -> `skills/*` -> `.opencode/tools/*`
 - Runtime bridge dependency direction:
   - `.opencode/tools/*.js` -> `agent_app/opencode_app/tools/*.py` -> `agent_app/opencode_app/services/*.py` -> external systems
+- OpenCTI query strategy:
+  - `ai4x_query` and the isolated runtime bridge submit OpenCTI reads only through AI4X Platform's unified query boundary.
+  - callers must treat OpenCTI query routing as platform-owned `auto` mode: prefer the GraphQL-backed path when supported and let the platform fall back to the replica path when GraphQL does not support the requested shape.
 - Orchestration dependency direction:
   - `services/python_listener/listener.py` -> event normalization / remote dispatch / result validation
 - Contract dependency direction:

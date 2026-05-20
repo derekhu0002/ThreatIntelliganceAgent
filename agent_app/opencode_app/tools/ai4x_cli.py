@@ -39,7 +39,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     detail_parser.add_argument("--type-name", required=True, help="Concrete type name to inspect.")
 
-    query_parser = subparsers.add_parser("query", help="Execute one AI4X universal query")
+    query_parser = subparsers.add_parser(
+        "query",
+        help="Execute one AI4X universal query using the platform-owned routing strategy.",
+    )
     query_parser.add_argument("--source-id", required=True, help="AI4X source_id to query.")
     query_parser.add_argument("--cypher", required=True, help="Read-only Cypher to execute.")
     query_parser.add_argument("--params-json", default=None, help="Optional JSON object containing query params.")

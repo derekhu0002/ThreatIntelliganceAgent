@@ -36,7 +36,7 @@ description: 当用户提供安全事件标题、IOC、实体名或CVE，并希�
 在执行任何查询前，先声明以下约束：
 
 - 仅使用 `ai4x_query`。
-- 严格遵守渐进式查询顺序：先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。
+- 严格遵守渐进式查询顺序：先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。对 `opencti` 的 query 默认采用平台 `auto` 策略，优先提交更容易被 GraphQL 支持的最小只读查询，由平台在不支持时自动回落 replica。
 - 不编造字段、关系、对象或数据源。
 - 输出必须明确区分 `Facts` 与 `Inferences`。
 - 任一链路未命中时，保留已命中的事实，并对未命中部分返回结构化空结果。

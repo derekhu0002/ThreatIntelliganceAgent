@@ -41,7 +41,7 @@ description: 当用户希望从 IOC 或简短告警摘要出发，快速判断�
 执行任何查询前，先声明：
 
 - 所有外部数据交互只能通过 `ai4x_query` 完成。
-- 任何真实查询必须先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。
+- 任何真实查询必须先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。对 `opencti` 的 query 默认采用平台 `auto` 策略，优先提交更容易被 GraphQL 支持的最小只读查询，由平台在不支持时自动回落 replica。
 - 必须严格区分 `Direct Facts` 与 `Inferred Assessments`。
 - 平台外的 SIEM、EDR、CMDB 或工单系统只能作为外部补充上下文，而不是平台原生事实源。
 - 当缺少关键上下文、现场反馈或来源支撑时，允许输出“待人工确认”的结构化报告。

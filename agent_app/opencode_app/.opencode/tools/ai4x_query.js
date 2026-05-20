@@ -209,7 +209,7 @@ function parseValidatedCliOutput(stdout, command) {
 }
 
 export default tool({
-  description: "Discover, progressively inspect schema, and query the real AI4X Platform API Center.",
+  description: "Discover, progressively inspect schema, and query the real AI4X Platform API Center. OpenCTI queries use the platform's default auto strategy: prefer GraphQL when supported and fall back to the replica path when GraphQL does not support the requested shape.",
   args: {
     command: tool.schema.enum(["catalog", "schema", "detail", "query"]),
     sourceId: tool.schema.string().optional(),
@@ -249,6 +249,7 @@ export default tool({
         repoRoot,
         command: args.command,
         sourceId: args.sourceId || null,
+        queryMode: args.command === "query" && args.sourceId === "opencti" ? "auto" : null,
         detailKind: args.detailKind || null,
         typeName: args.typeName || null,
         baseUrl: args.baseUrl || null,

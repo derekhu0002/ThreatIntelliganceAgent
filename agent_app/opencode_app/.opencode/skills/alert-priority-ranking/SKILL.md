@@ -41,7 +41,7 @@ description: 当用户提供多个 IOC 或告警对象，并希望结合 OpenCTI
 执行查询前先声明：
 
 - 所有外部数据交互只能通过 `ai4x_query` 完成。
-- 任何真实查询必须先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。
+- 任何真实查询必须先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。对 `opencti` 的 query 默认采用平台 `auto` 策略，优先提交更容易被 GraphQL 支持的最小只读查询，由平台在不支持时自动回落 replica。
 - 不能编造 `confidence`、`valid_from`、`valid_until`。
 - 排序必须区分事实依据和解释性推断。
 - 若字段缺失，只能降低确定性并写入缺口，不能由模型补全。

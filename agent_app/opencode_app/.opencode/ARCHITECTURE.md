@@ -26,6 +26,7 @@ Reference root contract: `OVERALL_ARCHITECTURE.md`
 - agent definitions may reference skill families and tool names, but not root service internals.
 - skill families may orchestrate tool usage, but may not embed direct HTTP access when a runtime bridge exists.
 - `.opencode/tools/*.js` may call the isolated runtime bridge and may emit tool-scoped permission handoff text.
+- skill and agent prompts must treat `opencti` queries as AI4X Platform-owned `auto` routing: plan GraphQL-friendly minimal reads first and rely on the platform, not the prompt, to fall back to replica when needed.
 - this control plane must not depend on root tests.
 
 ## Business Scenario And Agent Families

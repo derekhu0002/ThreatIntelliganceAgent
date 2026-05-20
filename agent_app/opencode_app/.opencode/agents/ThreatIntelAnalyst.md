@@ -111,7 +111,7 @@ tools:
 
 - 编造任何其他工具名。
 - 绕过 Skill 中定义的工具调用路径。
-- 跳过渐进式查询顺序：先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，必须把 `schema` 当作最小目录，并在需要具体字段时再读取 `detail`，之后才进入 `query`。
+- 跳过渐进式查询顺序：先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，必须把 `schema` 当作最小目录，并在需要具体字段时再读取 `detail`，之后才进入 `query`；`opencti` 的 query 默认按平台 `auto` 策略规划，优先使用更容易被 GraphQL 支持的最小只读查询，由平台在不支持时自动回落 replica。
 
 ## Data Boundary
 
@@ -156,7 +156,7 @@ tools:
 1. `ai4x_query(command="catalog")`
 2. `ai4x_query(command="schema", sourceId="...")`
 3. 若 `sourceId="opencti"` 且需要具体对象或关系字段，再调用 `ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")`
-4. `ai4x_query(command="query", sourceId="...", cypher="...")`
+4. `ai4x_query(command="query", sourceId="...", cypher="...")`，其中 `opencti` 默认按平台 `auto` 模式思考查询形状，优先最小化、GraphQL-friendly 的只读查询。
 
 如果任何一步未满足执行前提：
 

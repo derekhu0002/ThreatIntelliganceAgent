@@ -1,4 +1,9 @@
-"""Real AI4X Platform API Center client helpers for the isolated OPENCODE runtime."""
+"""Real AI4X Platform API Center client helpers for the isolated OPENCODE runtime.
+
+OpenCTI reads stay on AI4X Platform's unified query boundary. The platform owns
+the default `auto` routing strategy: prefer GraphQL when supported and fall back
+to the replica path when GraphQL cannot serve the requested read shape.
+"""
 
 from __future__ import annotations
 
@@ -288,6 +293,12 @@ def execute_universal_query(
     base_url: str | None = None,
     timeout_seconds: float | None = None,
 ) -> dict[str, Any]:
+    """Execute one read-only unified query through AI4X Platform.
+
+    For `source_id=opencti`, callers still submit Cypher-shaped read intent to the
+    platform. Backend selection remains platform-owned under the default `auto`
+    strategy rather than being chosen in this client.
+    """
     normalized_source_id = str(source_id).strip()
     normalized_cypher = str(cypher).strip()
     if not normalized_source_id:

@@ -678,7 +678,8 @@ def test_ai4x_platform_data_consumption_flow_uses_real_opencode_server_and_real_
         "Call ai4x_query directly. First use command=catalog to discover AI4X sources. "
         "Do not pass a localhost or 127.0.0.1 baseUrl; use the tool's configured default endpoint. "
         "Then choose one discovered source_id and call command=schema for that same source_id. "
-        "Use the discovered schema/source information to construct a read-only Cypher query, then call command=query for the same source_id. "
+        "Use the discovered schema/source information to construct a read-only query intent, expressed through the cypher field, then call command=query for the same source_id. "
+        "If the selected source_id is opencti, prefer a GraphQL-friendly minimal read shape and rely on AI4X Platform's default auto strategy to fall back to replica when GraphQL does not support the requested shape. "
         "Do not call any tool except ai4x_query. After the query completes, return a short JSON object with selected_source_id, schema_source_id, query_source_id, cypher, and query_result_received."
     )
     _post_real_opencode_json(

@@ -43,7 +43,7 @@ description: 当用户希望在明确时间窗和范围内汇总整体安全态�
 执行任何查询前，先声明：
 
 - 所有外部数据交互只能通过 `ai4x_query` 完成。
-- 任何真实查询必须先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。
+- 任何真实查询必须先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。对 `opencti` 的 query 默认采用平台 `auto` 策略，优先提交更容易被 GraphQL 支持的最小只读查询，由平台在不支持时自动回落 replica。
 - 必须严格区分 `Direct Facts` 与 `Inferred Assessments`。
 - 平台外的事件摘要、告警热度或资产台账只能作为外部补充上下文，而不是平台原生事实源。
 - 当缺少关键字段、时间窗映射或范围锚点时，允许输出带边界说明的结构化报告。

@@ -35,7 +35,7 @@ description: 当用户提供已知威胁实体、报告标题、IOC、攻击模�
 在执行查询前，先声明以下规则：
 
 - 仅允许使用 `ai4x_query`。
-- 任何真实查询都必须先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。
+- 任何真实查询都必须先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。对 `opencti` 的 query 默认采用平台 `auto` 策略，优先提交更容易被 GraphQL 支持的最小只读查询，由平台在不支持时自动回落 replica。
 - 所有输出必须严格区分 `Facts` 与 `Inferences`。
 - 本技能不做自动归因，只允许输出“候选关联”或“可能同源”。
 - 空结果和排除项必须结构化输出，不能用模型补全未命中事实。

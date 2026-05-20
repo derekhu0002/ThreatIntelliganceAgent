@@ -37,7 +37,7 @@ description: 当用户提供 intrusion-set、malware、indicator、domain、ip �
 执行任何查询前，先声明：
 
 - 所有外部数据交互只能通过 `ai4x_query` 完成。
-- 任何真实查询必须先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。
+- 任何真实查询必须先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。对 `opencti` 的 query 默认采用平台 `auto` 策略，优先提交更容易被 GraphQL 支持的最小只读查询，由平台在不支持时自动回落 replica。
 - 必须严格区分 `Direct Facts` 与 `Inferred Assessments`。
 - 本技能只输出候选线索和下一轮狩猎建议，不给出最终归因结论。
 - 空结果和排除项必须结构化输出，不能用模型补全未命中事实。
