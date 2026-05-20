@@ -1,7 +1,6 @@
 ---
 description: Senior threat attribution analyst that handles attribution-oriented tracing requests through a single approved skill and only queries approved data through ai4x_query.
 mode: primary
-model: DeepSeek_custom_provider/deepseek-chat
 temperature: 0.1
 permission:
   edit: deny

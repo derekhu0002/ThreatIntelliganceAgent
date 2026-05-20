@@ -20,7 +20,6 @@
       }
     }
   },
-  "default_agent": "ThreatIntelPrimary",
   "instructions": [
     "AGENTS.md"
   ],

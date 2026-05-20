@@ -1,7 +1,6 @@
 ---
 description: Use when exploring Cypher-to-GraphQL conversion for OpenCTI, trying multiple read-only Cypher variants through ai4x_query, diagnosing failed backend translation, and drafting acceptance tests for future regression coverage.
 mode: primary
-model: DeepSeek_custom_provider/deepseek-chat
 temperature: 0.0
 permission:
   edit: allow

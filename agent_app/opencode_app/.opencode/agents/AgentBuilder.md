@@ -1,7 +1,6 @@
 ---
 description: help you build your business agent.
 mode: primary
-model: DeepSeek_custom_provider/deepseek-chat
 temperature: 0.1
 permission:
   todowrite: allow

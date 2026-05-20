@@ -1,7 +1,6 @@
 ---
 description: Automated incident reporting agent that executes a single approved reporting skill and only queries approved AI4X data through ai4x_query.
 mode: primary
-model: DeepSeek_custom_provider/deepseek-chat
 temperature: 0.1
 permission:
   edit: deny

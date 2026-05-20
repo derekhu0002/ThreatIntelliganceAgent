@@ -1,7 +1,6 @@
 ---
 description: Acceptance-only AI4X integration analyst harness that exercises the local ai4x_query toolchain against the real AI4X Platform API Center.
 mode: primary
-model: DeepSeek_custom_provider/deepseek-chat
 temperature: 0.0
 permission:
   edit: deny
