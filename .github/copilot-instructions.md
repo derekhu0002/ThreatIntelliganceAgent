@@ -163,3 +163,6 @@ When designing or changing implementation architecture:
 - **Stop and Ask**: If you find an unresolvable conflict between Intent (KG) and Implementation (Contracts) that would require a breaking change to the acceptance baseline, you must stop and present the conflict to the user instead of proceeding with assumptions.
 - **Token Efficiency**: Aim for the most concise code implementation that satisfies all testcases. Avoid gold-plating or over-engineering that is not derived from the Intent Architecture.
 - Do not reason from a single element name or one description field in isolation; use nearby relationships, views, upstream/downstream links, and referenced evidence before concluding how a concept should be implemented.
+
+
+## Session Memory
