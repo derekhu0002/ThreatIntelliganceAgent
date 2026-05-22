@@ -98,11 +98,13 @@ When repository evidence conflicts, resolve it in this order:
 - Focus on high-level stable elements such as stable directories, stable components, key entry files, interface boundaries, dependency direction, test ownership, and traceability.
 - Do not degrade into file-by-file or function-by-function mirroring.
 - This stage converts intent-side explicit testcases into physical read-only entrypoints plus critical and supporting non-explicit test guardrails in the repository.
+- This stage must generate executable testcase assets that are intentionally allowed and, when implementation is still missing, expected to fail for the right reason; these expected-failing results are a required handoff input to the Coding/Repair stage rather than a sign that implementation design is incomplete.
 - When designing any testcase in this stage, explicitly record the testcase control point and observation point alongside its ownership, entrypoint, and guardrail role.
 
 ### Coding And Repair Stage
 
 - Respect the frozen and evolvable test assets defined in Test Semantics and in the implementation contracts.
+- Treat expected-failing testcase assets produced during implementation architecture design as the primary repair queue: coding work should make those existing tests pass by completing or repairing implementation, not by weakening or redesigning the tests.
 - During coding, validate by invoking existing testcase entrypoints rather than rewriting them.
 - When adding or refining supporting non-explicit tests in coding mode, keep the control point and observation point explicit in the test design and in any task summary.
 
@@ -112,12 +114,14 @@ When repository evidence conflicts, resolve it in this order:
 
 - Explicit testcases are the stable acceptance or scenario baseline declared by intent architecture.
 - Their target, scope, assertion boundary, and physical single entrypoint are not to be rewritten during ordinary coding.
+- During implementation architecture design, the physical entry for each explicit testcase must be executable and should fail when the required implementation is still absent or incorrect; that expected failure is the intended signal handed to Coding/Repair.
 - Every explicit testcase design must explicitly describe its control point and observation point. The control point is the trigger, input, setup, or executable entry that drives the behavior under test. The observation point is the externally observable output, state, artifact, log, error, or effect that the testcase asserts.
 - If an explicit testcase is missing a physical entrypoint, report it as an implementation architecture design gap rather than patching around it silently in coding mode.
 
 ### Non-Explicit Tests
 
 - Non-explicit tests belong to the implementation layer rather than the intent layer.
+- During implementation architecture design, supporting and critical non-explicit tests that are needed to drive later coding should likewise be executable and may deliberately fail until the corresponding implementation is completed; do not convert missing implementation into placeholder passing assertions.
 - Every non-explicit test design must also explicitly describe its control point and observation point; a testcase definition without both is incomplete.
 - Critical non-explicit tests are limited to four categories:
   - architecture boundary guards
@@ -131,8 +135,8 @@ When repository evidence conflicts, resolve it in this order:
 ## Control Loop Semantics
 
 - Intent architecture design updates intent.
-- Implementation architecture design updates implementation contracts and testcase ownership.
-- Coding realizes implementation architecture.
+- Implementation architecture design updates implementation contracts, testcase ownership, and executable expected-failing test assets that define the next coding target.
+- Coding realizes implementation architecture by making those predesigned tests pass without redefining their acceptance boundary.
 - Automated testing produces failure records that feed repair without redefining the upstream baselines.
 
 ## Architecture Design Principles
