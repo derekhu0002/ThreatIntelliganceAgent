@@ -19,10 +19,7 @@ Do not ask the user for facts that can be confirmed from the repository, contrac
 
 ## Graph Usage Protocol
 
-Treat the graph-usage guidance embedded in `design/KG/SystemArchitecture.json` as always-on standing knowledge for this repository.
-
-Apply it as a working protocol:
-
+For `design/KG/SystemArchitecture.json`:
 1. Use the graph as the first fact source, read it as modeled architecture rather than informal prose, and preserve ArchiMate semantics instead of rewriting them by naming intuition.
 2. Treat `attributes`, `description`, `browser_path`, `acceptanceCriteria`, `#file:...`, and `#sym:...` as evidence pointers; follow them on demand, but do not let referenced evidence override explicit graph semantics.
 3. Treat explicit testcase baselines as stable acceptance boundaries unless the user is explicitly redesigning intent architecture; do not add, delete, rebuild, or redefine them during ordinary implementation or repair work.
@@ -69,6 +66,7 @@ Apply it as a working protocol:
 
 ## Graph Interpretation Rules
 
+For `design/KG/SystemArchitecture.json`:
 - Treat `attributes`, `description`, `browser_path`, `acceptanceCriteria`, `#file:...`, and `#sym:...` as traceability and evidence pointers.
 - Follow those pointers to gather evidence, but do not let referenced content override explicit graph semantics, principles, constraints, or testcase baselines.
 - Read relationships directionally and preserve their source/target semantics; do not flatten them into undirected associations.

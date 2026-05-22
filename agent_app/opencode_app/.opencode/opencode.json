@@ -16,7 +16,7 @@
       "name": "DeepSeek custom provider",
       "options": {
         "baseURL": "https://api.deepseek.com/v1",
-        "apiKey": "{env:DEEPSEEK_API_KEY}"
+        "apiKey": "sk-7809872c14c940a7bb371dc3965a96ff"
       }
     }
   },
