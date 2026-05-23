@@ -83,7 +83,7 @@
 ,"testcases": [
 {
 "name": "AI4X-Platform数据消费-模拟OPENCODE-真实AI4X",
-"description": "前置条件：\\r\\n1、有agnet:agent_app\\\\opencode_app\\\\.opencode\\\\agents\\\\ThreatIntelAnalyst_test.md；\\r\\n2、有一个模拟外部服务`Xserver`；\\r\\n3、真实 AI4X Platform API Center 已在 `http://localhost:8000` 启动，并提供 `/api/v1/api-center`。\\r\\nSystem Runtime View：\\r\\n1、`Xserver` 发起一次威胁分析，请求经 Python listener 进入后台 opencode server；\\r\\n2、后台主 agent 选择 `ThreatIntelAnalyst_test`；\\r\\n3、agent 侧通过 `.opencode/tools/ai4x_query.js` 调用本地 tool runtime；\\r\\n4、`ai4x_query.js` 再启动 Python CLI `agent_app/opencode_app/tools/ai4x_cli.py`；\\r\\n5、`ai4x_cli.py` 通过 `services/ai4x_client.py` 访问真实 AI4X Platform，先调用 `GET /api/v1/api-center/schema/catalog` 发现数据源，再调用 schema/query 接口获取数据；\\r\\n6、agent 基于发现结果和查询结果完成后续分析，并将结构化结果返回给 `Xserver`。\\r\\n失败语义：若真实 AI4X 环境未启动或 catalog 不可达，测试必须失败并打印失败原因，不允许跳过，也不允许回退到 AI4X mock。",
+"description": "前置条件：\\r\\n1、有agent:agent_app\\\\opencode_app\\\\.opencode\\\\agents\\\\ThreatIntelAnalyst_test.md；\\r\\n2、有一个模拟外部服务`Xserver`；\\r\\n3、真实 AI4X Platform 已启动，并暴露可配置的远端 HTTP MCP 地址 `http://<AI4X-host>:8000/mcp`，健康探针 `/mcp/healthz` 可达。\\r\\nSystem Runtime View：\\r\\n1、`Xserver` 发起一次威胁分析，请求经 Python listener 进入后台 opencode server；\\r\\n2、后台主 agent 选择 `ThreatIntelAnalyst_test`；\\r\\n3、后台 opencode runtime 通过已注册的远端 AI4X MCP server 直接发现单一 tool `ai4x_query`；\\r\\n4、agent 通过 MCP tool `ai4x_query` 先执行 `catalog`，再执行 `schema`，必要时执行 `detail`，最后执行只读 `query`；\\r\\n5、AI4X Platform 通过 MCP 暴露正式发现与只读查询语义，其中 `opencti` 保持 platform-owned `auto` 路由策略：优先 GraphQL，可在请求形态不受支持时回退到 replica；\\r\\n6、agent 基于发现结果和查询结果完成后续分析，并将结构化结果返回给 `Xserver`。\\r\\n失败语义：若真实 AI4X MCP 环境未启动、MCP 健康探针不可达、catalog 不可达或查询结果非法，测试必须失败并打印失败原因，不允许跳过，也不允许回退到 AI4X mock。若运行时暂不支持远端 MCP，可临时退回 HTTP API Center，但该退回不属于主验收基线。",
 "type": "Acceptance Test",
 "Input": "`Xserver` 发起一次威胁分析",
 "acceptanceCriteria": "tests/test_ai4x_platform_integration.py::test_ai4x_platform_data_consumption_flow_uses_real_ai4x_service",
@@ -105,7 +105,7 @@
 ,"testcases": [
 {
 "name": "查询AI4X-Platform上的数据",
-"description": "System Runtime View：pytest 用例先通过 `services/ai4x_client.py` 预探测真实 AI4X 环境；随后测试通过 Node 子进程加载 `.opencode/tools/ai4x_query.js`，并以 `ThreatIntelAnalyst_test` 身份执行工具；`ai4x_query.js` 通过本地 Python CLI `agent_app/opencode_app/tools/ai4x_cli.py` 调用 `services/ai4x_client.py`，对真实 AI4X Platform 执行 `POST /api/v1/api-center/query/universal` 查询，返回 source_id、count、items 等查询结果。失败语义：若真实 AI4X 环境未启动、query 接口不可达或返回非法结果，测试必须失败并打印失败原因，不允许跳过，也不允许改用 mock。",
+"description": "System Runtime View：pytest 用例先验证可配置远端 AI4X MCP 地址 `http://<AI4X-host>:8000/mcp` 的健康探针；环境就绪后，测试驱动 OPENCODE 运行时通过已注册 MCP server 直接发现并调用 `ai4x_query`；工具以 `query` 命令对真实 AI4X Platform 执行只读统一查询，返回 `source_id`、`count`、`items` 等结果。对于 `opencti`，调用方只表达最小读意图，平台保留 `auto` 路由策略，优先 GraphQL，不支持时自动回退到 replica。失败语义：若真实 AI4X MCP 环境未启动、`query` 不可达或返回非法结果，测试必须失败并打印失败原因，不允许跳过，也不允许改用 mock。",
 "type": "Acceptance Test",
 "Input": "",
 "acceptanceCriteria": "tests/test_ai4x_platform_integration.py::test_ai4x_platform_query_tool_returns_real_data_payload",
@@ -113,11 +113,19 @@
 },
 {
 "name": "发现AI4X-Platform上可以提供的数据范围",
-"description": "前置条件：\\r\\n1、AI4X_Platform 已正常启动并监听外部请求，基础地址为 `http://localhost:8000`；\\r\\n2、API Center 路径为 `/api/v1/api-center/schema/catalog`。\\r\\nSystem Runtime View：pytest 测试驱动先调用 `services/ai4x_client.py` 对真实 catalog 接口做预探测；环境就绪后，测试再通过 Node 子进程执行 `.opencode/tools/ai4x_query.js`；该工具调用 Python CLI `agent_app/opencode_app/tools/ai4x_cli.py`，CLI 再调用 `services/ai4x_client.py` 访问真实 AI4X Platform 的 `GET /api/v1/api-center/schema/catalog`，返回 `version`、`total_databases`、`databases[]`。测试对 tool 返回结果与预探测结果做一致性断言。失败语义：若真实 AI4X 环境未启动或 catalog 不可达，测试必须失败并打印失败原因，不允许跳过，也不允许回退到 AI4X mock。",
+"description": "前置条件：\\r\\n1、AI4X Platform 已正常启动并暴露可配置远端 HTTP MCP 地址；\\r\\n2、MCP 对外提供单一 tool `ai4x_query`，并保持 `catalog` 为发现第一跳。\\r\\nSystem Runtime View：pytest 测试驱动先验证 MCP 健康探针；环境就绪后，测试通过 OPENCODE 运行时调用 `ai4x_query` 的 `catalog` 命令，返回 `version`、`total_databases`、`databases[]`。测试对 discovery 结果做结构一致性断言。失败语义：若真实 AI4X MCP 环境未启动或 `catalog` 不可达，测试必须失败并打印失败原因，不允许跳过，也不允许回退到 AI4X mock。",
 "type": "Acceptance Test",
 "Input": "",
 "acceptanceCriteria": "tests/test_ai4x_platform_integration.py::test_ai4x_platform_catalog_exposes_available_data_range",
 "TestResults": "获取到AI4X_Platform上所有数据SCHEMA\r\n"
+},
+{
+"name": "按需下钻OpenCTI Schema细节",
+"description": "前置条件：`opencti` 已作为 AI4X Platform 的正式 `source_id` 注册到远端 HTTP MCP。System Runtime View：pytest 测试驱动通过 OPENCODE 运行时调用 `ai4x_query`，先执行 `schema(opencti)` 获取最小目录，再根据返回的 detail pointer 调用 `detail`，仅按需下钻某一个 object、relationship-type 或 relationship-schema 的具体定义。失败语义：若 `schema(opencti)` 不暴露可下钻 detail pointer，或 `detail` 返回结果与平台正式 detail 视图不一致，测试必须失败，不允许改成一次性预取全量 schema。",
+"type": "Acceptance Test",
+"Input": "",
+"acceptanceCriteria": "tests/test_ai4x_platform_integration.py::test_ai4x_platform_opencti_schema_detail_supports_progressive_disclosure",
+"TestResults": "OpenCTI schema 以 progressive disclosure 方式暴露，并可按需获取 detail 结果"
 }
 ]
 },
@@ -143,11 +151,19 @@
 ,"attributes": [
 {
 "name": "INTRODUCTION"
-,"description": "D:\\Projects\\AI4X-Platform\\INTRODUCTION.md"
+,"description": "D:\\Projects\\AI4X-Platform-temp\\AI4X-Platform\\INTRODUCTION.md"
 },
 {
 "name": "意图架构"
 ,"description": "D:\\Projects\\AI4X-Platform\\design\\KG\\SystemArchitecture.json"
+},
+{
+"name": "canonical_mcp_http_endpoint"
+,"description": "http://<AI4X-host>:8000/mcp"
+},
+{
+"name": "temporary_fallback_boundary"
+,"description": "当运行时暂不支持远端 HTTP MCP 时，可临时退回 HTTP API Center；该退回不属于主验收基线。"
 }
 ]
 },
@@ -156,11 +172,19 @@
 "name": "ai4x_query"
 ,"parent": "1739"
 ,"type": "ArchiMate_ApplicationComponent,_TOOL_"
-,"description": "  description: \"Discover and query the real AI4X Platform API Center.\",\r\n  args: {\r\n    command: tool.schema.enum([\"catalog\", \"schema\", \"query\"]),\r\n    sourceId: tool.schema.string().optional(),\r\n    cypher: tool.schema.string().optional(),\r\n    paramsJson: tool.schema.string().optional(),\r\n    limit: tool.schema.number().int().optional(),\r\n    baseUrl: tool.schema.string().optional(),\r\n    pythonBin: tool.schema.string().optional(),\r\n  }"
+,"description": "description: \"Discover, progressively inspect schema, and query AI4X Platform through the platform-owned MCP boundary.\",\r\nargs: {\r\n  command: tool.schema.enum([\"catalog\", \"schema\", \"detail\", \"query\"]),\r\n  sourceId/source_id: tool.schema.string().optional(),\r\n  detailKind/detail_kind: tool.schema.string().optional(),\r\n  typeName/type_name: tool.schema.string().optional(),\r\n  cypher/query: tool.schema.string().optional(),\r\n  paramsJson: tool.schema.string().optional(),\r\n  limit: tool.schema.number().int().optional(),\r\n  requestId/request_id: tool.schema.string().optional(),\r\n  openctiExecutionPreference: tool.schema.string().optional()\r\n}"
 ,"attributes": [
 {
-"name": "IMPLEMENTATION"
-,"description": "agent_app\\opencode_app\\.opencode\\tools\\ai4x_query.js"
+"name": "canonical_boundary"
+,"description": "OPENCODE 通过已注册的远端 AI4X HTTP MCP server 直接发现并调用该 tool，不再把工作区本地 JS/CLI 包装作为正式路径。"
+},
+{
+"name": "caller_visible_surface"
+,"description": "tool 名称保持 ai4x_query；命令面保持 catalog、schema、detail、query，并兼容 sourceId/source_id、detailKind/detail_kind、typeName/type_name、cypher/query、requestId/request_id 等参数别名。"
+},
+{
+"name": "access_policy"
+,"description": "AI4X MCP 注册完成后，该 tool 对所有 agent 可见；权限治理由 MCP 注册与运行时策略负责，而不是由本地兼容壳限制为 ThreatIntelAnalyst。"
 }
 ]
 },
