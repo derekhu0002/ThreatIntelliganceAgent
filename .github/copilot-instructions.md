@@ -171,7 +171,7 @@ When designing or changing implementation architecture:
 - State clearly which conclusions are repository-confirmed facts and which are minimal assumptions.
 - When editing architecture-related assets, prefer updating contracts and test guardrails before modifying business behavior unless the user explicitly asks for implementation work.
 - If no contract file exists yet, report that as an architecture gap and create or update the appropriate contract file when the task is implementation architecture design.
-- If you modify `design/KG/SystemArchitecture.json`, read `.github/argoschema/SystemArchitecture.schema.json` first and do not finish until the JSON is structurally valid against that schema; schema violations are blocking defects, not follow-up work.
+- If you modify `design/KG/SystemArchitecture.json`, read `.github/argoschema/SystemArchitecture.schema.json` first, then run `npm run validate:system-architecture`, and do not finish until the JSON is structurally valid against that schema; schema violations or validator failures are blocking defects, not follow-up work.
 - If you claim a stage is ready to hand off, validate the corresponding handoff artifact with `npm run validate:handoff:intent` or `npm run validate:handoff:implementation`; failing validation means the handoff is incomplete.
 - **Stop and Ask**: If you find an unresolvable conflict between Intent (KG) and Implementation (Contracts) that would require a breaking change to the acceptance baseline, you must stop and present the conflict to the user instead of proceeding with assumptions.
 - **Token Efficiency**: Aim for the most concise code implementation that satisfies all testcases. Avoid gold-plating or over-engineering that is not derived from the Intent Architecture.
