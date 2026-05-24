@@ -3,6 +3,18 @@
     "root": "agent_app/opencode_app/.opencode",
     "control_plane_root": ".opencode"
   },
+  "mcp_servers": {
+    "ai4x": {
+      "transport": "http",
+      "url": "http://127.0.0.1:8000/mcp",
+      "healthz": "http://127.0.0.1:8000/mcp/healthz",
+      "tool_names": [
+        "ai4x_query"
+      ],
+      "canonical": true,
+      "fallback_http_api_allowed": true
+    }
+  },
   "agent_roles": {
     "primary": "ThreatIntelPrimary",
     "analyst": "ThreatIntelAnalyst",

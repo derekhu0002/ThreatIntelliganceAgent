@@ -1,0 +1,158 @@
+{
+  "stage": "implementation-to-coding",
+  "generatedAt": "2026-05-24T00:00:00Z",
+  "sourceIntentGraphPath": "design/KG/SystemArchitecture.json",
+  "summary": "The implementation architecture now freezes remote AI4X HTTP MCP registration as the canonical AI4X boundary, keeps existing explicit testcase entry paths read-only, downgrades the local CLI bridge to transitional support, and hands four MCP-readiness failures to Coding/Repair.",
+  "implementationContracts": [
+    "OVERALL_ARCHITECTURE.md",
+    "agent_app/opencode_app/.opencode/ARCHITECTURE.md",
+    "agent_app/opencode_app/ARCHITECTURE.md",
+    "services/python_listener/ARCHITECTURE.md",
+    "services/result_assembler/ARCHITECTURE.md",
+    "services/stix_contracts/ARCHITECTURE.md"
+  ],
+  "explicitEntrypoints": [
+    {
+      "testcaseName": "OPENCODE workspace MCP registration and transitional dependencies",
+      "entryPath": "tests/test_opencode_workspace_config.py",
+      "controlPoint": "Execute the existing pytest entrypoint and load both agent_app/opencode_app/.opencode/opencode.json and agent_app/opencode_app/.opencode/workspace.contract.json.",
+      "observationPoint": "The test asserts that the canonical ai4x MCP registration exists and that transitional local runtime files still exist as migration support.",
+      "initialExecutionStatus": "passed",
+      "initialExecutionCommand": "d:/projects/ThreatIntelliganceAgent/.venv/Scripts/python.exe -m pytest tests/test_opencode_workspace_config.py::test_opencode_app_contains_local_tool_runtime_dependencies -q"
+    },
+    {
+      "testcaseName": "发现AI4X-Platform上可以提供的数据范围",
+      "entryPath": "tests/test_ai4x_platform_integration.py",
+      "controlPoint": "Execute the pytest entrypoint, load the registered AI4X MCP server from opencode.json, probe /mcp/healthz, initialize MCP, verify tools/list contains ai4x_query, then call ai4x_query command=catalog.",
+      "observationPoint": "The observable output is either a valid catalog payload with databases[] and total_databases or a direct MCP readiness failure emitted by _require_registered_ai4x_mcp_environment.",
+      "initialExecutionStatus": "failed",
+      "initialExecutionCommand": "d:/projects/ThreatIntelliganceAgent/.venv/Scripts/python.exe -m pytest tests/test_ai4x_platform_integration.py::test_ai4x_platform_catalog_exposes_available_data_range -q",
+      "failureReason": "Registered AI4X MCP health probe is not ready at http://127.0.0.1:8000/mcp/healthz: timed out"
+    },
+    {
+      "testcaseName": "查询AI4X-Platform上的数据",
+      "entryPath": "tests/test_ai4x_platform_integration.py",
+      "controlPoint": "Execute the pytest entrypoint, require MCP readiness, call ai4x_query command=catalog through MCP to choose a source_id, then call ai4x_query command=query through MCP.",
+      "observationPoint": "The observable output is either a query payload with source_id, items, and count or a direct MCP readiness failure emitted before tools/call query starts.",
+      "initialExecutionStatus": "failed",
+      "initialExecutionCommand": "d:/projects/ThreatIntelliganceAgent/.venv/Scripts/python.exe -m pytest tests/test_ai4x_platform_integration.py::test_ai4x_platform_query_tool_returns_real_data_payload -q",
+      "failureReason": "Registered AI4X MCP health probe is not ready at http://127.0.0.1:8000/mcp/healthz: timed out"
+    },
+    {
+      "testcaseName": "按需下钻OpenCTI Schema细节",
+      "entryPath": "tests/test_ai4x_platform_integration.py",
+      "controlPoint": "Execute the pytest entrypoint, require MCP readiness, call ai4x_query schema(opencti) through MCP, derive one detail pointer, then call ai4x_query detail for that pointer.",
+      "observationPoint": "The observable output is either an OpenCTI detail payload that matches the platform detail view or a direct MCP readiness failure emitted before schema/detail calls.",
+      "initialExecutionStatus": "failed",
+      "initialExecutionCommand": "d:/projects/ThreatIntelliganceAgent/.venv/Scripts/python.exe -m pytest tests/test_ai4x_platform_integration.py::test_ai4x_platform_opencti_schema_detail_supports_progressive_disclosure -q",
+      "failureReason": "Registered AI4X MCP health probe is not ready at http://127.0.0.1:8000/mcp/healthz: timed out"
+    },
+    {
+      "testcaseName": "AI4X-Platform数据消费-模拟OPENCODE-真实AI4X",
+      "entryPath": "tests/test_ai4x_platform_integration.py",
+      "controlPoint": "Execute the pytest entrypoint, require the registered MCP boundary to be reachable, then drive ThreatIntelListener.process_event with data/mock_events/mock_opencti_push_event.json and a mock remote server.",
+      "observationPoint": "The observable output is either a structured listener result whose ai4x evidence records transport=remote_http_mcp and mcp_server metadata or a direct MCP readiness failure emitted before listener observation begins.",
+      "initialExecutionStatus": "failed",
+      "initialExecutionCommand": "d:/projects/ThreatIntelliganceAgent/.venv/Scripts/python.exe -m pytest tests/test_ai4x_platform_integration.py::test_ai4x_platform_data_consumption_flow_uses_real_ai4x_service -q",
+      "failureReason": "Registered AI4X MCP health probe is not ready at http://127.0.0.1:8000/mcp/healthz: timed out"
+    }
+  ],
+  "criticalNonExplicitTests": [
+    {
+      "name": "Workspace MCP registration boundary",
+      "path": "agent_app/opencode_app/tests/test_runtime_architecture_contract.py",
+      "kind": "architecture boundary guard",
+      "controlPoint": "Read opencode.json and workspace.contract.json and compare the ai4x MCP server registration fields.",
+      "observationPoint": "The guard asserts transport=http, url ending in /mcp, healthz ending in /mcp/healthz, and tool surface=[ai4x_query].",
+      "expectedStatus": "passed"
+    },
+    {
+      "name": "Explicit tests target MCP boundary",
+      "path": "agent_app/opencode_app/tests/test_runtime_architecture_contract.py",
+      "kind": "dependency direction guard",
+      "controlPoint": "Read tests/test_ai4x_platform_integration.py and isolate the four explicit AI4X acceptance sections.",
+      "observationPoint": "The guard asserts those sections do not call the local JS/Python wrapper directly and instead call MCP helper functions.",
+      "expectedStatus": "passed"
+    },
+    {
+      "name": "Explicit entry path correctness",
+      "path": "tests/test_architecture_contract_baselines.py",
+      "kind": "explicit entry correctness guard",
+      "controlPoint": "Read the explicit test files at their canonical repository paths.",
+      "observationPoint": "The guard asserts the canonical function entrypoints still exist at the frozen paths, including the progressive-disclosure test.",
+      "expectedStatus": "passed"
+    },
+    {
+      "name": "Architecture traceability tags",
+      "path": "tests/test_architecture_contract_baselines.py",
+      "kind": "key implementation traceability guard",
+      "controlPoint": "Read tests/test_ai4x_platform_integration.py and tests/test_opencode_workspace_config.py.",
+      "observationPoint": "The guard asserts the ArchitectureID tags remain bound to the canonical entry files.",
+      "expectedStatus": "passed"
+    }
+  ],
+  "supportingNonExplicitTests": [
+    {
+      "name": "Local bridge compatibility surface",
+      "path": "agent_app/opencode_app/tests/test_runtime_architecture_contract.py",
+      "kind": "supporting migration guard",
+      "controlPoint": "Read the isolated runtime file layout under agent_app/opencode_app.",
+      "observationPoint": "The guard asserts the local compatibility bridge still exists and has no duplicate root-level runtime files.",
+      "expectedStatus": "passed"
+    },
+    {
+      "name": "Real OPENCODE ai4x_query activity",
+      "path": "tests/test_ai4x_platform_integration.py",
+      "kind": "supporting runtime integration guard",
+      "controlPoint": "Drive a real OPENCODE session and inspect ai4x_query tool activity.",
+      "observationPoint": "The test is allowed to evolve during Coding/Repair while preserving the frozen explicit entrypoints.",
+      "expectedStatus": "failed"
+    }
+  ],
+  "expectedFailureRecordsPath": "design/KG/test-failure-records.json",
+  "codingTargets": [
+    {
+      "testcaseName": "发现AI4X-Platform上可以提供的数据范围",
+      "path": "tests/test_ai4x_platform_integration.py::test_ai4x_platform_catalog_exposes_available_data_range",
+      "failureSignal": "Registered AI4X MCP health probe is not ready at http://127.0.0.1:8000/mcp/healthz: timed out",
+      "nextAction": "Make the registered MCP endpoint reachable, then complete the tools/list and ai4x_query catalog implementation path."
+    },
+    {
+      "testcaseName": "查询AI4X-Platform上的数据",
+      "path": "tests/test_ai4x_platform_integration.py::test_ai4x_platform_query_tool_returns_real_data_payload",
+      "failureSignal": "Registered AI4X MCP health probe is not ready at http://127.0.0.1:8000/mcp/healthz: timed out",
+      "nextAction": "After MCP readiness, complete tools/call ai4x_query query execution and result decoding through the remote MCP boundary."
+    },
+    {
+      "testcaseName": "按需下钻OpenCTI Schema细节",
+      "path": "tests/test_ai4x_platform_integration.py::test_ai4x_platform_opencti_schema_detail_supports_progressive_disclosure",
+      "failureSignal": "Registered AI4X MCP health probe is not ready at http://127.0.0.1:8000/mcp/healthz: timed out",
+      "nextAction": "After MCP readiness, verify that schema(opencti) returns detail pointers and that detail responses preserve progressive disclosure."
+    },
+    {
+      "testcaseName": "AI4X-Platform数据消费-模拟OPENCODE-真实AI4X",
+      "path": "tests/test_ai4x_platform_integration.py::test_ai4x_platform_data_consumption_flow_uses_real_ai4x_service",
+      "failureSignal": "Registered AI4X MCP health probe is not ready at http://127.0.0.1:8000/mcp/healthz: timed out",
+      "nextAction": "After MCP readiness, update listener/opencode dispatch so ai4x evidence records remote_http_mcp transport and mcp_server metadata."
+    }
+  ],
+  "frozenFiles": [
+    "OVERALL_ARCHITECTURE.md",
+    "agent_app/opencode_app/.opencode/ARCHITECTURE.md",
+    "agent_app/opencode_app/ARCHITECTURE.md",
+    "services/python_listener/ARCHITECTURE.md",
+    "agent_app/opencode_app/.opencode/opencode.json",
+    "agent_app/opencode_app/.opencode/workspace.contract.json",
+    "tests/test_ai4x_platform_integration.py",
+    "tests/test_opencode_workspace_config.py",
+    "tests/test_architecture_contract_baselines.py",
+    "agent_app/opencode_app/tests/test_runtime_architecture_contract.py",
+    "design/KG/test-failure-records.json"
+  ],
+  "openGaps": [
+    "The registered MCP endpoint http://127.0.0.1:8000/mcp/healthz timed out during the initial explicit execution run.",
+    "ThreatIntelListener evidence output has not yet been proven to record transport=remote_http_mcp and mcp_server metadata.",
+    "The local ai4x_query.js -> tools.ai4x_cli compatibility bridge still exists and may continue to surface analyst-only behavior until Coding/Repair removes or relocates that drift.",
+    "No implementation-side proof has yet shown that the real OPENCODE runtime consumes the MCP registration from opencode.json rather than the deprecated local wrapper path."
+  ]
+}

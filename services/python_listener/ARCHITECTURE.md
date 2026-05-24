@@ -20,7 +20,7 @@ Reference root contract: `OVERALL_ARCHITECTURE.md`
 ## Dependency Direction
 
 - `listener.py` may depend on event normalization, remote dispatch, result validation, and optional Neo4j validation helpers.
-- `remote_client.py` may depend on workspace metadata and result schema helpers.
+- `remote_client.py` may depend on workspace metadata, MCP registration metadata, and result schema helpers.
 - Neither file may depend on control-plane prompt wording, skill internals, or root tests.
 
 ## Implements Mapping
@@ -40,6 +40,8 @@ Reference root contract: `OVERALL_ARCHITECTURE.md`
 
 - `data/mock_events/mock_opencti_push_event.json`
 - `agent_app/opencode_app/.opencode/agents/ThreatIntelAnalyst_test.md`
+- `agent_app/opencode_app/.opencode/opencode.json`
+- `agent_app/opencode_app/.opencode/workspace.contract.json`
 
 ## Ordinary Supporting Tests
 

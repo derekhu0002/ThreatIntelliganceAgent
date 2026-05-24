@@ -5,12 +5,12 @@ Reference root contract: `OVERALL_ARCHITECTURE.md`
 ## Scope
 
 - This contract covers the isolated Python runtime under `agent_app/opencode_app`.
-- It exists to keep OPENCODE tool execution independent from arbitrary repository imports while still exposing the minimum stable bridge into Python services.
+- It exists to keep OPENCODE compatibility flows independent from arbitrary repository imports while still exposing the minimum stable bridge into Python services during the MCP migration period.
 
 ## Stable Elements
 
-- `tools/ai4x_cli.py`: stable Python CLI bridge for AI4X catalog, schema, detail, and query commands.
-- `services/ai4x_client.py`: stable runtime-local AI4X HTTP client surface.
+- `tools/ai4x_cli.py`: transitional Python CLI bridge retained for compatibility harnesses and migration support.
+- `services/ai4x_client.py`: transitional runtime-local AI4X HTTP client surface.
 - `data/stix_samples/`: protected runtime fixture authority for local tool execution and acceptance harnesses.
 
 ## Public Interfaces
@@ -21,7 +21,7 @@ Reference root contract: `OVERALL_ARCHITECTURE.md`
 
 ## Dependency Direction
 
-- Upstream callers are `.opencode/tools/*.js` only.
+- Upstream callers are compatibility wrappers or migration harnesses only.
 - `tools/ai4x_cli.py` may depend on runtime-local `services/ai4x_client.py`.
 - Runtime-local services may call external systems.
 - For `source_id=opencti`, the runtime bridge must keep backend selection inside AI4X Platform's unified `query/universal` boundary: default `auto` mode prefers GraphQL and only falls back to replica when GraphQL cannot serve the requested read shape.
@@ -29,19 +29,16 @@ Reference root contract: `OVERALL_ARCHITECTURE.md`
 
 ## Implements Mapping
 
-- This runtime bridge implements the isolated runtime bridge element declared in the root contract.
-- Through that bridge, `tools/ai4x_cli.py` and `services/ai4x_client.py` indirectly carry the intention `1739 / Tools` capability.
+- This runtime bridge implements a transitional compatibility element declared in the root contract.
+- Through that bridge, `tools/ai4x_cli.py` and `services/ai4x_client.py` indirectly support migration from the deprecated local path to the registered MCP boundary for `1739 / Tools`.
 
 ## Explicit Acceptance Baselines Mounted Here
 
 - `tests/test_opencode_workspace_config.py::test_opencode_app_contains_local_tool_runtime_dependencies`
-- `tests/test_ai4x_platform_integration.py::test_ai4x_platform_catalog_exposes_available_data_range`
-- `tests/test_ai4x_platform_integration.py::test_ai4x_platform_query_tool_returns_real_data_payload`
 
 ## Frozen Critical Non-Explicit Guards
 
-- `agent_app/opencode_app/tests/test_runtime_architecture_contract.py::test_isolated_runtime_boundary_keeps_local_bridge_surface`
-- `agent_app/opencode_app/tests/test_runtime_architecture_contract.py::test_ai4x_query_tool_delegates_to_isolated_runtime_cli_module`
+- none
 
 ## Protected Fixtures And Baselines
 
@@ -52,4 +49,5 @@ Reference root contract: `OVERALL_ARCHITECTURE.md`
 
 ## Ordinary Supporting Tests
 
-- future unit tests under `agent_app/opencode_app/tests/` that do not move or weaken the frozen guards
+- `agent_app/opencode_app/tests/test_runtime_architecture_contract.py::test_isolated_runtime_boundary_keeps_local_bridge_surface`
+- future unit tests under `agent_app/opencode_app/tests/` that do not move or weaken the control-plane MCP contract

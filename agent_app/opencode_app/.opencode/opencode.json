@@ -1,6 +1,17 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "default_agent": "ThreatIntelPrimary",
   "model": "DeepSeek_custom_provider/deepseek-chat",
+  "mcpServers": {
+    "ai4x": {
+      "transport": "http",
+      "url": "http://127.0.0.1:8000/mcp",
+      "healthz": "http://127.0.0.1:8000/mcp/healthz",
+      "tools": [
+        "ai4x_query"
+      ]
+    }
+  },
   "provider": {
     "DeepSeek_custom_provider": {
       "models": {

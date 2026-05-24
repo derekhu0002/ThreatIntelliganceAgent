@@ -11,6 +11,7 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[1]
 WORKSPACE_ROOT = REPO_ROOT / "agent_app/opencode_app/.opencode"
 WORKSPACE_CONTRACT_PATH = WORKSPACE_ROOT / "workspace.contract.json"
+OPENCODE_CONFIG_PATH = WORKSPACE_ROOT / "opencode.json"
 AGENTS_DIR = WORKSPACE_ROOT / "agents"
 TOOLS_DIR = WORKSPACE_ROOT / "tools"
 REQ_ID = "REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001"
@@ -103,12 +104,19 @@ def _write_fake_python_executable(tmp_path: Path, stdout_text: str, exit_code: i
 def test_opencode_workspace_config_declares_canonical_roles_and_aliases() -> None:
     # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
     # @ArchitectureID: ELM-TECH-ARTIFACT-OPENCODE-WORKSPACE
-    config = json.loads((WORKSPACE_ROOT / "opencode.json").read_text(encoding="utf-8"))
+    config = json.loads(OPENCODE_CONFIG_PATH.read_text(encoding="utf-8"))
     workspace_contract = json.loads(WORKSPACE_CONTRACT_PATH.read_text(encoding="utf-8"))
 
     assert config["default_agent"] == "ThreatIntelPrimary"
     assert workspace_contract["workspace"]["root"] == "agent_app/opencode_app/.opencode"
     assert workspace_contract["workspace"]["control_plane_root"] == ".opencode"
+    assert config["mcpServers"]["ai4x"]["transport"] == "http"
+    assert config["mcpServers"]["ai4x"]["url"].endswith("/mcp")
+    assert config["mcpServers"]["ai4x"]["healthz"].endswith("/mcp/healthz")
+    assert config["mcpServers"]["ai4x"]["tools"] == ["ai4x_query"]
+    assert workspace_contract["mcp_servers"]["ai4x"]["transport"] == "http"
+    assert workspace_contract["mcp_servers"]["ai4x"]["canonical"] is True
+    assert workspace_contract["mcp_servers"]["ai4x"]["tool_names"] == ["ai4x_query"]
     assert workspace_contract["agent_roles"] == {
         "primary": "ThreatIntelPrimary",
         "analyst": "ThreatIntelAnalyst",
@@ -124,6 +132,12 @@ def test_opencode_workspace_config_declares_canonical_roles_and_aliases() -> Non
 def test_opencode_app_contains_local_tool_runtime_dependencies() -> None:
     # @RequirementID: REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001
     # @ArchitectureID: ELM-TECH-ARTIFACT-OPENCODE-WORKSPACE
+    config = json.loads(OPENCODE_CONFIG_PATH.read_text(encoding="utf-8"))
+    workspace_contract = json.loads(WORKSPACE_CONTRACT_PATH.read_text(encoding="utf-8"))
+
+    assert "ai4x" in config["mcpServers"]
+    assert config["mcpServers"]["ai4x"]["tools"] == ["ai4x_query"]
+    assert workspace_contract["mcp_servers"]["ai4x"]["fallback_http_api_allowed"] is True
     assert (REPO_ROOT / "agent_app/opencode_app/tools/__init__.py").is_file()
     assert (REPO_ROOT / "agent_app/opencode_app/tools/ai4x_cli.py").is_file()
     assert (REPO_ROOT / "agent_app/opencode_app/services/__init__.py").is_file()

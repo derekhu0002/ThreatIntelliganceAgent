@@ -33,13 +33,13 @@
   - agent family definitions in `agents/`
   - scenario SOP families in `skills/`
   - control-plane tool declarations in `tools/`
-  - workspace metadata in `opencode.json`, `workspace.contract.json`, and `AGENTS.md`
+  - workspace metadata and MCP registration boundary in `opencode.json`, `workspace.contract.json`, and `AGENTS.md`
 - Local contract: `agent_app/opencode_app/.opencode/ARCHITECTURE.md`
 
 ### 2. Isolated Runtime Bridge
 
 - Location: `agent_app/opencode_app`
-- Role: secondary stable substrate that lets OPENCODE tools execute Python runtime dependencies without leaking the whole repository surface into the control plane.
+- Role: secondary transitional substrate that still carries local Python runtime compatibility while the canonical AI4X discovery-and-query boundary moves to remote HTTP MCP.
 - Stable local elements:
   - Python CLI bridge in `tools/ai4x_cli.py`
   - mirrored runtime services in `services/`
@@ -95,11 +95,15 @@ These families are stable only as control-plane decomposition. They do not bypas
 ## Key Interfaces And Dependency Direction
 
 - Control plane dependency direction:
-  - `agents/*` -> `skills/*` -> `.opencode/tools/*`
+  - `agents/*` -> `skills/*` -> registered MCP tools
+- Workspace registration dependency direction:
+  - `agent_app/opencode_app/.opencode/opencode.json` declares the canonical remote AI4X MCP server registration
+  - `agent_app/opencode_app/.opencode/workspace.contract.json` freezes the MCP server name, transport kind, health probe, and tool surface
 - Runtime bridge dependency direction:
-  - `.opencode/tools/*.js` -> `agent_app/opencode_app/tools/*.py` -> `agent_app/opencode_app/services/*.py` -> external systems
+  - local compatibility wrappers under `.opencode/tools/*.js` may still call `agent_app/opencode_app/tools/*.py` -> `agent_app/opencode_app/services/*.py` -> external systems
+  - those wrappers are no longer the canonical AI4X implementation boundary once remote MCP registration exists
 - OpenCTI query strategy:
-  - `ai4x_query` and the isolated runtime bridge submit OpenCTI reads only through AI4X Platform's unified query boundary.
+  - the registered MCP tool `ai4x_query` submits OpenCTI reads only through AI4X Platform's unified query boundary.
   - callers must treat OpenCTI query routing as platform-owned `auto` mode: prefer the GraphQL-backed path when supported and let the platform fall back to the replica path when GraphQL does not support the requested shape.
 - Orchestration dependency direction:
   - `services/python_listener/listener.py` -> event normalization / remote dispatch / result validation
@@ -109,20 +113,22 @@ These families are stable only as control-plane decomposition. They do not bypas
 - Forbidden reverse dependencies:
   - root `services/*` must not depend on `.opencode/agents/*` or `.opencode/skills/*`
   - `.opencode/tools/*` must not import root tests
-  - scenario families must not embed direct external HTTP logic when an isolated runtime bridge already exists
+  - explicit AI4X acceptance entrypoints must not treat `.opencode/tools/ai4x_query.js` as the canonical path once workspace MCP registration is present
+  - scenario families must not embed direct external HTTP logic when a registered MCP boundary or isolated runtime bridge already exists
 
 ## Implements Mapping
 
 ### Direct Implementations Of Intention Elements
 
 - `agent_app/opencode_app/.opencode` directly implements workspace and agent-definition intent boundaries represented by `ELM-TECH-ARTIFACT-OPENCODE-WORKSPACE`, `ELM-TECH-ARTIFACT-AGENT-DEFS`, and `ELM-APP-PROC-THREAT-COLLAB-SKILL`.
-- `.opencode/tools/ai4x_query.js` plus the isolated runtime bridge directly implements the intention `1739 / Tools` AI4X discovery-and-query capability.
+- the remote AI4X MCP registration materialized in `agent_app/opencode_app/.opencode/opencode.json` directly implements the canonical `1739 / Tools` AI4X discovery-and-query boundary.
 - `services/python_listener` directly implements the runtime dispatch side of `1738 / Agents` for the explicit AI4X data consumption flow.
 
 ### Indirect Implementation Chains
 
-- `agent_app/opencode_app/tools/ai4x_cli.py` implements the isolated runtime bridge element; that bridge element directly implements the AI4X tool capability under `1739`. Therefore the CLI indirectly carries `1739` through the bridge chain.
-- `agent_app/opencode_app/services/ai4x_client.py` implements the local runtime service surface; the surface implements the bridge; the bridge implements `1739`. Therefore the local AI4X client indirectly carries the tool intention through the implementation chain.
+- `agent_app/opencode_app/.opencode/tools/ai4x_query.js` now acts only as a local compatibility wrapper. When present, it implements the transitional runtime bridge element rather than the canonical `1739` boundary.
+- `agent_app/opencode_app/tools/ai4x_cli.py` implements the transitional isolated runtime bridge element; that bridge supports compatibility flows and migration harnesses but no longer defines the canonical AI4X tool boundary.
+- `agent_app/opencode_app/services/ai4x_client.py` implements the local transitional service surface consumed by the compatibility bridge.
 - `services/result_assembler` and `services/stix_contracts` implement shared contract substrates that are consumed by `services/python_listener`; therefore they indirectly support `1738` via the orchestration chain rather than directly binding every internal artifact to the intention layer.
 
 ## Explicit Acceptance Baselines
@@ -131,6 +137,7 @@ These entries are read-only acceptance baselines for later coding stages.
 
 - `tests/test_ai4x_platform_integration.py::test_ai4x_platform_catalog_exposes_available_data_range`
 - `tests/test_ai4x_platform_integration.py::test_ai4x_platform_query_tool_returns_real_data_payload`
+- `tests/test_ai4x_platform_integration.py::test_ai4x_platform_opencti_schema_detail_supports_progressive_disclosure`
 - `tests/test_ai4x_platform_integration.py::test_ai4x_platform_data_consumption_flow_uses_real_ai4x_service`
 - `tests/test_opencode_workspace_config.py::test_opencode_app_contains_local_tool_runtime_dependencies`
 
@@ -143,11 +150,11 @@ Rules:
 
 ### Architecture Boundary
 
-- `agent_app/opencode_app/tests/test_runtime_architecture_contract.py::test_isolated_runtime_boundary_keeps_local_bridge_surface`
+- `agent_app/opencode_app/tests/test_runtime_architecture_contract.py::test_workspace_contract_declares_remote_ai4x_mcp_server`
 
 ### Dependency Direction
 
-- `agent_app/opencode_app/tests/test_runtime_architecture_contract.py::test_ai4x_query_tool_delegates_to_isolated_runtime_cli_module`
+- `agent_app/opencode_app/tests/test_runtime_architecture_contract.py::test_explicit_ai4x_acceptance_tests_do_not_execute_local_ai4x_wrapper_directly`
 
 ### Explicit Entry Correctness
 
@@ -170,9 +177,6 @@ Frozen properties for the four guards:
 - `agent_app/opencode_app/.opencode/agents/ThreatIntelAnalyst_test.md`
 - `agent_app/opencode_app/.opencode/workspace.contract.json`
 - `agent_app/opencode_app/.opencode/opencode.json`
-- `agent_app/opencode_app/.opencode/tools/ai4x_query.js`
-- `agent_app/opencode_app/tools/ai4x_cli.py`
-- `agent_app/opencode_app/services/ai4x_client.py`
 - `agent_app/opencode_app/data/stix_samples/threat_intel_bundle.json`
 - `data/mock_events/mock_opencti_push_event.json`
 - `tests/test_ai4x_platform_integration.py`
@@ -185,6 +189,7 @@ The following remain ordinary supporting guardrails and may be extended during l
 - `tests/test_stix_contracts.py`
 - `tests/test_result_assembler.py`
 - `tests/test_mock_opencti_adapter.py`
+- `agent_app/opencode_app/tests/test_runtime_architecture_contract.py::test_isolated_runtime_boundary_keeps_local_bridge_surface`
 - agent-specific contract tests such as `tests/test_incident_response_agent.py`, `tests/test_ioc_triage_agent.py`, `tests/test_supply_chain_risk_agent.py`, `tests/test_vulnerability_impact_agent.py`, and related peers
 - additional runtime or adapter unit tests under corresponding implementation directories
 

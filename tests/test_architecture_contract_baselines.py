@@ -12,6 +12,7 @@ def test_explicit_ai4x_acceptance_entries_remain_at_canonical_paths() -> None:
 
     assert "def test_ai4x_platform_catalog_exposes_available_data_range() -> None:" in ai4x_text
     assert "def test_ai4x_platform_query_tool_returns_real_data_payload() -> None:" in ai4x_text
+    assert "def test_ai4x_platform_opencti_schema_detail_supports_progressive_disclosure() -> None:" in ai4x_text
     assert "def test_ai4x_platform_data_consumption_flow_uses_real_ai4x_service(tmp_path: Path) -> None:" in ai4x_text
     assert "def test_opencode_app_contains_local_tool_runtime_dependencies() -> None:" in workspace_text
 

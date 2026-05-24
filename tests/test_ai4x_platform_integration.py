@@ -28,6 +28,8 @@ from services.remote_opencode_server import start_mock_remote_server
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 WORKSPACE_ROOT = REPO_ROOT / "agent_app/opencode_app/.opencode"
+WORKSPACE_CONTRACT_PATH = WORKSPACE_ROOT / "workspace.contract.json"
+OPENCODE_CONFIG_PATH = WORKSPACE_ROOT / "opencode.json"
 STIX_BUNDLE_PATH = REPO_ROOT / "agent_app/opencode_app/data/stix_samples/threat_intel_bundle.json"
 AI4X_BASE_URL = resolve_ai4x_base_url()
 OPENCODE_BASE_URL = DEFAULT_OPENCODE_BASE_URL
@@ -212,6 +214,152 @@ def _require_real_ai4x_environment() -> dict[str, object]:
         print(failure_reason)
         pytest.fail(failure_reason)
     return probe
+
+
+def _load_registered_ai4x_mcp_server() -> dict[str, str | list[str]]:
+    workspace_config = json.loads(OPENCODE_CONFIG_PATH.read_text(encoding="utf-8"))
+    workspace_contract = json.loads(WORKSPACE_CONTRACT_PATH.read_text(encoding="utf-8"))
+
+    registered_server = workspace_config.get("mcpServers", {}).get("ai4x")
+    frozen_server = workspace_contract.get("mcp_servers", {}).get("ai4x")
+    if not isinstance(registered_server, dict):
+        pytest.fail(f"Missing ai4x MCP registration in {OPENCODE_CONFIG_PATH}")
+    if not isinstance(frozen_server, dict):
+        pytest.fail(f"Missing ai4x MCP contract in {WORKSPACE_CONTRACT_PATH}")
+
+    url = str(registered_server.get("url") or "").strip()
+    healthz = str(registered_server.get("healthz") or "").strip()
+    tools = registered_server.get("tools")
+    if not url or not healthz:
+        pytest.fail(f"AI4X MCP registration must declare non-empty url and healthz in {OPENCODE_CONFIG_PATH}")
+    if not isinstance(tools, list) or [str(item) for item in tools] != ["ai4x_query"]:
+        pytest.fail(f"AI4X MCP registration in {OPENCODE_CONFIG_PATH} must expose exactly one canonical tool ai4x_query")
+    if str(frozen_server.get("url") or "").strip() != url:
+        pytest.fail("Workspace contract MCP url diverges from opencode.json registration")
+    if str(frozen_server.get("healthz") or "").strip() != healthz:
+        pytest.fail("Workspace contract MCP healthz diverges from opencode.json registration")
+
+    return {
+        "url": url,
+        "healthz": healthz,
+        "tools": [str(item) for item in tools],
+    }
+
+
+def _require_registered_ai4x_mcp_environment() -> dict[str, str | list[str]]:
+    registration = _load_registered_ai4x_mcp_server()
+    http_request = request.Request(str(registration["healthz"]), headers={"Accept": "application/json"}, method="GET")
+    opener = request.build_opener(request.ProxyHandler({}))
+    try:
+        with opener.open(http_request, timeout=5.0) as response:
+            payload = response.read().decode(response.headers.get_content_charset("utf-8"), errors="replace")
+    except Exception as exc:  # pragma: no cover - surfaced as acceptance failure signal
+        pytest.fail(
+            f"Registered AI4X MCP health probe is not ready at {registration['healthz']}: {exc}"
+        )
+
+    if payload:
+        try:
+            parsed = json.loads(payload)
+        except json.JSONDecodeError:
+            parsed = payload
+        if isinstance(parsed, dict):
+            assert parsed.get("status") in {None, "ok", "healthy", "ready"}
+    return registration
+
+
+def _post_ai4x_mcp_jsonrpc(url: str, method: str, params: dict[str, object], *, request_id: int) -> dict[str, object]:
+    opener = request.build_opener(request.ProxyHandler({}))
+    http_request = request.Request(
+        url,
+        data=json.dumps(
+            {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "method": method,
+                "params": params,
+            },
+            ensure_ascii=False,
+        ).encode("utf-8"),
+        headers={
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+    try:
+        with opener.open(http_request, timeout=20.0) as response:
+            raw_payload = response.read().decode(response.headers.get_content_charset("utf-8"), errors="replace")
+    except error.HTTPError as exc:
+        details = exc.read().decode("utf-8", errors="replace")
+        pytest.fail(f"AI4X MCP {method} failed with HTTP {exc.code}: {details}")
+    except Exception as exc:  # pragma: no cover - surfaced as acceptance failure signal
+        pytest.fail(f"AI4X MCP {method} failed at {url}: {exc}")
+
+    parsed = json.loads(raw_payload)
+    assert isinstance(parsed, dict)
+    if parsed.get("error"):
+        pytest.fail(f"AI4X MCP {method} returned JSON-RPC error: {parsed['error']}")
+
+    result = parsed.get("result")
+    assert isinstance(result, dict), f"AI4X MCP {method} must return a JSON object result"
+    return result
+
+
+def _initialize_ai4x_mcp(url: str) -> None:
+    _post_ai4x_mcp_jsonrpc(
+        url,
+        "initialize",
+        {
+            "protocolVersion": "2025-03-26",
+            "capabilities": {},
+            "clientInfo": {"name": "ThreatIntelliganceAgent-tests", "version": "1.0"},
+        },
+        request_id=1,
+    )
+
+
+def _extract_ai4x_mcp_tool_payload(result: dict[str, object]) -> dict[str, object]:
+    structured = result.get("structuredContent")
+    if isinstance(structured, dict):
+        return structured
+
+    content = result.get("content")
+    if isinstance(content, list):
+        for item in content:
+            if not isinstance(item, dict):
+                continue
+            text = item.get("text")
+            if not isinstance(text, str):
+                continue
+            try:
+                parsed = json.loads(text)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(parsed, dict):
+                return parsed
+
+    pytest.fail(f"AI4X MCP tool call returned no JSON object payload: {result}")
+
+
+def _list_ai4x_mcp_tools(url: str) -> list[dict[str, object]]:
+    result = _post_ai4x_mcp_jsonrpc(url, "tools/list", {}, request_id=2)
+    tools = result.get("tools")
+    assert isinstance(tools, list), f"AI4X MCP tools/list must return a tools array, got: {result}"
+    return [tool for tool in tools if isinstance(tool, dict)]
+
+
+def _call_ai4x_query_via_mcp(url: str, arguments: dict[str, object], *, request_id: int) -> dict[str, object]:
+    result = _post_ai4x_mcp_jsonrpc(
+        url,
+        "tools/call",
+        {
+            "name": "ai4x_query",
+            "arguments": arguments,
+        },
+        request_id=request_id,
+    )
+    return _extract_ai4x_mcp_tool_payload(result)
 
 
 def _require_real_opencode_server() -> dict[str, object]:
@@ -547,60 +695,47 @@ def _extract_opencti_detail_pointer_candidates(schema_payload: dict[str, object]
 
 
 def test_ai4x_platform_catalog_exposes_available_data_range() -> None:
-    probe = _require_real_ai4x_environment()
-    tool_path = WORKSPACE_ROOT / "tools/ai4x_query.js"
-    print(f"tool_path={tool_path}")
-    
-    completed = _run_tool_module(tool_path, {"command": "catalog", "baseUrl": AI4X_BASE_URL}, agent="ThreatIntelAnalyst_test")
-    
-    assert completed.returncode == 0, completed.stderr
-    print(f"AI4X Catalog Tool Output:\n{completed.stdout}")
-    payload = _decode_tool_output(completed.stdout)
+    registration = _require_registered_ai4x_mcp_environment()
+    _initialize_ai4x_mcp(str(registration["url"]))
+    tools = _list_ai4x_mcp_tools(str(registration["url"]))
+    assert any(str(tool.get("name") or "").strip() == "ai4x_query" for tool in tools)
+
+    payload = _call_ai4x_query_via_mcp(str(registration["url"]), {"command": "catalog"}, request_id=3)
     assert payload["databases"]
     assert payload["total_databases"] == len(payload["databases"])
-    assert probe["catalog"]["total_databases"] == payload["total_databases"]
+    assert any(str(item.get("source_id") or "").strip() for item in payload["databases"])
 
 
 def test_ai4x_platform_query_tool_returns_real_data_payload() -> None:
-    _require_real_ai4x_environment()
-    tool_path = WORKSPACE_ROOT / "tools/ai4x_query.js"
-    print(f"tool_path={tool_path}")
-    catalog_completed = _run_tool_module(tool_path, {"command": "catalog", "baseUrl": AI4X_BASE_URL}, agent="ThreatIntelAnalyst_test")
-    assert catalog_completed.returncode == 0, catalog_completed.stderr
-    print(f"AI4X Catalog Tool Output:\n{catalog_completed.stdout}")
-    catalog_payload = _decode_tool_output(catalog_completed.stdout)
+    registration = _require_registered_ai4x_mcp_environment()
+    _initialize_ai4x_mcp(str(registration["url"]))
+    catalog_payload = _call_ai4x_query_via_mcp(str(registration["url"]), {"command": "catalog"}, request_id=4)
     source_id = next((item["source_id"] for item in catalog_payload["databases"] if item.get("storage") == "neo4j"), catalog_payload["databases"][0]["source_id"])
 
-    completed = _run_tool_module(
-        tool_path,
+    payload = _call_ai4x_query_via_mcp(
+        str(registration["url"]),
         {
             "command": "query",
-            "baseUrl": AI4X_BASE_URL,
             "sourceId": source_id,
             "cypher": "MATCH (n) RETURN n LIMIT 5",
             "limit": 5,
         },
-        agent="ThreatIntelAnalyst_test",
+        request_id=5,
     )
 
-    assert completed.returncode == 0, completed.stderr
-    payload = _decode_tool_output(completed.stdout)
     assert payload["source_id"] == source_id
     assert "items" in payload
     assert payload.get("count", len(payload.get("items", []))) >= 0
 
 
 def test_ai4x_platform_opencti_schema_detail_supports_progressive_disclosure() -> None:
-    _require_real_ai4x_environment()
-    tool_path = WORKSPACE_ROOT / "tools/ai4x_query.js"
-    schema_completed = _run_tool_module(
-        tool_path,
-        {"command": "schema", "baseUrl": AI4X_BASE_URL, "sourceId": "opencti"},
-        agent="ThreatIntelAnalyst_test",
+    registration = _require_registered_ai4x_mcp_environment()
+    _initialize_ai4x_mcp(str(registration["url"]))
+    schema_payload = _call_ai4x_query_via_mcp(
+        str(registration["url"]),
+        {"command": "schema", "sourceId": "opencti"},
+        request_id=6,
     )
-
-    assert schema_completed.returncode == 0, schema_completed.stderr
-    schema_payload = _decode_tool_output(schema_completed.stdout)
     assert schema_payload["source_id"] == "opencti"
     detail_candidates = _extract_opencti_detail_pointer_candidates(schema_payload)
     assert detail_candidates, f"Expected opencti schema to expose progressive detail pointers, got: {schema_payload}"
@@ -608,20 +743,17 @@ def test_ai4x_platform_opencti_schema_detail_supports_progressive_disclosure() -
     detail_kind, type_name = detail_candidates[0]
     expected_detail = fetch_source_schema_detail(detail_kind=detail_kind, source_id="opencti", type_name=type_name, base_url=AI4X_BASE_URL)
 
-    detail_completed = _run_tool_module(
-        tool_path,
+    detail_payload = _call_ai4x_query_via_mcp(
+        str(registration["url"]),
         {
             "command": "detail",
-            "baseUrl": AI4X_BASE_URL,
             "sourceId": "opencti",
             "detailKind": detail_kind,
             "typeName": type_name,
         },
-        agent="ThreatIntelAnalyst_test",
+        request_id=7,
     )
 
-    assert detail_completed.returncode == 0, detail_completed.stderr
-    detail_payload = _decode_tool_output(detail_completed.stdout)
     assert detail_payload["source_id"] == "opencti"
     assert detail_payload["detail_kind"] == detail_kind
     assert detail_payload["type_name"] == type_name
@@ -630,7 +762,7 @@ def test_ai4x_platform_opencti_schema_detail_supports_progressive_disclosure() -
 
 def test_ai4x_platform_data_consumption_flow_uses_real_ai4x_service(tmp_path: Path) -> None:
     # @ArchitectureID: 1738
-    _require_real_ai4x_environment()
+    registration = _require_registered_ai4x_mcp_environment()
     output_path = tmp_path / "listener-ai4x-result.json"
     agent_definition = REPO_ROOT / "agent_app/opencode_app/.opencode/agents/ThreatIntelAnalyst_test.md"
     assert agent_definition.is_file()
@@ -654,11 +786,12 @@ def test_ai4x_platform_data_consumption_flow_uses_real_ai4x_service(tmp_path: Pa
     ai4x_evidence = result["evidence_query_basis"]["ai4x"]
 
     assert dispatched_payload["agent"] == "ThreatIntelAnalyst_test"
-    _assert_equivalent_ai4x_base_url(ai4x_evidence["base_url"], AI4X_BASE_URL)
-    assert ai4x_evidence["catalog"]["databases"]
-    assert ai4x_evidence["selected_source_id"]
-    assert ai4x_evidence["selected_schema"]["source_id"] == ai4x_evidence["selected_source_id"]
-    assert ai4x_evidence["query"]["source_id"] == ai4x_evidence["selected_source_id"]
+    assert ai4x_evidence.get("transport") == "remote_http_mcp", (
+        "ThreatIntelListener must record remote_http_mcp once the MCP boundary becomes canonical. "
+        f"Observed evidence payload: {ai4x_evidence}"
+    )
+    assert ai4x_evidence.get("mcp_server", {}).get("url") == registration["url"]
+    assert ai4x_evidence.get("mcp_server", {}).get("tool") == "ai4x_query"
     assert result["analysis_conclusion"]["summary"]
     assert output_path.is_file()
 
