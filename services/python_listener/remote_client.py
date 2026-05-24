@@ -12,7 +12,7 @@ from pathlib import Path
 from time import monotonic, sleep
 from typing import Any
 from urllib import error, request
-from urllib.parse import quote
+from urllib.parse import quote, urlparse, urlunparse
 
 from services.result_assembler import validate_structured_result
 from services.result_assembler.schema import build_result_json_schema
@@ -30,6 +30,21 @@ DEFAULT_AGENT_ALIASES = {
     "STIX_EvidenceSpecialist": "ThreatIntelAnalyst",
     "TARA_analyst": "ThreatIntelSecOps",
 }
+
+
+def normalize_workspace_mcp_url(url: str) -> str:
+    parsed = urlparse(url)
+    if parsed.hostname != "host.docker.internal":
+        return url
+
+    if Path("/.dockerenv").exists():
+        return url
+
+    replacement = "127.0.0.1"
+    if parsed.port is not None:
+        replacement = f"{replacement}:{parsed.port}"
+
+    return urlunparse(parsed._replace(netloc=replacement))
 
 
 def resolve_remote_timeout_seconds() -> float:

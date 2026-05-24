@@ -5,12 +5,14 @@ temperature: 0.0
 permission:
   edit: allow
   bash: allow
+  ai4x_query_local: deny
   task:
     "*": deny
 tools:
   edit: true
   bash: true
   skill: true
+  ai4x_query_local: false
   ai4x_query: true
 ---
 

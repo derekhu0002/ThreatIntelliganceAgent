@@ -13,7 +13,7 @@ permission:
     "*": deny
   skill:
     "*": deny
-    "incident_report_generation": allow
+    "incident-report-generation": allow
 
 tools:
   "*": false
@@ -46,14 +46,14 @@ tools:
 
 当前已授权的 Skill 如下：
 
-- `incident_report_generation`
+- `incident-report-generation`
   - 当用户希望从已确认事件、事件摘要、恶意软件、IOC、攻击技术或已知活动入口生成结构化事件报告时选择。
   - 当用户希望同时获得核心事实、威胁行为体关联、同类风险对象提示和后续关注建议时选择。
   - 当用户要求显式区分事实、关联判断和待复核项，而不是自动执行处置时选择。
 
 当前路由模式为严格单 Skill 路由：
 
-- 只要命中该场景，只执行 `incident_report_generation`。
+- 只要命中该场景，只执行 `incident-report-generation`。
 - 不跨 Skill 追加未注册流程。
 - 不自行发明附属 Agent 或替代 Skill。
 
@@ -194,14 +194,14 @@ tools:
 
 ## Active Skills
 
-- `incident_report_generation`: 基于 `opencti` 执行已确认事件的结构化报告生成、威胁行为体与活动关联补充、同类群组候选提示和有限边界内的后续关注建议。
+- `incident-report-generation`: 基于 `opencti` 执行已确认事件的结构化报告生成、威胁行为体与活动关联补充、同类群组候选提示和有限边界内的后续关注建议。
 
 ## Reserved Expansion Direction
 
 后续可以扩展但当前未启用的方向：
 
-- `incident_evidence_compaction`
-- `executive_summary_report`
-- `peer_association_report`
+- `incident-evidence-compaction`
+- `executive-summary-report`
+- `peer-association-report`
 
 在这些 Skill 尚未正式注册前，不得自行假设其可用。

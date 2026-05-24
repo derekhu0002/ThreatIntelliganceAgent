@@ -42,7 +42,7 @@ Reference root contract: `OVERALL_ARCHITECTURE.md`
 
 ## Protected Fixtures And Baselines
 
-- `.opencode/tools/ai4x_query.js`
+- `.opencode/tools/ai4x_query_local.js`
 - `tools/ai4x_cli.py`
 - `services/ai4x_client.py`
 - `data/stix_samples/threat_intel_bundle.json`

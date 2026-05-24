@@ -22,6 +22,7 @@ from services.python_listener.remote_client import (
     DEFAULT_OPENCODE_BASE_URL,
     RemoteDispatchError,
     RemoteOpencodeClient,
+    normalize_workspace_mcp_url,
 )
 from services.remote_opencode_server import start_mock_remote_server
 
@@ -220,24 +221,25 @@ def _load_registered_ai4x_mcp_server() -> dict[str, str | list[str]]:
     workspace_config = json.loads(OPENCODE_CONFIG_PATH.read_text(encoding="utf-8"))
     workspace_contract = json.loads(WORKSPACE_CONTRACT_PATH.read_text(encoding="utf-8"))
 
-    registered_server = workspace_config.get("mcpServers", {}).get("ai4x")
+    registered_server = workspace_config.get("mcp", {}).get("ai4x")
     frozen_server = workspace_contract.get("mcp_servers", {}).get("ai4x")
     if not isinstance(registered_server, dict):
         pytest.fail(f"Missing ai4x MCP registration in {OPENCODE_CONFIG_PATH}")
     if not isinstance(frozen_server, dict):
         pytest.fail(f"Missing ai4x MCP contract in {WORKSPACE_CONTRACT_PATH}")
 
-    url = str(registered_server.get("url") or "").strip()
-    healthz = str(registered_server.get("healthz") or "").strip()
-    tools = registered_server.get("tools")
-    if not url or not healthz:
-        pytest.fail(f"AI4X MCP registration must declare non-empty url and healthz in {OPENCODE_CONFIG_PATH}")
+    registration_type = str(registered_server.get("type") or "").strip()
+    raw_url = str(registered_server.get("url") or "").strip()
+    raw_healthz = str(frozen_server.get("healthz") or "").strip()
+    url = normalize_workspace_mcp_url(raw_url)
+    healthz = normalize_workspace_mcp_url(raw_healthz)
+    tools = frozen_server.get("tool_names")
+    if registration_type != "remote" or not url or not healthz:
+        pytest.fail(f"AI4X MCP registration must declare remote type and non-empty url in {OPENCODE_CONFIG_PATH}, plus non-empty healthz in {WORKSPACE_CONTRACT_PATH}")
     if not isinstance(tools, list) or [str(item) for item in tools] != ["ai4x_query"]:
-        pytest.fail(f"AI4X MCP registration in {OPENCODE_CONFIG_PATH} must expose exactly one canonical tool ai4x_query")
-    if str(frozen_server.get("url") or "").strip() != url:
+        pytest.fail(f"AI4X MCP contract in {WORKSPACE_CONTRACT_PATH} must expose exactly one canonical tool ai4x_query")
+    if normalize_workspace_mcp_url(str(frozen_server.get("url") or "").strip()) != url:
         pytest.fail("Workspace contract MCP url diverges from opencode.json registration")
-    if str(frozen_server.get("healthz") or "").strip() != healthz:
-        pytest.fail("Workspace contract MCP healthz diverges from opencode.json registration")
 
     return {
         "url": url,

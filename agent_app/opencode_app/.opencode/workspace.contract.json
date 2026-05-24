@@ -6,8 +6,8 @@
   "mcp_servers": {
     "ai4x": {
       "transport": "http",
-      "url": "http://127.0.0.1:8000/mcp",
-      "healthz": "http://127.0.0.1:8000/mcp/healthz",
+      "url": "http://host.docker.internal:8000/mcp",
+      "healthz": "http://host.docker.internal:8000/mcp/healthz",
       "tool_names": [
         "ai4x_query"
       ],

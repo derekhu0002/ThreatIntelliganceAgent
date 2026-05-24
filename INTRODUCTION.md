@@ -137,7 +137,7 @@
 
 已证实的实现路径：
 
-1. Agent 侧 `ai4x_query.js`
+1. Agent 侧 `ai4x_query_local.js`
 2. 调用 Python CLI `agent_app/opencode_app/tools/ai4x_cli.py`
 3. 再由 `services/ai4x_client.py` 访问 AI4X Platform API Center
 

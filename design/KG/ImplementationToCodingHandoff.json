@@ -152,7 +152,7 @@
   "openGaps": [
     "The registered MCP endpoint http://127.0.0.1:8000/mcp/healthz timed out during the initial explicit execution run.",
     "ThreatIntelListener evidence output has not yet been proven to record transport=remote_http_mcp and mcp_server metadata.",
-    "The local ai4x_query.js -> tools.ai4x_cli compatibility bridge still exists and may continue to surface analyst-only behavior until Coding/Repair removes or relocates that drift.",
+    "The local ai4x_query_local.js -> tools.ai4x_cli compatibility bridge still exists and may continue to surface analyst-only behavior until Coding/Repair removes or relocates that drift.",
     "No implementation-side proof has yet shown that the real OPENCODE runtime consumes the MCP registration from opencode.json rather than the deprecated local wrapper path."
   ]
 }

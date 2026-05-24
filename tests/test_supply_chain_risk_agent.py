@@ -93,7 +93,7 @@ def _read_workspace_file(relative_path: str) -> str:
 def test_supply_chain_risk_agent_contract() -> None:
     agent_prompt = _read_workspace_file("agents/SupplyChainRiskAgent.md")
     skill_prompt = _read_workspace_file("skills/supply-chain-dependency-governance/SKILL.md")
-    ai4x_tool = _read_workspace_file("tools/ai4x_query.js")
+    ai4x_tool = _read_workspace_file("tools/ai4x_query_local.js")
     architecture = json.loads((REPO_ROOT / "design/KG/SystemArchitecture.json").read_text(encoding="utf-8"))
 
     assert "biz.supply-chain-risk-assessment" in agent_prompt
@@ -137,7 +137,7 @@ def test_ai4x_query_tool_allows_supply_chain_risk_agent(tmp_path: Path) -> None:
     if os.name == "nt":
         pytest.skip("Windows cmd wrapper cannot reliably fake pythonBin execution for ai4x_query in this harness.")
 
-    tool_path = WORKSPACE_ROOT / "tools/ai4x_query.js"
+    tool_path = WORKSPACE_ROOT / "tools/ai4x_query_local.js"
     fake_python = _write_fake_python_executable(
         tmp_path,
         json.dumps({"version": "test", "total_databases": 1, "databases": [{"source_id": "cve2oss"}]}),

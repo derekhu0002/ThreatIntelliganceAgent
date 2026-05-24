@@ -113,7 +113,7 @@ These families are stable only as control-plane decomposition. They do not bypas
 - Forbidden reverse dependencies:
   - root `services/*` must not depend on `.opencode/agents/*` or `.opencode/skills/*`
   - `.opencode/tools/*` must not import root tests
-  - explicit AI4X acceptance entrypoints must not treat `.opencode/tools/ai4x_query.js` as the canonical path once workspace MCP registration is present
+  - explicit AI4X acceptance entrypoints must not treat `.opencode/tools/ai4x_query_local.js` as the canonical path once workspace MCP registration is present
   - scenario families must not embed direct external HTTP logic when a registered MCP boundary or isolated runtime bridge already exists
 
 ## Implements Mapping
@@ -126,7 +126,7 @@ These families are stable only as control-plane decomposition. They do not bypas
 
 ### Indirect Implementation Chains
 
-- `agent_app/opencode_app/.opencode/tools/ai4x_query.js` now acts only as a local compatibility wrapper. When present, it implements the transitional runtime bridge element rather than the canonical `1739` boundary.
+- `agent_app/opencode_app/.opencode/tools/ai4x_query_local.js` now acts only as a local compatibility wrapper. When present, it implements the transitional runtime bridge element rather than the canonical `1739` boundary.
 - `agent_app/opencode_app/tools/ai4x_cli.py` implements the transitional isolated runtime bridge element; that bridge supports compatibility flows and migration harnesses but no longer defines the canonical AI4X tool boundary.
 - `agent_app/opencode_app/services/ai4x_client.py` implements the local transitional service surface consumed by the compatibility bridge.
 - `services/result_assembler` and `services/stix_contracts` implement shared contract substrates that are consumed by `services/python_listener`; therefore they indirectly support `1738` via the orchestration chain rather than directly binding every internal artifact to the intention layer.

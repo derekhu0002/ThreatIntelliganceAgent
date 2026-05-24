@@ -17,7 +17,7 @@ from urllib import error, request
 
 from agent_app.opencode_app.tools.stix_cli.semantic_query import load_bundle, neighbors, search_entities
 from services.ai4x_client import AI4XPlatformError, execute_universal_query, fetch_schema_catalog, fetch_source_schema
-from services.python_listener.remote_client import load_workspace_config
+from services.python_listener.remote_client import load_workspace_config, normalize_workspace_mcp_url
 from services.result_assembler import assemble_structured_result
 
 
@@ -147,29 +147,21 @@ def _select_ai4x_source_id(databases: list[dict[str, Any]]) -> str:
 def _load_registered_ai4x_mcp_server() -> dict[str, Any]:
     repo_root = Path(__file__).resolve().parents[2]
     config = load_workspace_config(repo_root)
-    mcp_servers = config.get("mcpServers")
+    mcp_servers = config.get("mcp")
     if not isinstance(mcp_servers, dict):
-        raise AI4XPlatformError("Workspace config must define mcpServers for canonical AI4X access.")
+        raise AI4XPlatformError("Workspace config must define mcp.ai4x for canonical AI4X access.")
 
     registration = mcp_servers.get("ai4x")
     if not isinstance(registration, dict):
-        raise AI4XPlatformError("Workspace config must define mcpServers.ai4x for canonical AI4X access.")
+        raise AI4XPlatformError("Workspace config must define mcp.ai4x for canonical AI4X access.")
 
     url = str(registration.get("url") or "").strip()
     if not url:
-        raise AI4XPlatformError("Workspace config must define mcpServers.ai4x.url.")
-
-    tools = registration.get("tools")
-    tool_name = "ai4x_query"
-    if isinstance(tools, list):
-        for candidate in tools:
-            if isinstance(candidate, str) and candidate.strip():
-                tool_name = candidate.strip()
-                break
+        raise AI4XPlatformError("Workspace config must define mcp.ai4x.url.")
 
     return {
-        "url": url,
-        "tool": tool_name,
+        "url": normalize_workspace_mcp_url(url),
+        "tool": "ai4x_query",
     }
 
 

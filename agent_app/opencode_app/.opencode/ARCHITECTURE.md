@@ -48,7 +48,7 @@ These families are stable only as control-plane groupings. Low-level prompts, he
 - agent-family definitions directly implement `ELM-TECH-ARTIFACT-AGENT-DEFS`.
 - collaboration loop skills directly implement `ELM-APP-PROC-THREAT-COLLAB-SKILL`.
 - the AI4X MCP server registration inside `opencode.json` directly implements `1739 / Tools`.
-- `.opencode/tools/ai4x_query.js` is transitional support only and no longer defines the canonical `1739` boundary.
+- `.opencode/tools/ai4x_query_local.js` is transitional support only and no longer defines the canonical `1739` boundary.
 
 ## Explicit Acceptance Baselines Mounted Here
 

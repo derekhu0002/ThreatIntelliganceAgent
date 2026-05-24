@@ -76,9 +76,9 @@ function resolveAgentName(context) {
 
 function buildScopeHandoff(agentName) {
   return [
-    "ai4x_query is reserved for ThreatIntelAnalyst compatibility scope.",
+    "ai4x_query_local is reserved for ThreatIntelAnalyst compatibility scope.",
     `Current agent: ${agentName || "<unset>"}.`,
-    "ThreatIntelSecOps must use analyst-provided AI4X data rather than calling ai4x_query directly.",
+    "ThreatIntelSecOps must use analyst-provided AI4X data rather than calling ai4x_query_local directly.",
     "If additional AI4X lookup is required, delegate back to ThreatIntelAnalyst instead of calling this tool directly.",
   ].join("\n");
 }
@@ -93,7 +93,7 @@ function enforceAgentScope(context) {
   }
 
   throw new Error(
-    `ai4x_query is restricted to ThreatIntelAnalyst compatibility scope; received agent ${agentName || "<unset>"}.`,
+    `ai4x_query_local is restricted to ThreatIntelAnalyst compatibility scope; received agent ${agentName || "<unset>"}.`,
   );
 }
 
@@ -183,7 +183,7 @@ async function runCliCommand(pythonCandidates, cliArgs, context, cwd) {
     }
   }
 
-  throw new Error(`ai4x_query could not find a usable Python executable. Tried: ${pythonCandidates.join(", ")}.`);
+  throw new Error(`ai4x_query_local could not find a usable Python executable. Tried: ${pythonCandidates.join(", ")}.`);
 }
 
 function parseValidatedCliOutput(stdout, command) {
@@ -191,7 +191,7 @@ function parseValidatedCliOutput(stdout, command) {
   try {
     payload = JSON.parse(stdout);
   } catch (error) {
-    throw new Error(`ai4x_query received invalid JSON from tools.ai4x_cli: ${error.message}`);
+    throw new Error(`ai4x_query_local received invalid JSON from tools.ai4x_cli: ${error.message}`);
   }
 
   const schema = command === "catalog"
@@ -203,13 +203,13 @@ function parseValidatedCliOutput(stdout, command) {
       : ai4xQueryResultSchema;
   const validated = schema.safeParse(payload);
   if (!validated.success) {
-    throw new Error(`ai4x_query received invalid payload from tools.ai4x_cli: ${validated.error.message}`);
+    throw new Error(`ai4x_query_local received invalid payload from tools.ai4x_cli: ${validated.error.message}`);
   }
   return validated.data;
 }
 
 export default tool({
-  description: "Discover, progressively inspect schema, and query the real AI4X Platform API Center. OpenCTI queries use the platform's default auto strategy: prefer GraphQL when supported and fall back to the replica path when GraphQL does not support the requested shape.",
+  description: "Local compatibility wrapper for the isolated AI4X CLI bridge. The canonical ai4x_query surface is now provided by the registered MCP server, not by this local wrapper.",
   args: {
     command: tool.schema.enum(["catalog", "schema", "detail", "query"]),
     sourceId: tool.schema.string().optional(),
@@ -243,7 +243,7 @@ export default tool({
     const cliArgs = buildCliArgs(args);
 
     context.metadata({
-      title: "ai4x_query",
+      title: "ai4x_query_local",
       metadata: {
         agent: scope.agentName,
         repoRoot,

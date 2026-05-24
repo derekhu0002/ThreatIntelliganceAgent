@@ -74,7 +74,7 @@
     "services/python_listener/ARCHITECTURE.md",
     "agent_app/opencode_app/.opencode/opencode.json",
     "agent_app/opencode_app/.opencode/workspace.contract.json",
-    "agent_app/opencode_app/.opencode/tools/ai4x_query.js",
+    "agent_app/opencode_app/.opencode/tools/ai4x_query_local.js",
     "tests/test_ai4x_platform_integration.py",
     "tests/test_opencode_workspace_config.py"
   ],
