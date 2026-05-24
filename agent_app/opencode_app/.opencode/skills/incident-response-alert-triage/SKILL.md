@@ -42,7 +42,7 @@ description: 当用户希望从事件摘要、告警编号、IOC、资产异常�
 
 执行任何查询前，先声明：
 
-- 所有外部数据交互只能通过 `ai4x_query` 完成。
+- 所有外部数据交互只能通过 `ai4x_ai4x_query` 完成。
 - 任何真实查询必须先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。对 `opencti` 的 query 默认采用平台 `auto` 策略，优先提交更容易被 GraphQL 支持的最小只读查询，由平台在不支持时自动回落 replica。
 - 必须严格区分 `Facts` 与 `Inferred Assessments`。
 - 平台外的 SIEM、EDR、SOAR 或日志系统只能作为外部补充上下文，而不是平台原生事实源。
@@ -53,7 +53,7 @@ description: 当用户希望从事件摘要、告警编号、IOC、资产异常�
 先调用：
 
 ```text
-ai4x_query(command="catalog")
+ai4x_ai4x_query(command="catalog")
 ```
 
 最少检查：
@@ -75,19 +75,19 @@ ai4x_query(command="catalog")
 在构造任何 Cypher 前，必须调用：
 
 ```text
-ai4x_query(command="schema", sourceId="opencti")
-ai4x_query(command="schema", sourceId="vehicle_iobe")
-ai4x_query(command="schema", sourceId="tara")
-ai4x_query(command="schema", sourceId="ses")
+ai4x_ai4x_query(command="schema", sourceId="opencti")
+ai4x_ai4x_query(command="schema", sourceId="vehicle_iobe")
+ai4x_ai4x_query(command="schema", sourceId="tara")
+ai4x_ai4x_query(command="schema", sourceId="ses")
 ```
 
 若需要功能或漏洞增强，再调用：
 
 ```text
-ai4x_query(command="schema", sourceId="vehicle_func")
-ai4x_query(command="schema", sourceId="ecu_func")
-ai4x_query(command="schema", sourceId="func_design_spec")
-ai4x_query(command="schema", sourceId="cve2oss")
+ai4x_ai4x_query(command="schema", sourceId="vehicle_func")
+ai4x_ai4x_query(command="schema", sourceId="ecu_func")
+ai4x_ai4x_query(command="schema", sourceId="func_design_spec")
+ai4x_ai4x_query(command="schema", sourceId="cve2oss")
 ```
 
 重点确认以下对象是否可消费：
@@ -104,7 +104,7 @@ ai4x_query(command="schema", sourceId="cve2oss")
 对 `opencti` 额外适用：`schema(opencti)` 只用于确认对象类型、关系类型和 detail 指针；若要确认具体字段，再调用：
 
 ```text
-ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")
+ai4x_ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")
 ```
 
 ## Step 3. 提取事件主线索
@@ -118,7 +118,7 @@ ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship
 推荐查询模板：
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (n) OPTIONAL MATCH (n)-[rel]-(peer) WHERE toLower(coalesce(n.name, n.value, n.pattern, n.description, '')) CONTAINS toLower($incident_seed) RETURN n, rel, peer LIMIT $limit"
@@ -142,7 +142,7 @@ ai4x_query(
 推荐查询模板：
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="vehicle_iobe",
   cypher="MATCH (node) OPTIONAL MATCH (node)-[rel]-(neighbor) WHERE toLower(coalesce(node.name, node.description, node.x_domain_tag, '')) CONTAINS toLower($keyword) RETURN node, rel, neighbor LIMIT $limit"
@@ -160,13 +160,13 @@ ai4x_query(
 若 `need_function_rollup == true`，继续查询：
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="ecu_func",
   cypher="MATCH (n) WHERE toLower(coalesce(n.ecu_name, '')) CONTAINS toLower($ecu_name) RETURN n LIMIT $limit"
 )
 
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="vehicle_func",
   cypher="MATCH (n) WHERE toLower(coalesce(n.function_name, n.function_description, '')) CONTAINS toLower($function_keyword) RETURN n LIMIT $limit"

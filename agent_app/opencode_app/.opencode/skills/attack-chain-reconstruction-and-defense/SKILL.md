@@ -35,7 +35,7 @@ description: 当用户提供安全事件标题、IOC、实体名或CVE，并希�
 
 在执行任何查询前，先声明以下约束：
 
-- 仅使用 `ai4x_query`。
+- 仅使用 `ai4x_ai4x_query`。
 - 严格遵守渐进式查询顺序：先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。对 `opencti` 的 query 默认采用平台 `auto` 策略，优先提交更容易被 GraphQL 支持的最小只读查询，由平台在不支持时自动回落 replica。
 - 不编造字段、关系、对象或数据源。
 - 输出必须明确区分 `Facts` 与 `Inferences`。
@@ -45,7 +45,7 @@ description: 当用户提供安全事件标题、IOC、实体名或CVE，并希�
 
 必须先调用目录能力确认本场景依赖的数据源可用：
 
-1. `ai4x_query(command="catalog")`
+1. `ai4x_ai4x_query(command="catalog")`
 2. 在目录中检查以下 `sourceId` 是否存在：
    - `opencti`
    - `vehicle_iobe`
@@ -59,10 +59,10 @@ description: 当用户提供安全事件标题、IOC、实体名或CVE，并希�
 
 在构造任何 Cypher 前，必须获取并检查 Schema：
 
-1. `ai4x_query(command="schema", sourceId="opencti")`
-2. 如需具体对象或关系字段：`ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")`
-2. `ai4x_query(command="schema", sourceId="vehicle_iobe")`
-3. `ai4x_query(command="schema", sourceId="tara")`
+1. `ai4x_ai4x_query(command="schema", sourceId="opencti")`
+2. 如需具体对象或关系字段：`ai4x_ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")`
+2. `ai4x_ai4x_query(command="schema", sourceId="vehicle_iobe")`
+3. `ai4x_ai4x_query(command="schema", sourceId="tara")`
 
 Schema 检查重点：
 
@@ -81,7 +81,7 @@ Schema 检查重点：
 先查询事件报告与其直接关联对象：
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (r {type: 'report'}) WHERE toLower(r.name) CONTAINS toLower($entry_value) OPTIONAL MATCH (r)-[rel1]-(ap {type: 'attack-pattern'}) OPTIONAL MATCH (r)-[rel2]-(infra {type: 'infrastructure'}) OPTIONAL MATCH (r)-[rel3]-(mw {type: 'malware'}) RETURN r, rel1, ap, rel2, infra, rel3, mw"
@@ -93,7 +93,7 @@ ai4x_query(
 先尝试匹配 `indicator`、`infrastructure`、`malware`、`attack-pattern`、`report`：
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (n) WHERE (n.type IN ['indicator','infrastructure','malware','attack-pattern','report']) AND toLower(coalesce(n.name, '')) CONTAINS toLower($entry_value) OPTIONAL MATCH (n)-[rel]-(m) RETURN n, rel, m"
@@ -105,7 +105,7 @@ ai4x_query(
 先尝试匹配 `vulnerability` 及其与 `report`、`attack-pattern` 的关系：
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (v {type: 'vulnerability'}) WHERE toLower(coalesce(v.name, '')) CONTAINS toLower($entry_value) OPTIONAL MATCH (v)-[rel]-(m) RETURN v, rel, m"
@@ -132,7 +132,7 @@ ai4x_query(
 推荐查询模板：
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (r {type: 'report'}) WHERE toLower(r.name) CONTAINS toLower($entry_value) OPTIONAL MATCH path1=(r)-[*1..2]-(ap {type: 'attack-pattern'}) OPTIONAL MATCH path2=(ap)-[*1..2]-(infra {type: 'infrastructure'}) OPTIONAL MATCH path3=(r)-[*1..2]-(mw {type: 'malware'}) RETURN r, path1, path2, path3, mw, infra, ap"
@@ -152,7 +152,7 @@ ai4x_query(
 ### 5A. 先定位外部基础设施与暴露面接触点
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="vehicle_iobe",
   cypher="MATCH (peer {type: 'x-external-peer'})-[r1]-(traffic {type: 'network-traffic'})-[r2]-(surface {type: 'x-exposure-surface'}) WHERE toLower(coalesce(peer.name, '')) CONTAINS toLower($infra_or_ioc_name) RETURN peer, r1, traffic, r2, surface"
@@ -162,7 +162,7 @@ ai4x_query(
 ### 5B. 再定位与暴露面相关的 ECU 与消息对象
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="vehicle_iobe",
   cypher="MATCH (surface {type: 'x-exposure-surface'})-[r1]-(ecu {type: 'x-vehicle-ecu'}) OPTIONAL MATCH (surface)-[r2]-(msg {type: 'x-message'}) WHERE toLower(coalesce(surface.name, '')) CONTAINS toLower($surface_name) RETURN surface, r1, ecu, r2, msg"
@@ -182,7 +182,7 @@ ai4x_query(
 ### 6A. 查询组件和资产
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="tara",
   cypher="MATCH (component {type: 'x-vehicle-component'}) OPTIONAL MATCH (component)-[r1]-(asset {type: 'x-vehicle-asset'}) WHERE toLower(coalesce(component.name, '')) CONTAINS toLower($candidate_component_name) OR toLower(coalesce(asset.component_name, '')) CONTAINS toLower($candidate_component_name) RETURN component, r1, asset"
@@ -192,7 +192,7 @@ ai4x_query(
 ### 6B. 查询威胁场景、攻击路径、可行性与风险
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="tara",
   cypher="MATCH (component {type: 'x-vehicle-component'})-[*1..3]-(threat {type: 'x-threat-scenario'}) OPTIONAL MATCH (threat)-[r1]-(path {type: 'x-attack-path'}) OPTIONAL MATCH (threat)-[r2]-(feasibility {type: 'x-attack-feasibility'}) OPTIONAL MATCH (threat)-[r3]-(risk {type: 'x-tara-risk'}) WHERE toLower(coalesce(component.name, '')) CONTAINS toLower($candidate_component_name) RETURN component, threat, path, feasibility, risk, r1, r2, r3"

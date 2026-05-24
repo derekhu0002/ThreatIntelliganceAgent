@@ -36,7 +36,7 @@ description: 当用户提供 intrusion-set、malware、indicator、domain、ip �
 
 执行任何查询前，先声明：
 
-- 所有外部数据交互只能通过 `ai4x_query` 完成。
+- 所有外部数据交互只能通过 `ai4x_ai4x_query` 完成。
 - 任何真实查询必须先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。对 `opencti` 的 query 默认采用平台 `auto` 策略，优先提交更容易被 GraphQL 支持的最小只读查询，由平台在不支持时自动回落 replica。
 - 必须严格区分 `Direct Facts` 与 `Inferred Assessments`。
 - 本技能只输出候选线索和下一轮狩猎建议，不给出最终归因结论。
@@ -47,7 +47,7 @@ description: 当用户提供 intrusion-set、malware、indicator、domain、ip �
 先调用：
 
 ```text
-ai4x_query(command="catalog")
+ai4x_ai4x_query(command="catalog")
 ```
 
 最少检查：
@@ -66,8 +66,8 @@ ai4x_query(command="catalog")
 在构造任何 Cypher 前，必须调用：
 
 ```text
-ai4x_query(command="schema", sourceId="opencti")
-ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")
+ai4x_ai4x_query(command="schema", sourceId="opencti")
+ai4x_ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")
 ```
 
 重点确认以下对象是否可消费：
@@ -90,7 +90,7 @@ ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship
 如用户要求环境相关性增强，再检查：
 
 ```text
-ai4x_query(command="schema", sourceId="vehicle_iobe")
+ai4x_ai4x_query(command="schema", sourceId="vehicle_iobe")
 ```
 
 重点确认：
@@ -109,7 +109,7 @@ ai4x_query(command="schema", sourceId="vehicle_iobe")
 ### 3A. intrusion-set / threat-actor 入口
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (seed) WHERE seed.type IN ['intrusion-set','threat-actor'] AND toLower(coalesce(seed.name, '')) CONTAINS toLower($seed_value) OPTIONAL MATCH (seed)-[rel]-(adj) RETURN seed, rel, adj"
@@ -119,7 +119,7 @@ ai4x_query(
 ### 3B. malware / indicator / infrastructure 入口
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (seed) WHERE seed.type IN ['malware','indicator','infrastructure'] AND (toLower(coalesce(seed.name, '')) CONTAINS toLower($seed_value) OR toLower(coalesce(seed.pattern, '')) CONTAINS toLower($seed_value)) OPTIONAL MATCH (seed)-[rel]-(adj) RETURN seed, rel, adj"
@@ -129,7 +129,7 @@ ai4x_query(
 ### 3C. domain / ip / other observable 入口
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (seed) WHERE (seed.type IN ['domain-name','ipv4-addr','url','file'] AND toLower(coalesce(seed.value, coalesce(seed.name, ''))) CONTAINS toLower($seed_value)) OR (seed.type = 'indicator' AND toLower(coalesce(seed.pattern, '')) CONTAINS toLower($seed_value)) OPTIONAL MATCH (seed)-[rel]-(adj) RETURN seed, rel, adj"
@@ -165,14 +165,14 @@ ai4x_query(
 推荐查询模板：
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (seed) WHERE id(seed) = $seed_id OPTIONAL MATCH path1=(seed)-[*1..2]-(shared1) WHERE shared1.type IN ['infrastructure','indicator'] OPTIONAL MATCH path2=(seed)-[*1..2]-(shared2) WHERE shared2.type IN ['malware','report','campaign'] OPTIONAL MATCH path3=(shared1)-[*1..2]-(candidate1) WHERE candidate1.type IN ['intrusion-set','threat-actor','campaign'] OPTIONAL MATCH path4=(shared2)-[*1..2]-(candidate2) WHERE candidate2.type IN ['intrusion-set','threat-actor','campaign'] RETURN seed, path1, shared1, path2, shared2, path3, candidate1, path4, candidate2"
 )
 ```
 
-真实执行时，`query` 调用必须保持 `ai4x_query(command="query", sourceId="opencti", cypher="...")` 的显式数据源约束。
+真实执行时，`query` 调用必须保持 `ai4x_ai4x_query(command="query", sourceId="opencti", cypher="...")` 的显式数据源约束。
 
 扩展要求：
 

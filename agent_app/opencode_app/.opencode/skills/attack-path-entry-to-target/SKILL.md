@@ -42,7 +42,7 @@ description: 当用户提供入口点、目标资产或平台范围，并希望�
 
 执行任何查询前，先声明：
 
-- 所有外部数据交互只能通过 `ai4x_query` 完成。
+- 所有外部数据交互只能通过 `ai4x_ai4x_query` 完成。
 - 任何真实查询必须先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。对 `opencti` 的 query 默认采用平台 `auto` 策略，优先提交更容易被 GraphQL 支持的最小只读查询，由平台在不支持时自动回落 replica。
 - 必须严格区分 `Facts` 与 `Inferred Assessments`。
 - `x-attack-path` 是威胁模型模板，不等于已证实攻击事实。
@@ -53,7 +53,7 @@ description: 当用户提供入口点、目标资产或平台范围，并希望�
 先调用：
 
 ```text
-ai4x_query(command="catalog")
+ai4x_ai4x_query(command="catalog")
 ```
 
 最少检查：
@@ -74,16 +74,16 @@ ai4x_query(command="catalog")
 在构造任何 Cypher 前，必须调用：
 
 ```text
-ai4x_query(command="schema", sourceId="vehicle_iobe")
-ai4x_query(command="schema", sourceId="tara")
+ai4x_ai4x_query(command="schema", sourceId="vehicle_iobe")
+ai4x_ai4x_query(command="schema", sourceId="tara")
 ```
 
 若需要控制或技术补强，再调用：
 
 ```text
-ai4x_query(command="schema", sourceId="ses")
-ai4x_query(command="schema", sourceId="opencti")
-ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")
+ai4x_ai4x_query(command="schema", sourceId="ses")
+ai4x_ai4x_query(command="schema", sourceId="opencti")
+ai4x_ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")
 ```
 
 重点确认以下对象是否可消费：
@@ -100,7 +100,7 @@ ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship
 先在 `vehicle_iobe` 中查询入口暴露面、外部对端和目标资产本体：
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="vehicle_iobe",
   cypher="MATCH (entry)-[r1]-(adj1) WHERE entry.type IN ['x-exposure-surface','x-external-peer'] AND toLower(coalesce(entry.name, entry.value, '')) CONTAINS toLower($entry_value) OPTIONAL MATCH (target)-[r2]-(adj2) WHERE target.type IN ['x-vehicle-ecu','x-domain-controller','x-function-domain'] AND toLower(coalesce(target.name, entry.value, '')) CONTAINS toLower($target_value) RETURN entry, r1, adj1, target, r2, adj2"
@@ -124,7 +124,7 @@ ai4x_query(
 推荐查询模板：
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="vehicle_iobe",
   cypher="MATCH path=(entry)-[*1..3]-(target) WHERE id(entry) = $entry_id AND id(target) = $target_id RETURN path LIMIT $path_budget"
@@ -141,7 +141,7 @@ ai4x_query(
 在 `tara` 中查询与入口、目标和中间节点相关的威胁场景、攻击路径模板和可行性：
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="tara",
   cypher="MATCH (ap {type: 'x-attack-path'}) OPTIONAL MATCH (ap)-[r1]-(ts {type: 'x-threat-scenario'}) OPTIONAL MATCH (ap)-[r2]-(af {type: 'x-attack-feasibility'}) WHERE toLower(coalesce(ap.description, ap.name, '')) CONTAINS toLower($entry_value) OR toLower(coalesce(ap.description, ap.name, '')) CONTAINS toLower($target_value) RETURN ap, r1, ts, r2, af"
@@ -159,7 +159,7 @@ ai4x_query(
 如 `ses` 可用，查询与入口类型、目标域和候选路径相关的控制要求：
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="ses",
   cypher="MATCH (req {type: 'x-cybersecurity-requirement'}) WHERE toLower(coalesce(req.text, req.name, '')) CONTAINS toLower($entry_value) OR toLower(coalesce(req.text, req.name, '')) CONTAINS toLower($target_value) RETURN req"

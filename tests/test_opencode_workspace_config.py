@@ -115,7 +115,7 @@ def test_opencode_workspace_config_declares_canonical_roles_and_aliases() -> Non
     assert workspace_contract["mcp_servers"]["ai4x"]["transport"] == "http"
     assert workspace_contract["mcp_servers"]["ai4x"]["healthz"].endswith("/mcp/healthz")
     assert workspace_contract["mcp_servers"]["ai4x"]["canonical"] is True
-    assert workspace_contract["mcp_servers"]["ai4x"]["tool_names"] == ["ai4x_query"]
+    assert workspace_contract["mcp_servers"]["ai4x"]["tool_names"] == ["ai4x_ai4x_query"]
     assert workspace_contract["agent_roles"] == {
         "primary": "ThreatIntelPrimary",
         "analyst": "ThreatIntelAnalyst",
@@ -136,7 +136,7 @@ def test_opencode_app_contains_local_tool_runtime_dependencies() -> None:
 
     assert "ai4x" in config["mcp"]
     assert config["mcp"]["ai4x"]["type"] == "remote"
-    assert workspace_contract["mcp_servers"]["ai4x"]["tool_names"] == ["ai4x_query"]
+    assert workspace_contract["mcp_servers"]["ai4x"]["tool_names"] == ["ai4x_ai4x_query"]
     assert workspace_contract["mcp_servers"]["ai4x"]["fallback_http_api_allowed"] is True
     assert (REPO_ROOT / "agent_app/opencode_app/tools/__init__.py").is_file()
     assert (REPO_ROOT / "agent_app/opencode_app/tools/ai4x_cli.py").is_file()
@@ -507,17 +507,17 @@ def test_canonical_agent_descriptors_expose_traceable_role_intent() -> None:
 
 def test_ai4x_acceptance_agent_descriptor_exists_and_is_toolchain_scoped() -> None:
     agent_text = (AGENTS_DIR / "ThreatIntelAnalyst_test.md").read_text(encoding="utf-8")
-    ai4x_tool_text = (TOOLS_DIR / "ai4x_query.js").read_text(encoding="utf-8")
+    ai4x_tool_text = (TOOLS_DIR / "ai4x_query_local.js").read_text(encoding="utf-8")
 
     assert "ThreatIntelAnalyst_test" in agent_text
     assert "acceptance-only ai4x integration analyst harness" in agent_text.casefold()
-    assert "ai4x_query: true" in agent_text
-    assert 'ai4x_query(command="catalog")' in agent_text
-    assert 'ai4x_query(command="schema", sourceId="...")' in agent_text
-    assert 'ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")' in agent_text
-    assert 'ai4x_query(command="query", sourceId="...", cypher="...")' in agent_text
+    assert "ai4x_ai4x_query: true" in agent_text
+    assert 'ai4x_ai4x_query(command="catalog")' in agent_text
+    assert 'ai4x_ai4x_query(command="schema", sourceId="...")' in agent_text
+    assert 'ai4x_ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")' in agent_text
+    assert 'ai4x_ai4x_query(command="query", sourceId="...", cypher="...")' in agent_text
     assert "默认工作策略必须视为 AI4X Platform 的 `auto` 模式" in agent_text
-    assert "prefer GraphQL when supported and fall back to the replica path" in ai4x_tool_text
+    assert "ThreatIntelSecOps must use analyst-provided AI4X data rather than calling ai4x_query_local directly." in ai4x_tool_text
     assert '"*": deny' in agent_text
 
 

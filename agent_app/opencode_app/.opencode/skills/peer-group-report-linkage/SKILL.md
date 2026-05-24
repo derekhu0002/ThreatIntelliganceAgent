@@ -34,7 +34,7 @@ description: 当用户提供攻击事件报告标题、事件摘要文本或相�
 
 执行查询前先声明：
 
-- 所有外部数据交互只能通过 `ai4x_query` 完成。
+- 所有外部数据交互只能通过 `ai4x_ai4x_query` 完成。
 - 任何真实查询必须先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。对 `opencti` 的 query 默认采用平台 `auto` 策略，优先提交更容易被 GraphQL 支持的最小只读查询，由平台在不支持时自动回落 replica。
 - 必须严格区分 `Facts` 与 `Inferences`。
 - 不能自动归因，只能输出直接相关群组和证据驱动的同级候选群组。
@@ -45,7 +45,7 @@ description: 当用户提供攻击事件报告标题、事件摘要文本或相�
 先调用：
 
 ```text
-ai4x_query(command="catalog")
+ai4x_ai4x_query(command="catalog")
 ```
 
 确认目录中存在 `sourceId="opencti"`。
@@ -61,8 +61,8 @@ ai4x_query(command="catalog")
 在构造任何 Cypher 前，必须调用：
 
 ```text
-ai4x_query(command="schema", sourceId="opencti")
-ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")
+ai4x_ai4x_query(command="schema", sourceId="opencti")
+ai4x_ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")
 ```
 
 重点确认以下对象是否可消费：
@@ -84,7 +84,7 @@ ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship
 ### 3A. report 标题入口
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (r {type: 'report'}) WHERE toLower(coalesce(r.name, '')) CONTAINS toLower($entry_value) OPTIONAL MATCH (r)-[rel]-(m) RETURN r, rel, m"
@@ -94,7 +94,7 @@ ai4x_query(
 ### 3B. actor / malware / campaign 入口
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (n) WHERE n.type IN ['intrusion-set','threat-actor','malware','tool','campaign'] AND toLower(coalesce(n.name, '')) CONTAINS toLower($entry_value) OPTIONAL MATCH (n)-[rel]-(m) RETURN n, rel, m"
@@ -121,7 +121,7 @@ ai4x_query(
 推荐摘要查询模板：
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (r {type: 'report'}) WHERE toLower(coalesce(r.name, '')) CONTAINS toLower($report_name) OPTIONAL MATCH path1=(r)-[*1..2]-(grp) WHERE grp.type IN ['intrusion-set','threat-actor'] OPTIONAL MATCH path2=(r)-[*1..2]-(mw) WHERE mw.type IN ['malware','tool'] OPTIONAL MATCH path3=(r)-[*1..2]-(infra {type: 'infrastructure'}) OPTIONAL MATCH path4=(r)-[*1..2]-(ap {type: 'attack-pattern'}) RETURN r, path1, grp, path2, mw, path3, infra, path4, ap"
@@ -168,7 +168,7 @@ ai4x_query(
 候选搜索查询示例：
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (r {type: 'report'}) WHERE toLower(coalesce(r.name, '')) CONTAINS toLower($report_name) MATCH (r)-[*1..2]-(known_group) WHERE known_group.type IN ['intrusion-set','threat-actor'] MATCH (known_group)-[*1..2]-(shared) WHERE shared.type IN ['infrastructure','malware','tool','attack-pattern','campaign'] MATCH (candidate)-[*1..2]-(shared) WHERE candidate.type IN ['intrusion-set','threat-actor','campaign'] AND candidate.id <> known_group.id OPTIONAL MATCH (known_group)-[*1..2]-(aux) WHERE aux.type IN ['infrastructure','malware','tool','attack-pattern','campaign'] OPTIONAL MATCH (candidate)-[*1..2]-(aux) RETURN r, known_group, shared, candidate, collect(DISTINCT aux) AS auxiliary_evidence"

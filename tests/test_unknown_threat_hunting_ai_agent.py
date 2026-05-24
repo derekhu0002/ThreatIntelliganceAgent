@@ -23,7 +23,7 @@ def test_unknown_threat_hunting_ai_agent_contract() -> None:
     assert "catalog -> schema -> query" in agent_prompt
     assert "Pending Confirmations" in agent_prompt
     assert "Boundary Notes" in agent_prompt
-    assert "ai4x_query: true" in agent_prompt
+    assert "ai4x_ai4x_query: true" in agent_prompt
 
     assert "name: unknown-threat-hunt-graph-hypothesis" in scenario_skill
     assert "Trigger & Context (触发条件与上下文)" in scenario_skill
@@ -31,10 +31,10 @@ def test_unknown_threat_hunting_ai_agent_contract() -> None:
     assert "SOP Action Steps (标准作业步骤)" in scenario_skill
     assert "Output Format (输出规范)" in scenario_skill
     assert "Structured Response Contract (结构化响应契约)" in scenario_skill
-    assert 'ai4x_query(command="catalog")' in scenario_skill
-    assert 'ai4x_query(command="schema", sourceId="opencti")' in scenario_skill
-    assert 'ai4x_query(command="schema", sourceId="vehicle_iobe")' in scenario_skill
-    assert 'ai4x_query(command="query", sourceId="opencti"' in scenario_skill
+    assert 'ai4x_ai4x_query(command="catalog")' in scenario_skill
+    assert 'ai4x_ai4x_query(command="schema", sourceId="opencti")' in scenario_skill
+    assert 'ai4x_ai4x_query(command="schema", sourceId="vehicle_iobe")' in scenario_skill
+    assert 'ai4x_ai4x_query(command="query", sourceId="opencti"' in scenario_skill
     assert "Direct Facts" in scenario_skill
     assert "Ranked Leads" in scenario_skill
     assert "Pending Confirmations" in scenario_skill

@@ -1,5 +1,5 @@
 ---
-description: Senior threat intelligence analyst that routes user requests to the best matching skill and only queries approved data through ai4x_query.
+description: Senior threat intelligence analyst that routes user requests to the best matching skill and only queries approved data through ai4x_ai4x_query.
 mode: primary
 temperature: 0.1
 permission:
@@ -23,7 +23,7 @@ tools:
   "*": false
   skill: true
   question: true
-  ai4x_query: true
+  ai4x_ai4x_query: true
 ---
 # Identity & Persona
 
@@ -104,7 +104,7 @@ tools:
 
 ## Tool Boundary
 
-所有外部数据交互只能通过唯一工具 `ai4x_query` 完成。
+所有外部数据交互只能通过唯一工具 `ai4x_ai4x_query` 完成。
 
 绝对禁止：
 
@@ -152,10 +152,10 @@ tools:
 
 只要 Skill 涉及真实查询，必须按以下顺序执行：
 
-1. `ai4x_query(command="catalog")`
-2. `ai4x_query(command="schema", sourceId="...")`
-3. 若 `sourceId="opencti"` 且需要具体对象或关系字段，再调用 `ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")`
-4. `ai4x_query(command="query", sourceId="...", cypher="...")`，其中 `opencti` 默认按平台 `auto` 模式思考查询形状，优先最小化、GraphQL-friendly 的只读查询。
+1. `ai4x_ai4x_query(command="catalog")`
+2. `ai4x_ai4x_query(command="schema", sourceId="...")`
+3. 若 `sourceId="opencti"` 且需要具体对象或关系字段，再调用 `ai4x_ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")`
+4. `ai4x_ai4x_query(command="query", sourceId="...", cypher="...")`，其中 `opencti` 默认按平台 `auto` 模式思考查询形状，优先最小化、GraphQL-friendly 的只读查询。
 
 如果任何一步未满足执行前提：
 

@@ -34,7 +34,7 @@ description: 当用户提供已知威胁实体、报告标题、IOC、攻击模�
 
 在执行查询前，先声明以下规则：
 
-- 仅允许使用 `ai4x_query`。
+- 仅允许使用 `ai4x_ai4x_query`。
 - 任何真实查询都必须先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。对 `opencti` 的 query 默认采用平台 `auto` 策略，优先提交更容易被 GraphQL 支持的最小只读查询，由平台在不支持时自动回落 replica。
 - 所有输出必须严格区分 `Facts` 与 `Inferences`。
 - 本技能不做自动归因，只允许输出“候选关联”或“可能同源”。
@@ -45,7 +45,7 @@ description: 当用户提供已知威胁实体、报告标题、IOC、攻击模�
 先调用：
 
 ```text
-ai4x_query(command="catalog")
+ai4x_ai4x_query(command="catalog")
 ```
 
 检查目录中是否存在 `sourceId="opencti"`。
@@ -61,8 +61,8 @@ ai4x_query(command="catalog")
 在构造任何 Cypher 前，必须调用：
 
 ```text
-ai4x_query(command="schema", sourceId="opencti")
-ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")
+ai4x_ai4x_query(command="schema", sourceId="opencti")
+ai4x_ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")
 ```
 
 重点确认是否可消费以下对象：
@@ -89,7 +89,7 @@ ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship
 ### 3A. 报告标题入口
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (r {type: 'report'}) WHERE toLower(coalesce(r.name, '')) CONTAINS toLower($entry_value) OPTIONAL MATCH (r)-[rel]-(m) RETURN r, rel, m"
@@ -99,7 +99,7 @@ ai4x_query(
 ### 3B. actor / intrusion-set 入口
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (n) WHERE n.type IN ['intrusion-set','threat-actor'] AND toLower(coalesce(n.name, '')) CONTAINS toLower($entry_value) OPTIONAL MATCH (n)-[rel]-(m) RETURN n, rel, m"
@@ -109,7 +109,7 @@ ai4x_query(
 ### 3C. malware / tool / attack-pattern / indicator / infrastructure 入口
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (n) WHERE n.type IN ['malware','tool','attack-pattern','indicator','infrastructure'] AND toLower(coalesce(n.name, '')) CONTAINS toLower($entry_value) OPTIONAL MATCH (n)-[rel]-(m) RETURN n, rel, m"
@@ -119,7 +119,7 @@ ai4x_query(
 ### 3D. vulnerability / CVE 入口
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (v {type: 'vulnerability'}) WHERE toLower(coalesce(v.name, '')) CONTAINS toLower($entry_value) OPTIONAL MATCH (v)-[rel]-(m) RETURN v, rel, m"
@@ -154,7 +154,7 @@ ai4x_query(
 推荐主链查询模板：
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (seed) WHERE toLower(coalesce(seed.name, '')) CONTAINS toLower($entry_value) OPTIONAL MATCH path1=(seed)-[*1..2]-(infra {type: 'infrastructure'}) OPTIONAL MATCH path2=(seed)-[*1..2]-(ap {type: 'attack-pattern'}) OPTIONAL MATCH path3=(seed)-[*1..2]-(mw) WHERE mw.type IN ['malware','tool'] OPTIONAL MATCH path4=(seed)-[*1..2]-(grp) WHERE grp.type IN ['intrusion-set','threat-actor','campaign'] RETURN seed, path1, infra, path2, ap, path3, mw, path4, grp"
@@ -191,7 +191,7 @@ ai4x_query(
 候选搜索查询示例：
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (seed) WHERE toLower(coalesce(seed.name, '')) CONTAINS toLower($entry_value) MATCH (seed)-[*1..2]-(shared) WHERE shared.type IN ['infrastructure','indicator'] MATCH (candidate)-[*1..2]-(shared) WHERE candidate.type IN ['intrusion-set','threat-actor','campaign'] AND candidate.id <> seed.id OPTIONAL MATCH (seed)-[*1..2]-(aux) WHERE aux.type IN ['attack-pattern','malware','tool','indicator','vulnerability','identity','campaign','report'] OPTIONAL MATCH (candidate)-[*1..2]-(aux) RETURN seed, shared, candidate, collect(DISTINCT aux) AS shared_auxiliary_evidence"
@@ -338,7 +338,7 @@ description: 当用户希望基于 OpenCTI 关联图谱，从威胁组织或相�
 
 ## Step 1. Catalog
 
-先验证目标数据源是否可用，严格使用唯一工具 `ai4x_query`：
+先验证目标数据源是否可用，严格使用唯一工具 `ai4x_ai4x_query`：
 
 ```json
 {

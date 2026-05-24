@@ -34,7 +34,7 @@ description: 当用户提供域名、IP、URL、文件哈希、邮箱等 IOC，�
 
 执行任何查询前，先声明：
 
-- 所有外部数据交互只能通过 `ai4x_query` 完成。
+- 所有外部数据交互只能通过 `ai4x_ai4x_query` 完成。
 - 任何真实查询必须先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。对 `opencti` 的 query 默认采用平台 `auto` 策略，优先提交更容易被 GraphQL 支持的最小只读查询，由平台在不支持时自动回落 replica。
 - 必须严格区分 `Facts` 与 `Inferences`。
 - 不能自动归因，只能输出直接命中组织和证据驱动的候选组织。
@@ -45,7 +45,7 @@ description: 当用户提供域名、IP、URL、文件哈希、邮箱等 IOC，�
 先调用：
 
 ```text
-ai4x_query(command="catalog")
+ai4x_ai4x_query(command="catalog")
 ```
 
 检查 `sourceId="opencti"` 是否存在。
@@ -61,8 +61,8 @@ ai4x_query(command="catalog")
 在构造任何 Cypher 前，必须调用：
 
 ```text
-ai4x_query(command="schema", sourceId="opencti")
-ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")
+ai4x_ai4x_query(command="schema", sourceId="opencti")
+ai4x_ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")
 ```
 
 重点确认以下对象是否可消费：
@@ -94,7 +94,7 @@ IOC 查询优先策略：
 ### 3A. 先查 indicator
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (i {type: 'indicator'}) WHERE toLower(coalesce(i.name, '')) CONTAINS toLower($ioc_value) OR toLower(coalesce(i.pattern, '')) CONTAINS toLower($ioc_value) OPTIONAL MATCH (i)-[rel]-(m) RETURN i, rel, m"
@@ -106,7 +106,7 @@ ai4x_query(
 根据 `ioc_type` 选择对应对象类型，例如：
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (o) WHERE o.type IN ['domain-name','ipv4-addr','url','file','email-addr'] AND toLower(coalesce(o.name, coalesce(o.value, ''))) CONTAINS toLower($ioc_value) OPTIONAL MATCH (o)-[rel]-(m) RETURN o, rel, m"
@@ -133,7 +133,7 @@ ai4x_query(
 推荐查询模板：
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (seed) WHERE (seed.type = 'indicator' AND (toLower(coalesce(seed.name, '')) CONTAINS toLower($ioc_value) OR toLower(coalesce(seed.pattern, '')) CONTAINS toLower($ioc_value))) OR (seed.type IN ['domain-name','ipv4-addr','url','file','email-addr'] AND toLower(coalesce(seed.name, coalesce(seed.value, ''))) CONTAINS toLower($ioc_value)) OPTIONAL MATCH path1=(seed)-[*1..2]-(mt) WHERE mt.type IN ['malware','tool'] OPTIONAL MATCH path2=(seed)-[*1..2]-(rep {type: 'report'}) OPTIONAL MATCH path3=(seed)-[*1..2]-(infra {type: 'infrastructure'}) OPTIONAL MATCH path4=(mt)-[*1..2]-(actor) WHERE actor.type IN ['intrusion-set','threat-actor'] OPTIONAL MATCH path5=(rep)-[*1..2]-(actor2) WHERE actor2.type IN ['intrusion-set','threat-actor'] OPTIONAL MATCH path6=(infra)-[*1..2]-(actor3) WHERE actor3.type IN ['intrusion-set','threat-actor'] RETURN seed, path1, mt, path2, rep, path3, infra, path4, actor, path5, actor2, path6, actor3"
@@ -182,7 +182,7 @@ ai4x_query(
 候选搜索查询示例：
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (seed) WHERE (seed.type = 'indicator' AND (toLower(coalesce(seed.name, '')) CONTAINS toLower($ioc_value) OR toLower(coalesce(seed.pattern, '')) CONTAINS toLower($ioc_value))) OR (seed.type IN ['domain-name','ipv4-addr','url','file','email-addr'] AND toLower(coalesce(seed.name, coalesce(seed.value, ''))) CONTAINS toLower($ioc_value)) MATCH (seed)-[*1..2]-(bridge) WHERE bridge.type IN ['malware','tool','report'] MATCH (candidate)-[*1..2]-(bridge) WHERE candidate.type IN ['intrusion-set','threat-actor','campaign'] OPTIONAL MATCH (seed)-[*1..2]-(aux {type: 'infrastructure'}) OPTIONAL MATCH (candidate)-[*1..2]-(aux) RETURN seed, bridge, candidate, collect(DISTINCT aux) AS auxiliary_evidence"

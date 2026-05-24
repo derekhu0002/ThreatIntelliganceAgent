@@ -36,7 +36,7 @@ description: 当用户提供 IP、域名、文件哈希、恶意软件、TTP 或
 
 执行任何查询前，先声明：
 
-- 所有外部数据交互只能通过 `ai4x_query` 完成。
+- 所有外部数据交互只能通过 `ai4x_ai4x_query` 完成。
 - 任何真实查询必须先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。对 `opencti` 的 query 默认采用平台 `auto` 策略，优先提交更容易被 GraphQL 支持的最小只读查询，由平台在不支持时自动回落 replica。
 - 必须严格区分 `Facts` 与 `Inferences`。
 - 候选组织必须绑定可回溯的证据路径。
@@ -47,7 +47,7 @@ description: 当用户提供 IP、域名、文件哈希、恶意软件、TTP 或
 先调用：
 
 ```text
-ai4x_query(command="catalog")
+ai4x_ai4x_query(command="catalog")
 ```
 
 最少检查：
@@ -66,8 +66,8 @@ ai4x_query(command="catalog")
 在构造任何 Cypher 前，必须调用：
 
 ```text
-ai4x_query(command="schema", sourceId="opencti")
-ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")
+ai4x_ai4x_query(command="schema", sourceId="opencti")
+ai4x_ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")
 ```
 
 重点确认以下对象是否可消费：
@@ -106,7 +106,7 @@ ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship
 优先查 `indicator`，再查 observable：
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (seed) WHERE (seed.type = 'indicator' AND (toLower(coalesce(seed.name, '')) CONTAINS toLower($target_value) OR toLower(coalesce(seed.pattern, '')) CONTAINS toLower($target_value))) OR (seed.type IN ['ipv4-addr','domain-name','file'] AND toLower(coalesce(seed.name, coalesce(seed.value, ''))) CONTAINS toLower($target_value)) OPTIONAL MATCH (seed)-[rel]-(adj) RETURN seed, rel, adj"
@@ -118,7 +118,7 @@ ai4x_query(
 若入口本身是 `malware` 或 `attack-pattern`，直接以该对象为锚点：
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (seed) WHERE seed.type IN ['malware','attack-pattern'] AND toLower(coalesce(seed.name, '')) CONTAINS toLower($target_value) OPTIONAL MATCH (seed)-[rel]-(adj) RETURN seed, rel, adj"
@@ -154,7 +154,7 @@ ai4x_query(
 推荐查询模板：
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (seed) WHERE id(seed) = $seed_id OPTIONAL MATCH path1=(seed)-[*1..2]-(bridge1) WHERE bridge1.type IN ['malware','tool','attack-pattern'] OPTIONAL MATCH path2=(seed)-[*1..2]-(bridge2) WHERE bridge2.type IN ['report','infrastructure','campaign'] OPTIONAL MATCH path3=(bridge1)-[*1..2]-(actor1) WHERE actor1.type IN ['intrusion-set','threat-actor'] OPTIONAL MATCH path4=(bridge2)-[*1..2]-(actor2) WHERE actor2.type IN ['intrusion-set','threat-actor'] RETURN seed, path1, bridge1, path2, bridge2, path3, actor1, path4, actor2"

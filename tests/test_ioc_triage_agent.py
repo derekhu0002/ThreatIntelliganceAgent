@@ -105,7 +105,7 @@ def test_ioc_triage_agent_contract() -> None:
     assert "Recommended Actions" in agent_prompt
     assert "Pending Confirmations" in agent_prompt
     assert "Boundary Notes" in agent_prompt
-    assert "ai4x_query: true" in agent_prompt
+    assert "ai4x_ai4x_query: true" in agent_prompt
     assert "biz.incident-response-orchestration" in agent_prompt
 
     assert "name: ioc-triage-indicator-priority" in skill_prompt
@@ -113,8 +113,8 @@ def test_ioc_triage_agent_contract() -> None:
     assert "Prerequisites (槽位/前置依赖提取)" in skill_prompt
     assert "SOP Action Steps (标准作业步骤)" in skill_prompt
     assert "Output Format (输出规范)" in skill_prompt
-    assert 'ai4x_query(command="catalog")' in skill_prompt
-    assert 'ai4x_query(command="schema", sourceId="opencti")' in skill_prompt
+    assert 'ai4x_ai4x_query(command="catalog")' in skill_prompt
+    assert 'ai4x_ai4x_query(command="schema", sourceId="opencti")' in skill_prompt
     assert "likely_false_positive" in skill_prompt
     assert "Direct Facts" in skill_prompt
     assert "Inferred Assessments" in skill_prompt
@@ -136,7 +136,7 @@ def test_ioc_triage_agent_contract() -> None:
 
 def test_ai4x_query_tool_allows_ioc_triage_agent(tmp_path: Path) -> None:
     if os.name == "nt":
-        pytest.skip("Windows cmd wrapper cannot reliably fake pythonBin execution for ai4x_query in this harness.")
+        pytest.skip("Windows cmd wrapper cannot reliably fake pythonBin execution for ai4x_ai4x_query in this harness.")
 
     tool_path = WORKSPACE_ROOT / "tools/ai4x_query_local.js"
     fake_python = _write_fake_python_executable(

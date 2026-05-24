@@ -92,12 +92,12 @@ def _read_workspace_file(relative_path: str) -> str:
 
 def test_incident_reporting_agent_contract() -> None:
     agent_prompt = _read_workspace_file("agents/IncidentReportingAgent.md")
-    skill_prompt = _read_workspace_file("skills/incident_report_generation/SKILL.md")
+    skill_prompt = _read_workspace_file("skills/incident-report-generation/SKILL.md")
     ai4x_tool = _read_workspace_file("tools/ai4x_query_local.js")
     architecture = json.loads((REPO_ROOT / "design/KG/SystemArchitecture.json").read_text(encoding="utf-8"))
 
     assert "biz.automated-incident-reporting" in agent_prompt
-    assert "incident_report_generation" in agent_prompt
+    assert "incident-report-generation" in agent_prompt
     assert "严格单 Skill 路由" in agent_prompt
     assert "渐进式查询" in agent_prompt
     assert "detail" in agent_prompt
@@ -105,15 +105,15 @@ def test_incident_reporting_agent_contract() -> None:
     assert "Peer Associations" in agent_prompt
     assert "Boundary Notes" in agent_prompt
     assert "Empty Result Contract" in agent_prompt
-    assert "ai4x_query: true" in agent_prompt
+    assert "ai4x_ai4x_query: true" in agent_prompt
 
-    assert "name: incident_report_generation" in skill_prompt
+    assert "name: incident-report-generation" in skill_prompt
     assert "Trigger & Context (触发条件与上下文)" in skill_prompt
     assert "Prerequisites (槽位/前置依赖提取)" in skill_prompt
     assert "SOP Action Steps (标准作业步骤)" in skill_prompt
     assert "Output Format (输出规范)" in skill_prompt
-    assert 'ai4x_query(command="catalog")' in skill_prompt
-    assert 'ai4x_query(command="schema", sourceId="opencti")' in skill_prompt
+    assert 'ai4x_ai4x_query(command="catalog")' in skill_prompt
+    assert 'ai4x_ai4x_query(command="schema", sourceId="opencti")' in skill_prompt
     assert "report.object_refs" in skill_prompt
     assert "identity.sectors" in skill_prompt
     assert "Peer Associations" in skill_prompt
@@ -138,7 +138,7 @@ def test_incident_reporting_agent_contract() -> None:
 
 def test_ai4x_query_tool_allows_incident_reporting_agent(tmp_path: Path) -> None:
     if os.name == "nt":
-        pytest.skip("Windows cmd wrapper cannot reliably fake pythonBin execution for ai4x_query in this harness.")
+        pytest.skip("Windows cmd wrapper cannot reliably fake pythonBin execution for ai4x_ai4x_query in this harness.")
 
     tool_path = WORKSPACE_ROOT / "tools/ai4x_query_local.js"
     fake_python = _write_fake_python_executable(

@@ -37,7 +37,7 @@ description: 当用户提供已确认事件摘要、恶意软件、IOC、攻击�
 
 执行查询前先声明：
 
-- 所有外部数据交互只能通过 `ai4x_query` 完成。
+- 所有外部数据交互只能通过 `ai4x_ai4x_query` 完成。
 - 任何真实查询必须先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。对 `opencti` 的 query 默认采用平台 `auto` 策略，优先提交更容易被 GraphQL 支持的最小只读查询，由平台在不支持时自动回落 replica。
 - 必须严格区分 `Core Facts` 与 `Inferred Assessments`。
 - 不能自动处置、自动通知或自动归因，只能输出结构化事件报告和待复核关联发现。
@@ -48,7 +48,7 @@ description: 当用户提供已确认事件摘要、恶意软件、IOC、攻击�
 先调用：
 
 ```text
-ai4x_query(command="catalog")
+ai4x_ai4x_query(command="catalog")
 ```
 
 确认目录中存在 `sourceId="opencti"`。
@@ -64,8 +64,8 @@ ai4x_query(command="catalog")
 在构造任何 Cypher 前，必须调用：
 
 ```text
-ai4x_query(command="schema", sourceId="opencti")
-ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")
+ai4x_ai4x_query(command="schema", sourceId="opencti")
+ai4x_ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")
 ```
 
 重点确认以下对象是否可消费：
@@ -87,7 +87,7 @@ ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship
 优先围绕核心实体命中事件主线，建议先从恶意软件、IOC 或攻击技术入口建立一跳事实层：
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (n) WHERE n.type IN ['malware','indicator','attack-pattern','campaign','report','identity'] AND toLower(coalesce(n.name, '')) CONTAINS toLower($entry_value) OPTIONAL MATCH (n)-[rel]-(m) RETURN n, rel, m"
@@ -112,7 +112,7 @@ ai4x_query(
 推荐事实层查询模板：
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (seed) WHERE seed.type IN ['malware','indicator','attack-pattern','campaign','report','identity'] AND seed.id IN $seed_ids OPTIONAL MATCH path1=(seed)-[*1..2]-(actor) WHERE actor.type IN ['intrusion-set','campaign'] OPTIONAL MATCH path2=(seed)-[*1..2]-(rep {type: 'report'}) OPTIONAL MATCH path3=(seed)-[*1..2]-(grp {type: 'grouping'}) OPTIONAL MATCH path4=(seed)-[*1..2]-(idn {type: 'identity'}) RETURN seed, path1, actor, path2, rep, path3, grp, path4, idn"
@@ -141,7 +141,7 @@ ai4x_query(
 候选搜索查询示例：
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (seed) WHERE seed.id IN $seed_ids MATCH (seed)-[*1..2]-(known) WHERE known.type IN ['intrusion-set','campaign','report'] MATCH (known)-[*1..2]-(shared) WHERE shared.type IN ['grouping','identity','relationship','malware','indicator','attack-pattern','campaign','report'] MATCH (candidate)-[*1..2]-(shared) WHERE candidate.type IN ['intrusion-set','campaign','identity','grouping'] AND candidate.id <> known.id OPTIONAL MATCH (known)-[*1..2]-(aux) WHERE aux.type IN ['grouping','identity','relationship','malware','indicator','attack-pattern','campaign','report'] OPTIONAL MATCH (candidate)-[*1..2]-(aux) RETURN known, shared, candidate, collect(DISTINCT aux) AS auxiliary_evidence"

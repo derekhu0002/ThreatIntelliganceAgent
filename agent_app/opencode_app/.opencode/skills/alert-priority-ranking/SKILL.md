@@ -40,7 +40,7 @@ description: 当用户提供多个 IOC 或告警对象，并希望结合 OpenCTI
 
 执行查询前先声明：
 
-- 所有外部数据交互只能通过 `ai4x_query` 完成。
+- 所有外部数据交互只能通过 `ai4x_ai4x_query` 完成。
 - 任何真实查询必须先 `catalog`，再读取目标源 `schema`；若 `sourceId="opencti"`，只将 `schema` 作为最小目录，并在需要具体字段时追加 `detail`，之后再 `query`。对 `opencti` 的 query 默认采用平台 `auto` 策略，优先提交更容易被 GraphQL 支持的最小只读查询，由平台在不支持时自动回落 replica。
 - 不能编造 `confidence`、`valid_from`、`valid_until`。
 - 排序必须区分事实依据和解释性推断。
@@ -51,7 +51,7 @@ description: 当用户提供多个 IOC 或告警对象，并希望结合 OpenCTI
 先调用：
 
 ```text
-ai4x_query(command="catalog")
+ai4x_ai4x_query(command="catalog")
 ```
 
 确认目录中存在 `sourceId="opencti"`。
@@ -67,8 +67,8 @@ ai4x_query(command="catalog")
 在构造任何 Cypher 前，必须调用：
 
 ```text
-ai4x_query(command="schema", sourceId="opencti")
-ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")
+ai4x_ai4x_query(command="schema", sourceId="opencti")
+ai4x_ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")
 ```
 
 重点确认以下对象或字段是否可消费：
@@ -102,7 +102,7 @@ ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship
 ### 3A. 优先查询 indicator
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (i {type: 'indicator'}) WHERE toLower(coalesce(i.name, '')) CONTAINS toLower($ioc_value) OR toLower(coalesce(i.pattern, '')) CONTAINS toLower($ioc_value) RETURN i"
@@ -112,7 +112,7 @@ ai4x_query(
 ### 3B. 再查询 observable
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (o) WHERE o.type IN ['domain-name','ipv4-addr','url','file','email-addr'] AND toLower(coalesce(o.name, coalesce(o.value, ''))) CONTAINS toLower($ioc_value) OPTIONAL MATCH (o)-[rel]-(m) RETURN o, rel, m"
@@ -142,7 +142,7 @@ ai4x_query(
 推荐查询模板：
 
 ```text
-ai4x_query(
+ai4x_ai4x_query(
   command="query",
   sourceId="opencti",
   cypher="MATCH (seed) WHERE (seed.type = 'indicator' AND (toLower(coalesce(seed.name, '')) CONTAINS toLower($ioc_value) OR toLower(coalesce(seed.pattern, '')) CONTAINS toLower($ioc_value))) OR (seed.type IN ['domain-name','ipv4-addr','url','file','email-addr'] AND toLower(coalesce(seed.name, coalesce(seed.value, ''))) CONTAINS toLower($ioc_value)) OPTIONAL MATCH path1=(seed)-[*1..2]-(rep {type: 'report'}) OPTIONAL MATCH path2=(seed)-[*1..2]-(actor) WHERE actor.type IN ['intrusion-set','threat-actor'] OPTIONAL MATCH path3=(seed)-[*1..2]-(mw {type: 'malware'}) OPTIONAL MATCH path4=(seed)-[*1..2]-(infra {type: 'infrastructure'}) RETURN seed, path1, rep, path2, actor, path3, mw, path4, infra"

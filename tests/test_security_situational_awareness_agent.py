@@ -104,15 +104,15 @@ def test_security_situational_awareness_agent_contract() -> None:
     assert "opencti" in agent_prompt
     assert "vehicle_iobe" in agent_prompt
     assert "Boundary Notes" in agent_prompt
-    assert "ai4x_query: true" in agent_prompt
+    assert "ai4x_ai4x_query: true" in agent_prompt
 
     assert "name: security-posture-window-summary" in skill_prompt
     assert "Trigger & Context (触发条件与上下文)" in skill_prompt
     assert "Prerequisites (槽位/前置依赖提取)" in skill_prompt
     assert "SOP Action Steps (标准作业步骤)" in skill_prompt
     assert "Output Format (输出规范)" in skill_prompt
-    assert 'ai4x_query(command="catalog")' in skill_prompt
-    assert 'ai4x_query(command="schema", sourceId="opencti")' in skill_prompt
+    assert 'ai4x_ai4x_query(command="catalog")' in skill_prompt
+    assert 'ai4x_ai4x_query(command="schema", sourceId="opencti")' in skill_prompt
     assert 'sourceId="vehicle_iobe"' in skill_prompt
     assert "Top Risk Drivers" in skill_prompt
     assert "Boundary Notes" in skill_prompt
@@ -133,7 +133,7 @@ def test_security_situational_awareness_agent_contract() -> None:
 
 def test_ai4x_query_tool_allows_security_situational_awareness_agent(tmp_path: Path) -> None:
     if os.name == "nt":
-        pytest.skip("Windows cmd wrapper cannot reliably fake pythonBin execution for ai4x_query in this harness.")
+        pytest.skip("Windows cmd wrapper cannot reliably fake pythonBin execution for ai4x_ai4x_query in this harness.")
 
     tool_path = WORKSPACE_ROOT / "tools/ai4x_query_local.js"
     fake_python = _write_fake_python_executable(

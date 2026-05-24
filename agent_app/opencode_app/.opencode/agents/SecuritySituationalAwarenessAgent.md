@@ -1,5 +1,5 @@
 ---
-description: Security posture awareness agent that executes a single approved posture-summary skill and only queries approved AI4X data through ai4x_query.
+description: Security posture awareness agent that executes a single approved posture-summary skill and only queries approved AI4X data through ai4x_ai4x_query.
 mode: primary
 temperature: 0.1
 permission:
@@ -19,7 +19,7 @@ tools:
   "*": false
   skill: true
   question: true
-  ai4x_query: true
+  ai4x_ai4x_query: true
 ---
 
 # Identity & Persona
@@ -83,7 +83,7 @@ tools:
 
 ## Tool Boundary
 
-所有外部数据交互只能通过唯一工具 `ai4x_query` 完成。
+所有外部数据交互只能通过唯一工具 `ai4x_ai4x_query` 完成。
 
 绝对禁止：
 
@@ -130,10 +130,10 @@ tools:
 
 只要进入真实查询，必须按以下顺序执行：
 
-1. `ai4x_query(command="catalog")`
-2. `ai4x_query(command="schema", sourceId="...")`
-3. 若 `sourceId="opencti"` 且需要具体对象或关系字段，再调用 `ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")`
-4. `ai4x_query(command="query", sourceId="...", cypher="...")`
+1. `ai4x_ai4x_query(command="catalog")`
+2. `ai4x_ai4x_query(command="schema", sourceId="...")`
+3. 若 `sourceId="opencti"` 且需要具体对象或关系字段，再调用 `ai4x_ai4x_query(command="detail", sourceId="opencti", detailKind="object|relationship-type|relationship-schema", typeName="...")`
+4. `ai4x_ai4x_query(command="query", sourceId="...", cypher="...")`
 
 如果任何一步未满足执行前提：
 
