@@ -275,12 +275,16 @@ def fetch_source_schema_detail(
         )
     if not normalized_type_name:
         raise AI4XPlatformError("type_name must be a non-empty string.")
-    return _request_json(
+    detail_payload = _request_json(
         "GET",
         f"{API_CENTER_PREFIX}/schema/{normalized_source_id}/detail/{normalized_detail_kind}/{normalized_type_name}",
         base_url=base_url,
         timeout_seconds=timeout_seconds,
     )
+    schema = detail_payload.get("schema")
+    if not isinstance(schema, dict):
+        raise AI4XPlatformError("AI4X schema detail response must contain a JSON object under 'schema'.")
+    return schema
 
 
 def execute_universal_query(

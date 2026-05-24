@@ -13,9 +13,11 @@ from dataclasses import dataclass, field
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any, Iterator
+from urllib import error, request
 
 from agent_app.opencode_app.tools.stix_cli.semantic_query import load_bundle, neighbors, search_entities
 from services.ai4x_client import AI4XPlatformError, execute_universal_query, fetch_schema_catalog, fetch_source_schema
+from services.python_listener.remote_client import load_workspace_config
 from services.result_assembler import assemble_structured_result
 
 
@@ -142,19 +144,157 @@ def _select_ai4x_source_id(databases: list[dict[str, Any]]) -> str:
     raise AI4XPlatformError("AI4X catalog returned no usable source_id values.")
 
 
+def _load_registered_ai4x_mcp_server() -> dict[str, Any]:
+    repo_root = Path(__file__).resolve().parents[2]
+    config = load_workspace_config(repo_root)
+    mcp_servers = config.get("mcpServers")
+    if not isinstance(mcp_servers, dict):
+        raise AI4XPlatformError("Workspace config must define mcpServers for canonical AI4X access.")
+
+    registration = mcp_servers.get("ai4x")
+    if not isinstance(registration, dict):
+        raise AI4XPlatformError("Workspace config must define mcpServers.ai4x for canonical AI4X access.")
+
+    url = str(registration.get("url") or "").strip()
+    if not url:
+        raise AI4XPlatformError("Workspace config must define mcpServers.ai4x.url.")
+
+    tools = registration.get("tools")
+    tool_name = "ai4x_query"
+    if isinstance(tools, list):
+        for candidate in tools:
+            if isinstance(candidate, str) and candidate.strip():
+                tool_name = candidate.strip()
+                break
+
+    return {
+        "url": url,
+        "tool": tool_name,
+    }
+
+
+def _post_ai4x_mcp_jsonrpc(url: str, payload: dict[str, Any]) -> dict[str, Any]:
+    data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+    http_request = request.Request(
+        url,
+        data=data,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    opener = request.build_opener(request.ProxyHandler({}))
+    try:
+        with opener.open(http_request, timeout=20.0) as response:
+            body = response.read().decode("utf-8")
+    except error.HTTPError as exc:
+        body = exc.read().decode("utf-8", errors="replace") if exc.fp is not None else ""
+        raise AI4XPlatformError(f"AI4X MCP request failed with status {exc.code}: {body}") from exc
+    except error.URLError as exc:
+        raise AI4XPlatformError(f"AI4X MCP request failed: {exc.reason}") from exc
+
+    response_payload = json.loads(body)
+    if not isinstance(response_payload, dict):
+        raise AI4XPlatformError("AI4X MCP response must be a JSON object.")
+    if "error" in response_payload:
+        message = response_payload.get("error", {}).get("message")
+        raise AI4XPlatformError(f"AI4X MCP returned an error: {message}")
+    return response_payload
+
+
+def _initialize_ai4x_mcp(url: str) -> None:
+    _post_ai4x_mcp_jsonrpc(
+        url,
+        {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "initialize",
+            "params": {
+                "protocolVersion": "2025-03-26",
+                "capabilities": {},
+                "clientInfo": {"name": "ThreatIntelliganceAgent-mock-remote-server", "version": "1.0"},
+            },
+        },
+    )
+
+
+def _call_ai4x_query_via_mcp(url: str, tool_name: str, arguments: dict[str, Any], *, request_id: int) -> dict[str, Any]:
+    response_payload = _post_ai4x_mcp_jsonrpc(
+        url,
+        {
+            "jsonrpc": "2.0",
+            "id": request_id,
+            "method": "tools/call",
+            "params": {
+                "name": tool_name,
+                "arguments": arguments,
+            },
+        },
+    )
+    result = response_payload.get("result")
+    if not isinstance(result, dict):
+        raise AI4XPlatformError("AI4X MCP tools/call response must contain an object result.")
+
+    structured_content = result.get("structuredContent")
+    if isinstance(structured_content, dict):
+        return structured_content
+
+    content = result.get("content")
+    if isinstance(content, list):
+        for item in content:
+            if not isinstance(item, dict):
+                continue
+            if item.get("type") != "text":
+                continue
+            text = item.get("text")
+            if not isinstance(text, str):
+                continue
+            try:
+                parsed = json.loads(text)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(parsed, dict):
+                return parsed
+
+    raise AI4XPlatformError("AI4X MCP tools/call response did not expose usable structured content.")
+
+
 def _build_ai4x_evidence(normalized_event: dict[str, Any], *, ai4x_base_url: str | None = None) -> dict[str, Any]:
-    catalog = fetch_schema_catalog(base_url=ai4x_base_url)
+    registration = _load_registered_ai4x_mcp_server()
+    mcp_url = str(registration["url"])
+    tool_name = str(registration["tool"])
+    _initialize_ai4x_mcp(mcp_url)
+
+    catalog = _call_ai4x_query_via_mcp(
+        mcp_url,
+        tool_name,
+        {"command": "catalog"},
+        request_id=2,
+    )
     databases = [item for item in catalog.get("databases", []) if isinstance(item, dict)]
     selected_source_id = _select_ai4x_source_id(databases)
-    schema = fetch_source_schema(selected_source_id, base_url=ai4x_base_url)
-    query_result = execute_universal_query(
-        selected_source_id,
-        "MATCH (n) RETURN n LIMIT 5",
-        limit=5,
-        base_url=ai4x_base_url,
+    schema = _call_ai4x_query_via_mcp(
+        mcp_url,
+        tool_name,
+        {"command": "schema", "sourceId": selected_source_id},
+        request_id=3,
+    )
+    query_result = _call_ai4x_query_via_mcp(
+        mcp_url,
+        tool_name,
+        {
+            "command": "query",
+            "sourceId": selected_source_id,
+            "cypher": "MATCH (n) RETURN n LIMIT 5",
+            "limit": 5,
+        },
+        request_id=4,
     )
 
     return {
+        "transport": "remote_http_mcp",
+        "mcp_server": {
+            "url": mcp_url,
+            "tool": tool_name,
+        },
         "base_url": ai4x_base_url,
         "catalog": catalog,
         "selected_source_id": selected_source_id,

@@ -302,6 +302,7 @@
 "name": "SecuritySituationalAwarenessAgent"
 ,"parent": "1738"
 ,"type": "ArchiMate_ApplicationComponent"
+,"browser_path": "/Agents/SecuritySituationalAwarenessAgent"
 ,"attributes": [
 {
 "name": "profile"
@@ -318,6 +319,7 @@
 "name": "IncidentResponseAgent"
 ,"parent": "1738"
 ,"type": "ArchiMate_ApplicationComponent"
+,"browser_path": "/Agents/IncidentResponseAgent"
 ,"attributes": [
 {
 "name": "profile"
@@ -334,6 +336,7 @@
 "name": "SupplyChainRiskAgent"
 ,"parent": "1738"
 ,"type": "ArchiMate_ApplicationComponent"
+,"browser_path": "/Agents/SupplyChainRiskAgent"
 ,"attributes": [
 {
 "name": "profile"
@@ -350,6 +353,7 @@
 "name": "VulnerabilityImpactAgent"
 ,"parent": "1738"
 ,"type": "ArchiMate_ApplicationComponent"
+,"browser_path": "/Agents/VulnerabilityImpactAgent"
 ,"attributes": [
 {
 "name": "profile"
@@ -366,6 +370,7 @@
 "name": "IOCTriageAgent"
 ,"parent": "1738"
 ,"type": "ArchiMate_ApplicationComponent"
+,"browser_path": "/Agents/IOCTriageAgent"
 ,"attributes": [
 {
 "name": "profile"
@@ -382,6 +387,7 @@
 "name": "ThreatHunterAgent"
 ,"parent": "1738"
 ,"type": "ArchiMate_ApplicationComponent"
+,"browser_path": "/Agents/ThreatHunterAgent"
 ,"attributes": [
 {
 "name": "profile"
@@ -389,7 +395,7 @@
 },
 {
 "name": "skill-unknown-threat-hunt-graph-hypothesis"
-,"description": "D:\\Projects\\ThreatIntelliganceAgent\\agent_app\\opencode_app\\.opencode\\skills\\unknown-threat-hunt-graph-hypothesis\\SKILL.md"
+,"description": "agent_app\\opencode_app\\.opencode\\skills\\unknown-threat-hunt-graph-hypothesis\\SKILL.md"
 }
 ]
 },
@@ -398,6 +404,7 @@
 "name": "IncidentReportingAgent"
 ,"parent": "1738"
 ,"type": "ArchiMate_ApplicationComponent"
+,"browser_path": "/Agents/IncidentReportingAgent"
 ,"attributes": [
 {
 "name": "profile"
@@ -405,7 +412,7 @@
 },
 {
 "name": "skill-incident-report-generation"
-,"description": "agent_app\\opencode_app\\.opencode\\skills\\incident-report-generation\\SKILL.md"
+,"description": "agent_app\\opencode_app\\.opencode\\skills\\incident_report_generation\\SKILL.md"
 }
 ]
 }
