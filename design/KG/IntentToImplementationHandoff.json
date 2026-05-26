@@ -1,0 +1,94 @@
+{
+  "stage": "intent-to-implementation",
+  "generatedAt": "2026-05-27T00:00:00Z",
+  "sourceIntentGraphPath": "design/KG/SystemArchitecture.json",
+  "summary": "Minimal intent-to-implementation handoff for AI4X remote MCP boundary and explicit acceptance baseline.",
+  "intentElementIds": [
+    "ELM-INTENT-AI4X-BOUNDARY",
+    "ELM-INTENT-OPENCODE-WORKSPACE",
+    "ELM-INTENT-AI4X-EXPLICIT-ACCEPTANCE",
+    "ELM-INTENT-WORKSPACE-DEPENDENCY-BASELINE"
+  ],
+  "relationshipIds": [
+    "REL-INTENT-001",
+    "REL-INTENT-002",
+    "REL-INTENT-003"
+  ],
+  "explicitTestcases": [
+    {
+      "name": "test_ai4x_platform_catalog_exposes_available_data_range",
+      "mountedElementId": "ELM-INTENT-AI4X-EXPLICIT-ACCEPTANCE",
+      "mountedElementName": "AI4X Explicit Acceptance Baseline",
+      "type": "Acceptance Test",
+      "controlPoint": "Invoke MCP tools/list and tools/call for ai4x_query command=catalog against the registered remote endpoint.",
+      "observationPoint": "Catalog payload returns non-empty databases and total_databases equals databases length.",
+      "acceptanceBoundary": "Catalog contract is read-only and must remain reachable through canonical remote MCP boundary.",
+      "requiredEntryKind": "explicit-testcase-entry"
+    },
+    {
+      "name": "test_ai4x_platform_query_tool_returns_real_data_payload",
+      "mountedElementId": "ELM-INTENT-AI4X-EXPLICIT-ACCEPTANCE",
+      "mountedElementName": "AI4X Explicit Acceptance Baseline",
+      "type": "Acceptance Test",
+      "controlPoint": "Invoke ai4x_query command=query with selected sourceId and cypher payload through MCP.",
+      "observationPoint": "Response source_id matches request and includes valid items/count semantics.",
+      "acceptanceBoundary": "Unified query behavior stays on canonical ai4x_query remote MCP tool.",
+      "requiredEntryKind": "explicit-testcase-entry"
+    },
+    {
+      "name": "test_ai4x_platform_opencti_schema_detail_supports_progressive_disclosure",
+      "mountedElementId": "ELM-INTENT-AI4X-EXPLICIT-ACCEPTANCE",
+      "mountedElementName": "AI4X Explicit Acceptance Baseline",
+      "type": "Acceptance Test",
+      "controlPoint": "Invoke ai4x_query command=schema then command=detail for one schema-exposed detail pointer.",
+      "observationPoint": "Schema response exposes detail pointers and detail response matches requested detail kind and type.",
+      "acceptanceBoundary": "OpenCTI progressive disclosure remains externally observable through remote MCP contract.",
+      "requiredEntryKind": "explicit-testcase-entry"
+    },
+    {
+      "name": "test_ai4x_platform_data_consumption_flow_uses_real_ai4x_service",
+      "mountedElementId": "ELM-INTENT-AI4X-EXPLICIT-ACCEPTANCE",
+      "mountedElementName": "AI4X Explicit Acceptance Baseline",
+      "type": "Acceptance Test",
+      "controlPoint": "Trigger real OPENCODE flow in registered MCP environment and collect session tool activity.",
+      "observationPoint": "Completed ai4x_query catalog/schema/query chain is present in session activity.",
+      "acceptanceBoundary": "End-to-end data consumption must use canonical remote AI4X boundary instead of local wrapper direct calls.",
+      "requiredEntryKind": "explicit-testcase-entry"
+    },
+    {
+      "name": "test_opencode_app_contains_local_tool_runtime_dependencies",
+      "mountedElementId": "ELM-INTENT-WORKSPACE-DEPENDENCY-BASELINE",
+      "mountedElementName": "Workspace Local Runtime Dependency Baseline",
+      "type": "Acceptance Test",
+      "controlPoint": "Read opencode workspace config and workspace contract, then inspect required isolated runtime dependency paths.",
+      "observationPoint": "Remote MCP declaration and fallback constraints are present, and required local runtime assets exist.",
+      "acceptanceBoundary": "Local runtime dependencies are support-only and must coexist with canonical ai4x_query remote MCP boundary.",
+      "requiredEntryKind": "explicit-testcase-entry"
+    }
+  ],
+  "frozenBaselines": [
+    "Canonical AI4X tool name is ai4x_query.",
+    "Explicit acceptance entrypoints remain in tests/test_ai4x_platform_integration.py and tests/test_opencode_workspace_config.py.",
+    "Workspace remote MCP registration remains canonical in agent_app/opencode_app/.opencode/opencode.json and workspace.contract.json."
+  ],
+  "requiredImplementationArtifacts": [
+    "OVERALL_ARCHITECTURE.md",
+    "agent_app/opencode_app/.opencode/opencode.json",
+    "agent_app/opencode_app/.opencode/workspace.contract.json",
+    "tests/test_ai4x_platform_integration.py",
+    "tests/test_opencode_workspace_config.py",
+    "agent_app/opencode_app/tests/test_runtime_architecture_contract.py",
+    "tests/test_architecture_contract_baselines.py"
+  ],
+  "openQuestions": [
+    {
+      "question": "Should implementation architecture freeze a single canonical assertion for MCP tool_names across all guard tests?",
+      "recommendedAnswer": "Yes, freeze ai4x_query as the canonical value and align all architecture guards to it.",
+      "reason": "Current guard expectations differ and create avoidable contract drift risk."
+    }
+  ],
+  "notes": [
+    "This handoff is intentionally minimal and scoped to AI4X boundary contracts.",
+    "Business scenario expansion is deferred to later intent iterations after baseline stabilization."
+  ]
+}

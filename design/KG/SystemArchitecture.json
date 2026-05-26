@@ -1,0 +1,156 @@
+{
+  "name": "ThreatIntelliganceAgent Intent Architecture Baseline",
+  "description": "Minimal intent baseline for AI4X remote MCP boundary and explicit acceptance testcase contracts.",
+  "attributes": [
+    {
+      "name": "baseline_scope",
+      "value": "AI4X boundary only"
+    },
+    {
+      "name": "canonical_ai4x_tool_name",
+      "value": "ai4x_query"
+    }
+  ],
+  "elements": [
+    {
+      "id": "ELM-INTENT-AI4X-BOUNDARY",
+      "name": "AI4X Remote MCP Boundary",
+      "type": "Application Interface",
+      "browser_path": "Intent/AI4X",
+      "description": "The OPENCODE workspace must consume AI4X through the remote MCP boundary and canonical tool ai4x_query.",
+      "attributes": [
+        {
+          "name": "boundary_mode",
+          "value": "remote-mcp"
+        },
+        {
+          "name": "canonical_tool",
+          "value": "ai4x_query"
+        }
+      ]
+    },
+    {
+      "id": "ELM-INTENT-OPENCODE-WORKSPACE",
+      "name": "OPENCODE Workspace Runtime Contract",
+      "type": "Technology Artifact",
+      "browser_path": "Intent/Workspace",
+      "description": "Workspace contract and config freeze the remote MCP registration and fallback behavior.",
+      "attributes": [
+        {
+          "name": "config_path",
+          "value": "agent_app/opencode_app/.opencode/opencode.json"
+        },
+        {
+          "name": "contract_path",
+          "value": "agent_app/opencode_app/.opencode/workspace.contract.json"
+        }
+      ]
+    },
+    {
+      "id": "ELM-INTENT-AI4X-EXPLICIT-ACCEPTANCE",
+      "name": "AI4X Explicit Acceptance Baseline",
+      "type": "Business Process",
+      "browser_path": "Intent/Acceptance",
+      "description": "Explicit acceptance testcases for AI4X catalog, query, detail progressive disclosure, and data consumption flow.",
+      "testcases": [
+        {
+          "name": "test_ai4x_platform_catalog_exposes_available_data_range",
+          "description": "Explicit acceptance for AI4X catalog data range through MCP.",
+          "type": "Acceptance Test",
+          "Input": "Control Point: Call MCP tools/list then tools/call on ai4x_query with command=catalog.",
+          "acceptanceCriteria": "Observation Point: Response includes non-empty databases and total_databases equals databases length.",
+          "TestResults": "Frozen explicit baseline."
+        },
+        {
+          "name": "test_ai4x_platform_query_tool_returns_real_data_payload",
+          "description": "Explicit acceptance for unified query payload contract through MCP.",
+          "type": "Acceptance Test",
+          "Input": "Control Point: Call ai4x_query with command=query and selected sourceId.",
+          "acceptanceCriteria": "Observation Point: source_id matches input and response contains items/count semantics.",
+          "TestResults": "Frozen explicit baseline."
+        },
+        {
+          "name": "test_ai4x_platform_opencti_schema_detail_supports_progressive_disclosure",
+          "description": "Explicit acceptance for OpenCTI schema progressive disclosure through schema and detail commands.",
+          "type": "Acceptance Test",
+          "Input": "Control Point: Call ai4x_query command=schema then command=detail for selected detail pointer.",
+          "acceptanceCriteria": "Observation Point: schema exposes detail pointers and detail payload matches requested kind/type.",
+          "TestResults": "Frozen explicit baseline."
+        },
+        {
+          "name": "test_ai4x_platform_data_consumption_flow_uses_real_ai4x_service",
+          "description": "Explicit acceptance for end-to-end AI4X data consumption flow in real service mode.",
+          "type": "Acceptance Test",
+          "Input": "Control Point: Trigger real OPENCODE flow with registered AI4X MCP environment.",
+          "acceptanceCriteria": "Observation Point: session includes completed ai4x_query catalog/schema/query activity chain.",
+          "TestResults": "Frozen explicit baseline."
+        }
+      ]
+    },
+    {
+      "id": "ELM-INTENT-WORKSPACE-DEPENDENCY-BASELINE",
+      "name": "Workspace Local Runtime Dependency Baseline",
+      "type": "Technology Service",
+      "browser_path": "Intent/Workspace",
+      "description": "Explicit acceptance for isolated OPENCODE runtime dependencies while preserving remote MCP canonical boundary.",
+      "testcases": [
+        {
+          "name": "test_opencode_app_contains_local_tool_runtime_dependencies",
+          "description": "Explicit acceptance for local runtime dependencies declared in workspace contracts.",
+          "type": "Acceptance Test",
+          "Input": "Control Point: Read opencode.json and workspace.contract.json and inspect isolated runtime paths.",
+          "acceptanceCriteria": "Observation Point: remote MCP declarations and fallback constraints are present and required local runtime files exist.",
+          "TestResults": "Frozen explicit baseline."
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "id": "REL-INTENT-001",
+      "statement": "serves",
+      "name": "AI4X boundary serves acceptance baseline",
+      "source_id": "ELM-INTENT-AI4X-BOUNDARY",
+      "target_id": "ELM-INTENT-AI4X-EXPLICIT-ACCEPTANCE",
+      "source_name": "AI4X Remote MCP Boundary",
+      "target_name": "AI4X Explicit Acceptance Baseline"
+    },
+    {
+      "id": "REL-INTENT-002",
+      "statement": "constrains",
+      "name": "Workspace contract constrains AI4X boundary",
+      "source_id": "ELM-INTENT-OPENCODE-WORKSPACE",
+      "target_id": "ELM-INTENT-AI4X-BOUNDARY",
+      "source_name": "OPENCODE Workspace Runtime Contract",
+      "target_name": "AI4X Remote MCP Boundary"
+    },
+    {
+      "id": "REL-INTENT-003",
+      "statement": "serves",
+      "name": "Workspace dependency baseline serves workspace contract",
+      "source_id": "ELM-INTENT-WORKSPACE-DEPENDENCY-BASELINE",
+      "target_id": "ELM-INTENT-OPENCODE-WORKSPACE",
+      "source_name": "Workspace Local Runtime Dependency Baseline",
+      "target_name": "OPENCODE Workspace Runtime Contract"
+    }
+  ],
+  "views": [
+    {
+      "view_id": "VIEW-INTENT-AI4X-001",
+      "view_name": "AI4X Intent Baseline View",
+      "browser_path": "Intent/AI4X",
+      "description": "Minimal view for AI4X boundary and explicit acceptance baseline.",
+      "included_elements": [
+        "ELM-INTENT-AI4X-BOUNDARY",
+        "ELM-INTENT-OPENCODE-WORKSPACE",
+        "ELM-INTENT-AI4X-EXPLICIT-ACCEPTANCE",
+        "ELM-INTENT-WORKSPACE-DEPENDENCY-BASELINE"
+      ],
+      "included_relationships": [
+        "REL-INTENT-001",
+        "REL-INTENT-002",
+        "REL-INTENT-003"
+      ]
+    }
+  ]
+}
