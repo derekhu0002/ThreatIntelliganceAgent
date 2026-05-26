@@ -244,7 +244,8 @@
           "type": "string"
         },
         "acceptanceCriteria": {
-          "type": "string"
+          "type": "string",
+          "description": "By the end of implementation design, this must be the concrete workspace-relative executable testcase entrypoint for the testcase, optionally including a pytest node id selector such as tests/test_x.py::test_y, rather than descriptive prose."
         },
         "TestResults": {
           "type": "string"

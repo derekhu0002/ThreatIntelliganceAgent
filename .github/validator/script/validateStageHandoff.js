@@ -2,6 +2,13 @@ const fs = require('fs');
 const path = require('path');
 
 const repoRoot = path.resolve(__dirname, '..', '..', '..');
+const SYSTEM_ARCHITECTURE_PATH = 'design/KG/SystemArchitecture.json';
+const SUPPORTED_ACCEPTANCE_ENTRY_EXTENSIONS = new Set(['.js', '.cjs', '.mjs', '.py']);
+const DISALLOWED_ACCEPTANCE_CRITERIA_PATTERNS = [
+    /^\s*(?:node|npm|npx|pnpm|yarn|python|py|bun)\b/i,
+    /^\s*(?:\.\\|\.\/)?[^\s]+\s+[^:]+/i,
+    /[`'"|;&]/,
+];
 
 const HANDOFFS = {
     'intent-to-implementation': {
@@ -106,6 +113,9 @@ function validateIntentToImplementation(document, errors, filePath) {
 }
 
 function validateImplementationToCoding(document, errors, filePath) {
+    const graphDocument = loadSystemArchitecture(errors, filePath);
+    const acceptanceCriteriaByTestcase = buildAcceptanceCriteriaByTestcase(graphDocument, errors, filePath);
+
     requireString(document, 'stage', errors, filePath);
     requireString(document, 'generatedAt', errors, filePath);
     const graphPath = requireString(document, 'sourceIntentGraphPath', errors, filePath);
@@ -123,20 +133,28 @@ function validateImplementationToCoding(document, errors, filePath) {
     const explicitEntrypoints = requireArray(document, 'explicitEntrypoints', true, errors, filePath);
     if (Array.isArray(explicitEntrypoints)) {
         explicitEntrypoints.forEach((entry, index) => {
-            requireString(entry, 'testcaseName', errors, `${filePath}.explicitEntrypoints[${index}]`);
+            const testcaseName = requireString(entry, 'testcaseName', errors, `${filePath}.explicitEntrypoints[${index}]`);
             const entryPath = requireString(entry, 'entryPath', errors, `${filePath}.explicitEntrypoints[${index}]`);
             requireString(entry, 'controlPoint', errors, `${filePath}.explicitEntrypoints[${index}]`);
             requireString(entry, 'observationPoint', errors, `${filePath}.explicitEntrypoints[${index}]`);
             const status = requireString(entry, 'initialExecutionStatus', errors, `${filePath}.explicitEntrypoints[${index}]`);
             requireString(entry, 'initialExecutionCommand', errors, `${filePath}.explicitEntrypoints[${index}]`);
             if (entryPath) {
-                ensureRepoPathExists(entryPath, `${filePath}.explicitEntrypoints[${index}].entryPath`, errors);
+                validateAcceptanceEntryReference(entryPath, `${filePath}.explicitEntrypoints[${index}].entryPath`, errors);
             }
             if (status && !['passed', 'failed'].includes(status)) {
                 errors.push(`${filePath}.explicitEntrypoints[${index}].initialExecutionStatus must be 'passed' or 'failed'`);
             }
             if (status === 'failed') {
                 requireString(entry, 'failureReason', errors, `${filePath}.explicitEntrypoints[${index}]`);
+            }
+            if (testcaseName && entryPath) {
+                const acceptanceCriteria = acceptanceCriteriaByTestcase.get(testcaseName);
+                if (!acceptanceCriteria) {
+                    errors.push(`${filePath}.explicitEntrypoints[${index}] testcase '${testcaseName}' is missing from ${SYSTEM_ARCHITECTURE_PATH} or has an empty acceptanceCriteria`);
+                } else if (normalizeEntrypointReference(acceptanceCriteria) !== normalizeEntrypointReference(entryPath)) {
+                    errors.push(`${filePath}.explicitEntrypoints[${index}] entryPath '${entryPath}' must match ${SYSTEM_ARCHITECTURE_PATH} acceptanceCriteria '${acceptanceCriteria}' for testcase '${testcaseName}'`);
+                }
             }
         });
     }
@@ -175,6 +193,89 @@ function validateNonExplicitTest(test, prefix, errors) {
     if (testPath) {
         ensureRepoPathExists(testPath, `${prefix}.path`, errors);
     }
+}
+
+function loadSystemArchitecture(errors, filePath) {
+    const absolutePath = path.join(repoRoot, SYSTEM_ARCHITECTURE_PATH);
+    if (!fs.existsSync(absolutePath)) {
+        errors.push(`${filePath}: required graph file is missing at ${SYSTEM_ARCHITECTURE_PATH}`);
+        return undefined;
+    }
+
+    try {
+        return JSON.parse(fs.readFileSync(absolutePath, 'utf8'));
+    } catch (error) {
+        errors.push(`${filePath}: failed to parse ${SYSTEM_ARCHITECTURE_PATH}: ${String(error)}`);
+        return undefined;
+    }
+}
+
+function buildAcceptanceCriteriaByTestcase(graphDocument, errors, filePath) {
+    const mapping = new Map();
+    if (!graphDocument || !Array.isArray(graphDocument.elements)) {
+        return mapping;
+    }
+
+    graphDocument.elements.forEach((element, elementIndex) => {
+        if (!Array.isArray(element.testcases)) {
+            return;
+        }
+
+        element.testcases.forEach((testcase, testcaseIndex) => {
+            if (!testcase || typeof testcase.name !== 'string' || testcase.name.trim() === '') {
+                return;
+            }
+
+            const testcaseName = testcase.name.trim();
+            const acceptanceCriteria = typeof testcase.acceptanceCriteria === 'string'
+                ? testcase.acceptanceCriteria.trim()
+                : '';
+
+            if (!acceptanceCriteria) {
+                errors.push(`${filePath}: ${SYSTEM_ARCHITECTURE_PATH}.elements[${elementIndex}].testcases[${testcaseIndex}].acceptanceCriteria must be a non-empty entrypoint string for testcase '${testcaseName}'`);
+                return;
+            }
+
+            validateAcceptanceEntryReference(
+                acceptanceCriteria,
+                `${SYSTEM_ARCHITECTURE_PATH}.testcase(${testcaseName}).acceptanceCriteria`,
+                errors,
+            );
+
+            mapping.set(testcaseName, acceptanceCriteria);
+        });
+    });
+
+    return mapping;
+}
+
+function validateAcceptanceEntryReference(value, label, errors) {
+    if (typeof value !== 'string' || value.trim() === '') {
+        errors.push(`${label} must be a non-empty string`);
+        return;
+    }
+
+    const trimmed = value.trim();
+    for (const pattern of DISALLOWED_ACCEPTANCE_CRITERIA_PATTERNS) {
+        if (pattern.test(trimmed)) {
+            errors.push(`${label} must be a single workspace-relative testcase entrypoint, not a descriptive sentence or wrapped command`);
+            return;
+        }
+    }
+
+    const scriptPath = normalizeEntrypointReference(trimmed);
+    const extension = path.extname(scriptPath).toLowerCase();
+    if (!SUPPORTED_ACCEPTANCE_ENTRY_EXTENSIONS.has(extension)) {
+        errors.push(`${label} must point to a single executable entry file (${Array.from(SUPPORTED_ACCEPTANCE_ENTRY_EXTENSIONS).join(', ')}) optionally followed by a pytest ::selector`);
+        return;
+    }
+
+    ensureRepoPathExists(scriptPath, label, errors);
+}
+
+function normalizeEntrypointReference(value) {
+    const [scriptPath] = String(value).split('::');
+    return scriptPath.replace(/\\/g, '/').replace(/^\.\//, '').trim();
 }
 
 function requireString(object, key, errors, prefix) {
