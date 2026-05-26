@@ -6,7 +6,6 @@ These instructions apply to the main Copilot agent for this repository.
 The goal is to keep a stable shared understanding of how to read intent architecture, implementation architecture, and code without requiring the user to restate those rules in each task.
 
 ## Operational Objectives
-
 !!! READ THIS SECTION FIRST !!!
 
 [ACTIVE STAGE]
@@ -16,7 +15,6 @@ The goal is to keep a stable shared understanding of how to read intent architec
 - <objective 1>
 - <objective 2>
 - <objective 3>
-
 
 ## Repository Reading Order
 
@@ -180,7 +178,8 @@ When designing or changing implementation architecture:
 
 ## Expected Working Style
 
-- Identify Your Stage: At the beginning of each task, explicitly state which stage you are operating in (Intent Design, Implementation Design, or Coding/Repair) based on the user's request and the files being modified.
+- Identify Your Stage: At the beginning of each task, explicitly state which stage you are operating in (Intent Design, Implementation Design, or Coding/Repair) based on the user's request.
+- Stage changes require explicit user instruction: do not switch to a different stage unless the user has explicitly stated that the work should move to that specific stage.
 - State clearly which conclusions are repository-confirmed facts and which are minimal assumptions.
 - When editing architecture-related assets, prefer updating contracts and test guardrails before modifying business behavior unless the user explicitly asks for implementation work.
 - If no contract file exists yet, report that as an architecture gap and create or update the appropriate contract file when the task is implementation architecture design.
