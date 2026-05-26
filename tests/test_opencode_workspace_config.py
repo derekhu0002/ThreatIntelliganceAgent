@@ -107,7 +107,7 @@ def test_opencode_workspace_config_declares_canonical_roles_and_aliases() -> Non
     config = json.loads(OPENCODE_CONFIG_PATH.read_text(encoding="utf-8"))
     workspace_contract = json.loads(WORKSPACE_CONTRACT_PATH.read_text(encoding="utf-8"))
 
-    assert config["default_agent"] == "ThreatIntelPrimary"
+    assert config["default_agent"] == "sec-copilot"
     assert workspace_contract["workspace"]["root"] == "agent_app/opencode_app/.opencode"
     assert workspace_contract["workspace"]["control_plane_root"] == ".opencode"
     assert config["mcp"]["ai4x"]["type"] == "remote"
@@ -115,7 +115,7 @@ def test_opencode_workspace_config_declares_canonical_roles_and_aliases() -> Non
     assert workspace_contract["mcp_servers"]["ai4x"]["transport"] == "http"
     assert workspace_contract["mcp_servers"]["ai4x"]["healthz"].endswith("/mcp/healthz")
     assert workspace_contract["mcp_servers"]["ai4x"]["canonical"] is True
-    assert workspace_contract["mcp_servers"]["ai4x"]["tool_names"] == ["ai4x_ai4x_query"]
+    assert workspace_contract["mcp_servers"]["ai4x"]["tool_names"] == ["ai4x_query"]
     assert workspace_contract["agent_roles"] == {
         "primary": "ThreatIntelPrimary",
         "analyst": "ThreatIntelAnalyst",
@@ -136,7 +136,7 @@ def test_opencode_app_contains_local_tool_runtime_dependencies() -> None:
 
     assert "ai4x" in config["mcp"]
     assert config["mcp"]["ai4x"]["type"] == "remote"
-    assert workspace_contract["mcp_servers"]["ai4x"]["tool_names"] == ["ai4x_ai4x_query"]
+    assert workspace_contract["mcp_servers"]["ai4x"]["tool_names"] == ["ai4x_query"]
     assert workspace_contract["mcp_servers"]["ai4x"]["fallback_http_api_allowed"] is True
     assert (REPO_ROOT / "agent_app/opencode_app/tools/__init__.py").is_file()
     assert (REPO_ROOT / "agent_app/opencode_app/tools/ai4x_cli.py").is_file()

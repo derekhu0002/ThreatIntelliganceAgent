@@ -26,7 +26,7 @@ def test_workspace_contract_declares_remote_ai4x_mcp_server() -> None:
     ai4x_server = workspace_config["mcp"]["ai4x"]
     frozen_ai4x_server = workspace_contract["mcp_servers"]["ai4x"]
 
-    assert workspace_config["default_agent"] == "ThreatIntelPrimary"
+    assert workspace_config["default_agent"] == "sec-copilot"
     assert ai4x_server["type"] == "remote"
     assert ai4x_server["url"].endswith("/mcp")
     assert frozen_ai4x_server["transport"] == "http"

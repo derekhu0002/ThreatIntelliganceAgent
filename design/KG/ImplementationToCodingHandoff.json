@@ -1,0 +1,131 @@
+{
+  "stage": "implementation-to-coding",
+  "generatedAt": "2026-05-27T00:00:00Z",
+  "sourceIntentGraphPath": "design/KG/SystemArchitecture.json",
+  "summary": "Implementation architecture freezes AI4X remote MCP boundary contracts, explicit acceptance entrypoints, and critical architecture guardrails for Coding/Repair.",
+  "implementationContracts": [
+    "OVERALL_ARCHITECTURE.md",
+    "services/ARCHITECTURE.md",
+    "agent_app/opencode_app/ARCHITECTURE.md",
+    "tests/ARCHITECTURE.md",
+    "agent_app/opencode_app/.opencode/opencode.json",
+    "agent_app/opencode_app/.opencode/workspace.contract.json"
+  ],
+  "explicitEntrypoints": [
+    {
+      "testcaseName": "test_ai4x_platform_catalog_exposes_available_data_range",
+      "entryPath": "tests/test_ai4x_platform_integration.py",
+      "controlPoint": "Invoke registered AI4X remote MCP endpoint using ai4x_query command=catalog via MCP tools/call flow.",
+      "observationPoint": "Catalog payload contains non-empty databases and total_databases equals databases length.",
+      "initialExecutionStatus": "failed",
+      "initialExecutionCommand": "d:/projects/ThreatIntelliganceAgent/.venv/Scripts/python.exe -m pytest tests/test_ai4x_platform_integration.py::test_ai4x_platform_catalog_exposes_available_data_range -q",
+      "failureReason": "Collection fails before testcase execution because canonical schema root is missing at agent_app/opencode_app/.opencode/schema."
+    },
+    {
+      "testcaseName": "test_ai4x_platform_query_tool_returns_real_data_payload",
+      "entryPath": "tests/test_ai4x_platform_integration.py",
+      "controlPoint": "Invoke ai4x_query command=query through registered remote MCP with sourceId and cypher inputs.",
+      "observationPoint": "Response source_id matches requested source and returns items/count semantics.",
+      "initialExecutionStatus": "failed",
+      "initialExecutionCommand": "d:/projects/ThreatIntelliganceAgent/.venv/Scripts/python.exe -m pytest tests/test_ai4x_platform_integration.py::test_ai4x_platform_query_tool_returns_real_data_payload -q",
+      "failureReason": "Collection fails before testcase execution because canonical schema root is missing at agent_app/opencode_app/.opencode/schema."
+    },
+    {
+      "testcaseName": "test_ai4x_platform_opencti_schema_detail_supports_progressive_disclosure",
+      "entryPath": "tests/test_ai4x_platform_integration.py",
+      "controlPoint": "Invoke ai4x_query command=schema then command=detail through registered remote MCP boundary.",
+      "observationPoint": "Schema exposes detail pointers and detail payload matches requested detail kind and type.",
+      "initialExecutionStatus": "failed",
+      "initialExecutionCommand": "d:/projects/ThreatIntelliganceAgent/.venv/Scripts/python.exe -m pytest tests/test_ai4x_platform_integration.py::test_ai4x_platform_opencti_schema_detail_supports_progressive_disclosure -q",
+      "failureReason": "Collection fails before testcase execution because canonical schema root is missing at agent_app/opencode_app/.opencode/schema."
+    },
+    {
+      "testcaseName": "test_ai4x_platform_data_consumption_flow_uses_real_ai4x_service",
+      "entryPath": "tests/test_ai4x_platform_integration.py",
+      "controlPoint": "Trigger real OPENCODE flow with registered remote MCP environment and capture session activity.",
+      "observationPoint": "Completed ai4x_query catalog/schema/query chain is present in session activity.",
+      "initialExecutionStatus": "failed",
+      "initialExecutionCommand": "d:/projects/ThreatIntelliganceAgent/.venv/Scripts/python.exe -m pytest tests/test_ai4x_platform_integration.py::test_ai4x_platform_data_consumption_flow_uses_real_ai4x_service -q",
+      "failureReason": "Collection fails before testcase execution because canonical schema root is missing at agent_app/opencode_app/.opencode/schema."
+    },
+    {
+      "testcaseName": "test_opencode_app_contains_local_tool_runtime_dependencies",
+      "entryPath": "tests/test_opencode_workspace_config.py",
+      "controlPoint": "Read opencode runtime config and workspace contract and inspect required isolated runtime dependency paths.",
+      "observationPoint": "Remote MCP declaration, fallback flag, canonical tool_names list, and local runtime file paths are present.",
+      "initialExecutionStatus": "passed",
+      "initialExecutionCommand": "d:/projects/ThreatIntelliganceAgent/.venv/Scripts/python.exe -m pytest tests/test_opencode_workspace_config.py::test_opencode_app_contains_local_tool_runtime_dependencies -q"
+    }
+  ],
+  "criticalNonExplicitTests": [
+    {
+      "name": "runtime-boundary-guard",
+      "path": "agent_app/opencode_app/tests/test_runtime_architecture_contract.py",
+      "kind": "architecture-boundary-guard",
+      "controlPoint": "Load opencode runtime config/contract plus explicit entrypoint source text.",
+      "observationPoint": "Asserts remote MCP registration, canonical ai4x_query tool name, and no direct local wrapper invocation in explicit tests.",
+      "expectedStatus": "passed"
+    },
+    {
+      "name": "explicit-entry-and-traceability-guard",
+      "path": "tests/test_architecture_contract_baselines.py",
+      "kind": "explicit-entrypoint-correctness-and-traceability-guard",
+      "controlPoint": "Read canonical explicit acceptance test files directly from tests directory.",
+      "observationPoint": "Asserts canonical entrypoint function names and architecture traceability tags remain bound to frozen locations.",
+      "expectedStatus": "passed"
+    }
+  ],
+  "supportingNonExplicitTests": [
+    {
+      "name": "workspace-config-role-and-alias-guard",
+      "path": "tests/test_opencode_workspace_config.py",
+      "kind": "supporting-runtime-contract-guard",
+      "controlPoint": "Load workspace config and role alias metadata.",
+      "observationPoint": "Asserts default agent, role aliases, and runtime dependency inventory remain coherent.",
+      "expectedStatus": "passed"
+    }
+  ],
+  "expectedFailureRecordsPath": "artifacts/runtime/implementation-design-expected-failures.json",
+  "codingTargets": [
+    {
+      "testcaseName": "test_ai4x_platform_catalog_exposes_available_data_range",
+      "path": "tests/test_ai4x_platform_integration.py",
+      "failureSignal": "ContractCatalogError for missing canonical schema root during collection.",
+      "nextAction": "Create or mount canonical schema root at agent_app/opencode_app/.opencode/schema and keep explicit entrypoint assertions unchanged."
+    },
+    {
+      "testcaseName": "test_ai4x_platform_query_tool_returns_real_data_payload",
+      "path": "tests/test_ai4x_platform_integration.py",
+      "failureSignal": "ContractCatalogError for missing canonical schema root during collection.",
+      "nextAction": "Fix service-side schema catalog readiness so explicit query acceptance can execute against remote MCP boundary."
+    },
+    {
+      "testcaseName": "test_ai4x_platform_opencti_schema_detail_supports_progressive_disclosure",
+      "path": "tests/test_ai4x_platform_integration.py",
+      "failureSignal": "ContractCatalogError for missing canonical schema root during collection.",
+      "nextAction": "Restore schema metadata availability required for progressive disclosure path without moving entrypoint path."
+    },
+    {
+      "testcaseName": "test_ai4x_platform_data_consumption_flow_uses_real_ai4x_service",
+      "path": "tests/test_ai4x_platform_integration.py",
+      "failureSignal": "ContractCatalogError for missing canonical schema root during collection.",
+      "nextAction": "Unblock full remote flow bootstrapping by fixing missing schema root dependency while preserving read-only explicit testcase contract."
+    }
+  ],
+  "frozenFiles": [
+    "OVERALL_ARCHITECTURE.md",
+    "services/ARCHITECTURE.md",
+    "agent_app/opencode_app/ARCHITECTURE.md",
+    "tests/ARCHITECTURE.md",
+    "agent_app/opencode_app/.opencode/opencode.json",
+    "agent_app/opencode_app/.opencode/workspace.contract.json",
+    "tests/test_ai4x_platform_integration.py",
+    "tests/test_opencode_workspace_config.py",
+    "agent_app/opencode_app/tests/test_runtime_architecture_contract.py",
+    "tests/test_architecture_contract_baselines.py"
+  ],
+  "openGaps": [
+    "Explicit AI4X integration entrypoint cannot collect because canonical schema root agent_app/opencode_app/.opencode/schema is missing.",
+    "Local runtime still depends on external AI4X service availability for end-to-end explicit acceptance execution."
+  ]
+}
