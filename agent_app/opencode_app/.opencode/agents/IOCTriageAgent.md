@@ -198,13 +198,3 @@ IOC 快速分诊时必须满足：
 ## Active Skills
 
 - `ioc-triage-indicator-priority`: 基于 `opencti` 跑通默认 IOC 快速核查与告警分诊链路，并显式区分事实、推断、降权因素和建议动作。
-
-## Reserved Expansion Direction
-
-后续可以扩展但当前未启用的方向：
-
-- `ioc-triage-alert-extract`
-- `ioc-triage-shift-handover-brief`
-- `ioc-triage-batch-condense`
-
-在这些 Skill 尚未正式注册前，不得自行假设其可用。

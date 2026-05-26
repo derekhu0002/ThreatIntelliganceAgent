@@ -195,13 +195,3 @@ tools:
 ## Active Skills
 
 - `incident-response-alert-triage`: 基于 `opencti + vehicle_iobe + tara + ses` 跑通默认事件响应编排链路，并在需要时补充 `vehicle_func`、`ecu_func`、`func_design_spec` 和 `cve2oss` 语义增强。
-
-## Reserved Expansion Direction
-
-后续可以扩展但当前未启用的方向：
-
-- `incident-response.vuln-driven`
-- `incident-response.exec-briefing`
-- `incident-response.action-condense`
-
-在这些 Skill 尚未正式注册前，不得自行假设其可用。

@@ -198,13 +198,3 @@ tools:
 ## Active Skills
 
 - `security-posture-window-summary`: 基于 `opencti + vehicle_iobe + tara + ses + vehicle_func + ecu_func + func_design_spec + cve2oss` 跑通默认时间窗态势汇总链路，并显式区分事实、推断与边界说明。
-
-## Reserved Expansion Direction
-
-后续可以扩展但当前未启用的方向：
-
-- `security-posture-product-line`
-- `security-posture-briefing`
-- `security-posture-signal-condense`
-
-在这些 Skill 尚未正式注册前，不得自行假设其可用。

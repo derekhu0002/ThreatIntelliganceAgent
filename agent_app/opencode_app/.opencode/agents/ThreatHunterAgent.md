@@ -203,13 +203,3 @@ tools:
 ## Active Skills
 
 - `unknown-threat-hunt-graph-hypothesis`: 基于图谱假设驱动的未知线索狩猎默认链路，输出候选线索、证据路径、待确认项和后续验证建议。
-
-## Reserved Expansion Direction
-
-后续可以扩展但当前未启用的方向：
-
-- `unknown-threat-hunt-indicator-pivot`
-- `unknown-threat-hunt-hunter-brief`
-- `unknown-threat-hunt-cluster-condense`
-
-在这些 Skill 尚未正式注册前，不得自行假设其可用。

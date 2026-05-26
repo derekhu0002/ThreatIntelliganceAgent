@@ -199,13 +199,3 @@ tools:
 ## Active Skills
 
 - `supply-chain-dependency-governance`: 基于外部 `SBOM/SCA`、采购或供应商输入加上 `vehicle_iobe + ecu_func + vehicle_func` 跑通默认供应链风险评估链路，并在组件已知关联漏洞时补充 `cve2oss`、`opencti`、`tara`、`ses`、`func_design_spec` 增强解释。
-
-## Reserved Expansion Direction
-
-后续可以扩展但当前未启用的方向：
-
-- `supply-chain-supplier-brief`
-- `supply-chain-governance-briefing`
-- `supply-chain-hit-condense`
-
-在这些 Skill 尚未正式注册前，不得自行假设其可用。

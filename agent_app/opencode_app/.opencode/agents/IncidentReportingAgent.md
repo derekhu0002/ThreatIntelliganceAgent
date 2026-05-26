@@ -195,13 +195,3 @@ tools:
 ## Active Skills
 
 - `incident-report-generation`: 基于 `opencti` 执行已确认事件的结构化报告生成、威胁行为体与活动关联补充、同类群组候选提示和有限边界内的后续关注建议。
-
-## Reserved Expansion Direction
-
-后续可以扩展但当前未启用的方向：
-
-- `incident-evidence-compaction`
-- `executive-summary-report`
-- `peer-association-report`
-
-在这些 Skill 尚未正式注册前，不得自行假设其可用。

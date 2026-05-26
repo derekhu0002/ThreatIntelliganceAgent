@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "default_agent": "ThreatIntelPrimary",
+  "default_agent": "sec-copilot",
   "model": "DeepSeek_custom_provider/deepseek-chat",
   "mcp": {
     "ai4x": {

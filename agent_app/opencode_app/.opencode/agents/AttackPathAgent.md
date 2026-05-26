@@ -202,13 +202,3 @@ tools:
 ## Active Skills
 
 - `attack-path-entry-to-target`: 基于入口暴露面、目标资产、内部拓扑和 TARA 模型执行默认攻击路径预测链路，输出候选路径、关键跳板节点、关键阻断点和建议。
-
-## Reserved Expansion Direction
-
-后续可以扩展但当前未启用的方向：
-
-- `attack-path.interface-sweep`
-- `attack-path.briefing`
-- `attack-path.path-condense`
-
-在这些 Skill 尚未正式注册前，不得自行假设其可用。
