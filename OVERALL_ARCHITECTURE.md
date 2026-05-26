@@ -33,7 +33,7 @@
   - agent family definitions in `agents/`
   - scenario SOP families in `skills/`
   - control-plane tool declarations in `tools/`
-  - workspace metadata and MCP registration boundary in `opencode.json`, `workspace.contract.json`, and `AGENTS.md`
+  - workspace metadata, global instruction surfaces, and MCP registration boundary in `opencode.json`, `workspace.contract.json`, `AGENTS.md`, and `GLOBAL_INSTRUCTIONS.md`
 - Local contract: `agent_app/opencode_app/.opencode/ARCHITECTURE.md`
 
 ### 2. Isolated Runtime Bridge

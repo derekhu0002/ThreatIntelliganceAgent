@@ -12,7 +12,7 @@ Reference root contract: `OVERALL_ARCHITECTURE.md`
 - `agents/`: canonical agent-family definitions
 - `skills/`: scenario SOP families
 - `tools/`: local compatibility wrappers and OPENCODE-visible tool declarations
-- `opencode.json`, `workspace.contract.json`, `AGENTS.md`: workspace metadata, MCP registration boundary, and canonical role declarations
+- `opencode.json`, `workspace.contract.json`, `GLOBAL_INSTRUCTIONS.md`: workspace metadata, global instruction surfaces, MCP registration boundary, and canonical role declarations
 
 ## Public Interfaces
 
@@ -20,7 +20,7 @@ Reference root contract: `OVERALL_ARCHITECTURE.md`
 - skill directory entries under `skills/`
 - registered MCP tool `ai4x_query`
 - JS compatibility wrappers under `tools/`
-- workspace metadata and MCP registration in `opencode.json` and `workspace.contract.json`
+- workspace metadata, long-term instruction loading, and MCP registration in `opencode.json`, `workspace.contract.json`, and `GLOBAL_INSTRUCTIONS.md`
 
 ## Dependency Direction
 
@@ -44,7 +44,7 @@ These families are stable only as control-plane groupings. Low-level prompts, he
 
 ## Implements Mapping
 
-- `workspace.contract.json`, `opencode.json`, and `AGENTS.md` directly implement `ELM-TECH-ARTIFACT-OPENCODE-WORKSPACE`.
+- `workspace.contract.json`, `opencode.json`, and `GLOBAL_INSTRUCTIONS.md` directly implement `ELM-TECH-ARTIFACT-OPENCODE-WORKSPACE`.
 - agent-family definitions directly implement `ELM-TECH-ARTIFACT-AGENT-DEFS`.
 - collaboration loop skills directly implement `ELM-APP-PROC-THREAT-COLLAB-SKILL`.
 - the AI4X MCP server registration inside `opencode.json` directly implements `1739 / Tools`.

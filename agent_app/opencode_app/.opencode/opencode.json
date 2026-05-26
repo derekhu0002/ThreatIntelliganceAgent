@@ -28,7 +28,7 @@
     }
   },
   "instructions": [
-    "AGENTS.md"
+    ".opencode/GLOBAL_INSTRUCTIONS.md"
   ],
   "permission": {
     "mcp_*": "ask",
