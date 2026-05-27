@@ -32,9 +32,13 @@ It freezes stable layers, explicit testcase ownership, critical non-explicit gua
 
 2. Workspace runtime support boundary
 - Support-only local runtime dependencies live under `agent_app/opencode_app/tools`, `agent_app/opencode_app/services`, and `agent_app/opencode_app/data`.
-- Workspace-local `.opencode/tools/ai4x_query.js` and `.opencode/tools/ai4x_query_local.js` remain compatibility surfaces, not the canonical acceptance boundary.
+- Workspace-local `.opencode/tools/ai4x_query_local.js` remains a support-only compatibility surface, not the canonical acceptance boundary.
 
-3. Service execution boundary
+3. Host OPENCODE execution boundary
+- Canonical host-side OPENCODE base URL is `http://127.0.0.1:4096`.
+- `http://127.0.0.1:8124` is compatibility-only and must not remain the default execution target in contracts, scripts, or runtime defaults.
+
+4. Service execution boundary
 - `services/python_listener`, `services/result_assembler`, and `services/stix_contracts` provide execution-time behavior consumed by explicit entrypoints.
 
 ## Explicit Acceptance Entrypoints
@@ -52,7 +56,7 @@ It freezes stable layers, explicit testcase ownership, critical non-explicit gua
 - Observation point: schema payload exposes detail pointers and detail payload matches requested kind/type.
 
 4. `tests/test_ai4x_platform_integration.py::test_ai4x_platform_data_consumption_flow_uses_real_ai4x_service`
-- Control point: trigger the real OPENCODE flow against the registered MCP environment.
+- Control point: trigger the real OPENCODE flow against the registered MCP environment at the canonical host endpoint `http://127.0.0.1:4096`.
 - Observation point: session activity contains completed `ai4x_query` `catalog`, `schema`, and `query` calls.
 
 5. `tests/test_opencode_workspace_config.py::test_opencode_app_contains_local_tool_runtime_dependencies`
@@ -83,6 +87,7 @@ It freezes stable layers, explicit testcase ownership, critical non-explicit gua
 2. `agent_app/opencode_app` may depend on `services` and workspace-local support modules.
 3. `services` must not depend on `tests`.
 4. Compatibility surfaces under `.opencode/tools` must not become mandatory control points for the explicit AI4X acceptance baseline.
+5. Host-side OPENCODE runtime selection flows toward `services.python_listener.remote_client.DEFAULT_OPENCODE_BASE_URL`; contracts and support tests must align on `http://127.0.0.1:4096` unless a caller overrides it explicitly.
 
 ## Intent Mapping
 

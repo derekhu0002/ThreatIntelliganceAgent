@@ -22,7 +22,7 @@ class RemoteDispatchError(RuntimeError):
     """Raised when the remote OPENCODE SERVER call fails."""
 
 
-DEFAULT_OPENCODE_BASE_URL = "http://127.0.0.1:8124"
+DEFAULT_OPENCODE_BASE_URL = "http://127.0.0.1:4096"
 WORKSPACE_CONTRACT_FILE = "workspace.contract.json"
 DEFAULT_REMOTE_RETRY_ATTEMPTS = 3
 DEFAULT_AGENT_ALIASES = {

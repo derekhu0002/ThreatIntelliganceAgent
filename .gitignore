@@ -8,4 +8,4 @@ node_modules
 .venv
 .pytest_cache
 .obsidian/
-agent_app/opencode_app/.opencode/opencode.json
+# agent_app/opencode_app/.opencode/opencode.json

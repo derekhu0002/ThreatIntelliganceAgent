@@ -24,7 +24,7 @@ def main() -> None:
     parser.add_argument(
         "--remote-server-url",
         default=DEFAULT_OPENCODE_BASE_URL,
-        help="Remote OPENCODE SERVER base URL. Defaults to http://127.0.0.1:8124.",
+        help="Remote OPENCODE SERVER base URL. Defaults to http://127.0.0.1:4096.",
     )
     parser.add_argument(
         "--main-agent",

@@ -2,7 +2,7 @@
   "stage": "implementation-to-coding",
   "generatedAt": "2026-05-27T00:00:00Z",
   "sourceIntentGraphPath": "design/KG/SystemArchitecture.json",
-  "summary": "Implementation Design freezes the AI4X remote MCP boundary, canonical explicit pytest entrypoints, and critical architecture guards. The targeted validation slice now passes end-to-end in the warmed environment; the remaining operational signal is cold-start /session latency on a fresh OPENCODE container.",
+  "summary": "Implementation Design freezes the AI4X remote MCP boundary, canonical explicit pytest entrypoints, and critical architecture guards. The canonical OPENCODE validation target is now a host-side service at http://127.0.0.1:4096 rather than a Docker-first 8124 mapping.",
   "implementationContracts": [
     "OVERALL_ARCHITECTURE.md",
     "services/ARCHITECTURE.md",
@@ -87,7 +87,7 @@
       "name": "real opencode server availability guard",
       "path": "tests/test_ai4x_platform_integration.py",
       "kind": "supporting environment-backed integration guardrail",
-      "controlPoint": "Probe the real AI4X environment and then open a real OPENCODE session at http://127.0.0.1:8124.",
+      "controlPoint": "Probe the real AI4X environment and then open a real OPENCODE session at http://127.0.0.1:4096.",
       "observationPoint": "The real OPENCODE server accepts session creation and the real AI4X-backed flow completes without connection refusal.",
       "expectedStatus": "passed"
     },
@@ -103,10 +103,10 @@
   "expectedFailureRecordsPath": "artifacts/runtime/implementation-design-expected-failures.json",
   "codingTargets": [
     {
-      "testcaseName": "real-opencode-cold-start-bootstrap",
-      "path": "agent_app/docker-compose.yml",
-      "failureSignal": "On a fresh container start, the first successful POST /session on http://127.0.0.1:8124 took about 21 seconds before returning, so immediate readiness after docker-compose up is not deterministic.",
-      "nextAction": "If Coding/Repair needs deterministic immediate readiness after docker-compose up, add startup warm-up or readiness gating in the container runtime without changing the frozen tests."
+      "testcaseName": "real-opencode-host-runtime-default",
+      "path": "services/python_listener/remote_client.py",
+      "failureSignal": "Repository defaults, support scripts, and implementation contracts must no longer assume Docker-host port 8124 as the primary OPENCODE validation target.",
+      "nextAction": "Keep host-side OPENCODE at http://127.0.0.1:4096 as the canonical runtime default, and treat Docker-based OPENCODE startup as compatibility-only unless future contracts promote it again."
     }
   ],
   "frozenFiles": [
@@ -123,8 +123,8 @@
     "design/KG/ImplementationToCodingHandoff.json"
   ],
   "openGaps": [
-    "A fresh OPENCODE container still shows cold-start /session latency before the first session becomes ready; the warmed environment passes the frozen targeted validation slice.",
+    "The canonical validation path now assumes a host-side OPENCODE service at http://127.0.0.1:4096; environment setup remains external to this repository and must be provided before environment-backed explicit acceptance tests can pass.",
     "Workspace-local compatibility surfaces such as .opencode/tools/ai4x_query_local.js still exist and are treated as support/evolvable surfaces rather than frozen intent artifacts.",
-    "Implementation Design does not yet retire the broader ThreatIntelAnalyst compatibility surface; that follow-up remains outside the AI4X-only explicit acceptance baseline unless promoted by a future intent or implementation contract change."
+    "Retired ThreatIntelAnalyst compatibility assets must stay deleted; any future reintroduction requires an explicit contract change rather than drift through workspace-local wrappers."
   ]
 }

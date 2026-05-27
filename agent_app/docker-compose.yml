@@ -12,8 +12,9 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
+      - "4096:4096"
       - "8124:4096"
-    entrypoint: ["/usr/local/bin/opencode"]
+    entrypoint: ["/usr/local/bin/start-opencode-with-warmup.sh"]
     command: ["serve", "--port", "4096", "--hostname", "0.0.0.0", "--print-logs", "--log-level", "DEBUG"]
     working_dir: /root/project_tia
     env_file:
@@ -29,3 +30,15 @@ services:
       - ./opencode_app:/root/project_tia
     stdin_open: true
     tty: true
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python3",
+          "-c",
+          "import json,sys,urllib.request; req=urllib.request.Request('http://127.0.0.1:4096/agent', headers={'Accept':'application/json'}); resp=urllib.request.urlopen(req, timeout=5); payload=json.loads(resp.read().decode('utf-8')); sys.exit(0 if isinstance(payload, list) else 1)",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 5s

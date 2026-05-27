@@ -16,7 +16,7 @@
 
 ### 最小接入路径是什么
 
-最小接入路径是：准备 Python 环境和依赖后，用一个事件 JSON 文件调用 `services.python_listener`，并把远端 OPENCODE Server 地址指向 `http://127.0.0.1:8124` 或你自己的部署地址；如果只是验证闭环，可直接运行 `scripts/run_minimal_closed_loop.py`。
+最小接入路径是：准备 Python 环境和依赖后，用一个事件 JSON 文件调用 `services.python_listener`，并把远端 OPENCODE Server 地址指向 `http://127.0.0.1:4096`；若你沿用仓库中的兼容映射，也可以继续使用 `http://127.0.0.1:8124`。如果只是验证闭环，可直接运行 `scripts/run_minimal_closed_loop.py`。
 
 ### 采用前最需要验证的 3 个风险点
 
@@ -183,12 +183,13 @@
    - 运行于 `agent_app/opencode_app/` 工作区上下文中
    - 用于本地 STIX 查询
 
-#### Docker Compose
+#### 宿主机运行边界
 
-`agent_app/docker-compose.yml` 暴露了两个核心运行组件：
+当前仓库默认将 OPENCODE 视为**宿主机运行**的远端执行引擎：
 
-- `opencode`：容器内监听 `4096`，宿主机映射到 `8124`
-- `neo4j`：宿主机暴露 `7498` 和 `7698`
+- `opencode`：默认宿主机地址为 `http://127.0.0.1:4096`
+- `neo4j`：可继续通过 `agent_app/docker-compose.yml` 暴露 `7498` 和 `7698`
+- `agent_app/docker-compose.yml` 中的 OPENCODE 容器入口仅保留为兼容资产，不再是推荐测试路径
 
 #### 配置文件
 
@@ -215,7 +216,7 @@
 ### 3.2 已证实存在的外部依赖
 
 - Python 3.11+，依赖见 `requirements.txt`
-- Docker 与 Docker Compose
+- 可访问的宿主机 OPENCODE Server
 - 远端 OPENCODE Server
 - Neo4j
 - 可选的 AI4X Platform API Center
@@ -230,7 +231,7 @@
 
 因此，对外介绍时更稳妥的表述应是：
 
-> 当前仓库已经实现可执行的 CLI、脚本、Docker 运行与远端 Agent 工作区集成能力，但尚不能仅凭现有仓库内容将其描述为“已成型的开放情报平台产品”。
+> 当前仓库已经实现可执行的 CLI、脚本、宿主机 OPENCODE 集成与远端 Agent 工作区协同能力，但尚不能仅凭现有仓库内容将其描述为“已成型的开放情报平台产品”。
 
 ## 4. 调用与使用方法
 
@@ -239,14 +240,13 @@
 最少需要准备：
 
 1. Python 环境与 `requirements.txt` 依赖
-2. Docker 与 Docker Compose
-3. 可访问的远端 OPENCODE Server，默认地址为 `http://127.0.0.1:8124`
+2. 可访问的远端 OPENCODE Server，默认地址为 `http://127.0.0.1:4096`
 
 若要运行完整真实集成路径，还需要：
 
-4. Neo4j，可通过 `agent_app/docker-compose.yml` 启动
-5. `.env` 与模型 provider 配置，至少包括 `DEEPSEEK_API_KEY`
-6. 可选的 AI4X Platform，默认基础地址为 `http://localhost:8000`
+3. Neo4j，可通过 `agent_app/docker-compose.yml` 启动
+4. `.env` 与模型 provider 配置，至少包括 `DEEPSEEK_API_KEY`
+5. 可选的 AI4X Platform，默认基础地址为 `http://localhost:8000`
 
 ### 4.2 最小使用步骤
 
@@ -259,7 +259,7 @@
 3. 执行：
 
 ```powershell
-.\.venv\Scripts\python.exe -m services.python_listener --event data/mock_events/mock_opencti_push_event.json --output artifacts/runtime/opencti-push-001-analysis.json --remote-server-url http://127.0.0.1:8124
+.\.venv\Scripts\python.exe -m services.python_listener --event data/mock_events/mock_opencti_push_event.json --output artifacts/runtime/opencti-push-001-analysis.json --remote-server-url http://127.0.0.1:4096
 ```
 
 成功后可获得：
@@ -289,16 +289,20 @@ $env:THREAT_INTEL_REMOTE_SERVER_URL="http://127.0.0.1:9555"
 .\.venv\Scripts\python.exe scripts/run_minimal_closed_loop.py
 ```
 
-#### 路径 C：启动真实 OPENCODE 工作区
+#### 路径 C：连接宿主机真实 OPENCODE 工作区
+
+先在宿主机上自行启动 OPENCODE，并确保其监听 `127.0.0.1:4096`。
+
+如需本仓库内的 Neo4j 验证环境，可单独启动：
 
 ```powershell
-docker compose -f agent_app/docker-compose.yml up -d opencode neo4j
+docker compose -f agent_app/docker-compose.yml up -d neo4j
 ```
 
 这条路径适合：
 
 - 你需要验证真实 OPENCODE 工作区与 Agent 配置是否能加载
-- 你需要让 listener 指向本地拉起的真实容器服务
+- 你需要让 listener 指向宿主机上已经运行的真实 OPENCODE 服务
 
 ### 4.3 外部系统可以如何集成
 

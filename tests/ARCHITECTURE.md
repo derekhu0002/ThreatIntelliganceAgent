@@ -20,7 +20,7 @@ Implementation Design may add supporting tests, but Coding/Repair must treat the
 - Observation point: schema and detail payloads preserve progressive disclosure semantics.
 
 4. `tests/test_ai4x_platform_integration.py::test_ai4x_platform_data_consumption_flow_uses_real_ai4x_service`
-- Control point: execute the real OPENCODE flow with the registered AI4X MCP environment.
+- Control point: execute the real OPENCODE flow with the registered AI4X MCP environment against the canonical host endpoint `http://127.0.0.1:4096`.
 - Observation point: session activity shows completed `catalog`, `schema`, and `query` tool calls.
 
 5. `tests/test_opencode_workspace_config.py::test_opencode_app_contains_local_tool_runtime_dependencies`
@@ -49,6 +49,7 @@ Implementation Design may add supporting tests, but Coding/Repair must treat the
 1. Tests may read contracts, runtime assets, and emitted artifacts.
 2. Production runtime code must not depend on test modules.
 3. Supporting tests may cover compatibility surfaces, but explicit entrypoints must keep remote MCP or contract-read control points only.
+4. Host-side OPENCODE validation now assumes `http://127.0.0.1:4096` as the default endpoint; compatibility ports such as `8124` are support-only and must not remain the canonical expectation in new or refreshed tests.
 
 ## Intent Mapping
 

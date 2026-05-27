@@ -30,14 +30,19 @@ It distinguishes the canonical remote MCP contract from workspace-local compatib
 2. Runtime support interface
 - `agent_app/opencode_app/tools` and `agent_app/opencode_app/services` provide support-only local runtime files validated by the workspace dependency explicit testcase.
 
-3. Compatibility interface
-- `.opencode/tools/ai4x_query.js` and `.opencode/tools/ai4x_query_local.js` may remain as compatibility surfaces, but explicit acceptance tests must not depend on them as the control point.
+3. Host runtime interface
+- The canonical OPENCODE execution target for repository-driven validation is a host-side service at `http://127.0.0.1:4096`.
+- Dockerized OPENCODE startup remains compatibility-only and is not the primary validation path for this repository.
+
+4. Compatibility interface
+- `.opencode/tools/ai4x_query_local.js` may remain as a compatibility surface, but explicit acceptance tests must not depend on it as the control point.
 
 ## Dependency Direction
 
 1. Runtime guard tests may read workspace config, workspace contract, and explicit AI4X acceptance test source text.
 2. Workspace runtime files may depend on `services` and isolated runtime support modules.
 3. Explicit acceptance entrypoints must depend on remote MCP registration rather than direct calls to workspace-local compatibility wrappers.
+4. Repository defaults and support scripts must target host-side OPENCODE at `http://127.0.0.1:4096` unless explicitly overridden by environment or test fixture.
 
 ## Intent Mapping
 

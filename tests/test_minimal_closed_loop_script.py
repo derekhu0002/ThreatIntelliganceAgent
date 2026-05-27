@@ -76,13 +76,13 @@ def test_run_minimal_closed_loop_emits_verification_summary(monkeypatch, capsys)
     assert recorded["cwd"] == REPO_ROOT
     assert recorded["command"][:3] == [sys.executable, "-m", "services.python_listener"]
     assert "--remote-server-url" in recorded["command"]
-    assert recorded["command"][recorded["command"].index("--remote-server-url") + 1] == "http://127.0.0.1:8124"
+    assert recorded["command"][recorded["command"].index("--remote-server-url") + 1] == "http://127.0.0.1:4096"
     assert recorded["command"][recorded["command"].index("--output") + 1].endswith("artifacts\\runtime\\opencti-push-001-analysis.json")
     assert output["acceptance_case"]["id"] == "1726"
     assert output["acceptance_case"]["type"] == "closed-loop-acceptance"
     assert output["status"] == "passed"
     assert output["acceptance_summary_path"] == "artifacts/runtime/opencti-push-001-acceptance-summary.json"
-    assert output["remote_endpoint"] == "http://127.0.0.1:8124"
+    assert output["remote_endpoint"] == "http://127.0.0.1:4096"
     assert output["neo4j_uri"] == "neo4j://127.0.0.1:7698"
     assert output["participant_count"] == 3
     assert output["recommended_action_count"] == 2
@@ -247,7 +247,7 @@ def test_run_minimal_closed_loop_rejects_missing_writeback_summary(monkeypatch) 
     monkeypatch.setattr(module.subprocess, "run", fake_run)
     monkeypatch.delenv("THREAT_INTEL_REMOTE_SERVER_URL", raising=False)
     monkeypatch.setenv("THREAT_INTEL_USE_MOCK_REMOTE_SERVER", "1")
-    monkeypatch.setattr(module, "start_mock_remote_server", lambda *, stix_data_path: _fake_server("http://127.0.0.1:8124"))
+    monkeypatch.setattr(module, "start_mock_remote_server", lambda *, stix_data_path: _fake_server("http://127.0.0.1:4096"))
     monkeypatch.setattr(module, "ensure_neo4j_validation_container", lambda repo_root: {"uri": "neo4j://127.0.0.1:7698", "database": "neo4j", "username": "neo4j", "password": "11111111"})
     monkeypatch.setattr(module, "reset_validation_projection", lambda event_id, settings: None)
 
@@ -287,7 +287,7 @@ def test_run_minimal_closed_loop_rejects_missing_real_neo4j_projection(monkeypat
     monkeypatch.setattr(module.subprocess, "run", fake_run)
     monkeypatch.delenv("THREAT_INTEL_REMOTE_SERVER_URL", raising=False)
     monkeypatch.setenv("THREAT_INTEL_USE_MOCK_REMOTE_SERVER", "1")
-    monkeypatch.setattr(module, "start_mock_remote_server", lambda *, stix_data_path: _fake_server("http://127.0.0.1:8124"))
+    monkeypatch.setattr(module, "start_mock_remote_server", lambda *, stix_data_path: _fake_server("http://127.0.0.1:4096"))
     monkeypatch.setattr(module, "ensure_neo4j_validation_container", lambda repo_root: {"uri": "neo4j://127.0.0.1:7698", "database": "neo4j", "username": "neo4j", "password": "11111111"})
     monkeypatch.setattr(module, "reset_validation_projection", lambda event_id, settings: None)
     monkeypatch.setattr(

@@ -11,7 +11,7 @@ from typing import Any, Literal
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-CANONICAL_SCHEMA_ROOT = REPO_ROOT / "agent_app/opencode_app/.opencode/schema"
+CANONICAL_SCHEMA_ROOT = REPO_ROOT / "schema"
 MOCK_OPENCTI_EVENT_SCHEMA_PATH = REPO_ROOT / "data/mock_events/mock_opencti_event.schema.json"
 ANALYSIS_RESULT_SCHEMA_PATH = REPO_ROOT / "services/result_assembler/analysis_result.schema.json"
 

@@ -18,7 +18,7 @@ from urllib.parse import urlparse, urlunparse
 
 
 DEFAULT_AI4X_BASE_URL = "http://localhost:8000"
-DEFAULT_AI4X_TIMEOUT_SECONDS = 15.0
+DEFAULT_AI4X_TIMEOUT_SECONDS = 60.0
 API_CENTER_PREFIX = "/api/v1/api-center"
 LOOPBACK_HOSTNAMES = {"localhost", "127.0.0.1", "0.0.0.0", "::1"}
 SUPPORTED_OPENCTI_DETAIL_KINDS = {"object", "relationship-type", "relationship-schema"}
@@ -333,11 +333,23 @@ def probe_ai4x_environment(*, base_url: str | None = None, timeout_seconds: floa
     try:
         catalog = fetch_schema_catalog(base_url=resolved_base_url, timeout_seconds=timeout_seconds)
     except AI4XPlatformError as exc:
-        return {
-            "ready": False,
-            "base_url": resolved_base_url,
-            "error": str(exc),
-        }
+        first_error = str(exc)
+        if "timed out" not in first_error.casefold() and "unable to reach" not in first_error.casefold():
+            return {
+                "ready": False,
+                "base_url": resolved_base_url,
+                "error": first_error,
+            }
+
+        retry_timeout_seconds = max(float(timeout_seconds or 0.0), 10.0)
+        try:
+            catalog = fetch_schema_catalog(base_url=resolved_base_url, timeout_seconds=retry_timeout_seconds)
+        except AI4XPlatformError:
+            return {
+                "ready": False,
+                "base_url": resolved_base_url,
+                "error": first_error,
+            }
 
     return {
         "ready": True,
