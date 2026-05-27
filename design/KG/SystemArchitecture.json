@@ -58,7 +58,7 @@
           "description": "Explicit acceptance for AI4X catalog data range through MCP.",
           "type": "Acceptance Test",
           "Input": "Control Point: Call MCP tools/list then tools/call on ai4x_query with command=catalog.",
-          "acceptanceCriteria": "Observation Point: Response includes non-empty databases and total_databases equals databases length.",
+          "acceptanceCriteria": "tests/test_ai4x_platform_integration.py::test_ai4x_platform_catalog_exposes_available_data_range",
           "TestResults": "Frozen explicit baseline."
         },
         {
@@ -66,7 +66,7 @@
           "description": "Explicit acceptance for unified query payload contract through MCP.",
           "type": "Acceptance Test",
           "Input": "Control Point: Call ai4x_query with command=query and selected sourceId.",
-          "acceptanceCriteria": "Observation Point: source_id matches input and response contains items/count semantics.",
+          "acceptanceCriteria": "tests/test_ai4x_platform_integration.py::test_ai4x_platform_query_tool_returns_real_data_payload",
           "TestResults": "Frozen explicit baseline."
         },
         {
@@ -74,7 +74,7 @@
           "description": "Explicit acceptance for OpenCTI schema progressive disclosure through schema and detail commands.",
           "type": "Acceptance Test",
           "Input": "Control Point: Call ai4x_query command=schema then command=detail for selected detail pointer.",
-          "acceptanceCriteria": "Observation Point: schema exposes detail pointers and detail payload matches requested kind/type.",
+          "acceptanceCriteria": "tests/test_ai4x_platform_integration.py::test_ai4x_platform_opencti_schema_detail_supports_progressive_disclosure",
           "TestResults": "Frozen explicit baseline."
         },
         {
@@ -82,7 +82,7 @@
           "description": "Explicit acceptance for end-to-end AI4X data consumption flow in real service mode.",
           "type": "Acceptance Test",
           "Input": "Control Point: Trigger real OPENCODE flow with registered AI4X MCP environment.",
-          "acceptanceCriteria": "Observation Point: session includes completed ai4x_query catalog/schema/query activity chain.",
+          "acceptanceCriteria": "tests/test_ai4x_platform_integration.py::test_ai4x_platform_data_consumption_flow_uses_real_ai4x_service",
           "TestResults": "Frozen explicit baseline."
         }
       ]
@@ -99,7 +99,7 @@
           "description": "Explicit acceptance for local runtime dependencies declared in workspace contracts.",
           "type": "Acceptance Test",
           "Input": "Control Point: Read opencode.json and workspace.contract.json and inspect isolated runtime paths.",
-          "acceptanceCriteria": "Observation Point: remote MCP declarations and fallback constraints are present and required local runtime files exist.",
+          "acceptanceCriteria": "tests/test_opencode_workspace_config.py::test_opencode_app_contains_local_tool_runtime_dependencies",
           "TestResults": "Frozen explicit baseline."
         }
       ]
