@@ -2,7 +2,7 @@
   "stage": "intent-to-implementation",
   "generatedAt": "2026-05-27T00:00:00Z",
   "sourceIntentGraphPath": "design/KG/SystemArchitecture.json",
-  "summary": "Minimal intent-to-implementation handoff for AI4X remote MCP boundary and explicit acceptance baseline.",
+  "summary": "Intent-to-implementation handoff for preserving the AI4X remote MCP boundary while retiring the `.opencode` analyst/STIX/Neo4j compatibility surface.",
   "intentElementIds": [
     "ELM-INTENT-AI4X-BOUNDARY",
     "ELM-INTENT-OPENCODE-WORKSPACE",
@@ -23,7 +23,8 @@
       "controlPoint": "Invoke MCP tools/list and tools/call for ai4x_query command=catalog against the registered remote endpoint.",
       "observationPoint": "Catalog payload returns non-empty databases and total_databases equals databases length.",
       "acceptanceBoundary": "Catalog contract is read-only and must remain reachable through canonical remote MCP boundary.",
-      "requiredEntryKind": "explicit-testcase-entry"
+      "requiredEntryKind": "explicit-testcase-entry",
+      "implementationNotes": "Implementation must not require `.opencode/schema` or retired `.opencode` compatibility tool wrappers before this entrypoint can collect and execute."
     },
     {
       "name": "test_ai4x_platform_query_tool_returns_real_data_payload",
@@ -33,7 +34,8 @@
       "controlPoint": "Invoke ai4x_query command=query with selected sourceId and cypher payload through MCP.",
       "observationPoint": "Response source_id matches request and includes valid items/count semantics.",
       "acceptanceBoundary": "Unified query behavior stays on canonical ai4x_query remote MCP tool.",
-      "requiredEntryKind": "explicit-testcase-entry"
+      "requiredEntryKind": "explicit-testcase-entry",
+      "implementationNotes": "Implementation must keep the remote MCP tool contract intact while removing analyst compatibility wrappers that are not part of the AI4X intent baseline."
     },
     {
       "name": "test_ai4x_platform_opencti_schema_detail_supports_progressive_disclosure",
@@ -43,7 +45,8 @@
       "controlPoint": "Invoke ai4x_query command=schema then command=detail for one schema-exposed detail pointer.",
       "observationPoint": "Schema response exposes detail pointers and detail response matches requested detail kind and type.",
       "acceptanceBoundary": "OpenCTI progressive disclosure remains externally observable through remote MCP contract.",
-      "requiredEntryKind": "explicit-testcase-entry"
+      "requiredEntryKind": "explicit-testcase-entry",
+      "implementationNotes": "Implementation must satisfy schema/detail progressive disclosure through the remote AI4X boundary rather than through workspace-local schema catalogs or compatibility tools."
     },
     {
       "name": "test_ai4x_platform_data_consumption_flow_uses_real_ai4x_service",
@@ -53,7 +56,8 @@
       "controlPoint": "Trigger real OPENCODE flow in registered MCP environment and collect session tool activity.",
       "observationPoint": "Completed ai4x_query catalog/schema/query chain is present in session activity.",
       "acceptanceBoundary": "End-to-end data consumption must use canonical remote AI4X boundary instead of local wrapper direct calls.",
-      "requiredEntryKind": "explicit-testcase-entry"
+      "requiredEntryKind": "explicit-testcase-entry",
+      "implementationNotes": "Implementation must remove dependency on retired analyst compatibility contracts while preserving the session-visible ai4x_query catalog/schema/query activity chain."
     },
     {
       "name": "test_opencode_app_contains_local_tool_runtime_dependencies",
@@ -63,32 +67,45 @@
       "controlPoint": "Read opencode workspace config and workspace contract, then inspect required isolated runtime dependency paths.",
       "observationPoint": "Remote MCP declaration and fallback constraints are present, and required local runtime assets exist.",
       "acceptanceBoundary": "Local runtime dependencies are support-only and must coexist with canonical ai4x_query remote MCP boundary.",
-      "requiredEntryKind": "explicit-testcase-entry"
+      "requiredEntryKind": "explicit-testcase-entry",
+      "implementationNotes": "Required local runtime assets are limited to support-only dependencies needed for the AI4X remote boundary; retired `.opencode` analyst definitions, schema assets, and STIX/Neo4j/orchestrator tool wrappers are outside the frozen intent baseline and may be removed."
     }
   ],
   "frozenBaselines": [
     "Canonical AI4X tool name is ai4x_query.",
     "Explicit acceptance entrypoints remain in tests/test_ai4x_platform_integration.py and tests/test_opencode_workspace_config.py.",
-    "Workspace remote MCP registration remains canonical in agent_app/opencode_app/.opencode/opencode.json and workspace.contract.json."
+    "Workspace remote MCP registration remains canonical in agent_app/opencode_app/.opencode/opencode.json and workspace.contract.json.",
+    "ThreatIntelAnalyst compatibility contracts, `.opencode/schema`, and workspace-local STIX/Neo4j/orchestrator tool wrappers are not frozen intent artifacts and may be retired if the AI4X explicit acceptance boundary remains intact."
   ],
   "requiredImplementationArtifacts": [
     "OVERALL_ARCHITECTURE.md",
+    "agent_app/opencode_app/ARCHITECTURE.md",
     "agent_app/opencode_app/.opencode/opencode.json",
     "agent_app/opencode_app/.opencode/workspace.contract.json",
+    "agent_app/opencode_app/.opencode/agents/ThreatIntelAnalyst.md",
+    "agent_app/opencode_app/.opencode/schema",
+    "agent_app/opencode_app/.opencode/tools/db_schema_explorer.js",
+    "agent_app/opencode_app/.opencode/tools/neo4j_query.js",
+    "agent_app/opencode_app/.opencode/tools/ai4x_query.js",
+    "agent_app/opencode_app/.opencode/tools/stix_query.js",
+    "agent_app/opencode_app/.opencode/tools/threat_intel_orchestrator.js",
     "tests/test_ai4x_platform_integration.py",
     "tests/test_opencode_workspace_config.py",
+    "tests/test_neo4j_query_tool.py",
     "agent_app/opencode_app/tests/test_runtime_architecture_contract.py",
-    "tests/test_architecture_contract_baselines.py"
+    "tests/test_architecture_contract_baselines.py",
+    "design/KG/ImplementationToCodingHandoff.json"
   ],
   "openQuestions": [
     {
-      "question": "Should implementation architecture freeze a single canonical assertion for MCP tool_names across all guard tests?",
-      "recommendedAnswer": "Yes, freeze ai4x_query as the canonical value and align all architecture guards to it.",
-      "reason": "Current guard expectations differ and create avoidable contract drift risk."
+      "question": "Should implementation architecture preserve any workspace-local alias file for `ai4x_query` after retiring the compatibility surface?",
+      "recommendedAnswer": "No. Preserve the canonical `ai4x_query` name only at the remote MCP contract boundary unless a surviving guard or runtime path proves a local alias is still required.",
+      "reason": "The intent baseline freezes the tool name, not the local `.opencode/tools/ai4x_query.js` alias file; keeping an unneeded alias would retain accidental compatibility surface without adding intent value."
     }
   ],
   "notes": [
-    "This handoff is intentionally minimal and scoped to AI4X boundary contracts.",
-    "Business scenario expansion is deferred to later intent iterations after baseline stabilization."
+    "The intent graph remains AI4X-only and does not need new elements or relationship changes for this retirement decision.",
+    "Implementation architecture must regenerate design/KG/ImplementationToCodingHandoff.json after removing references to `.opencode/schema`, ThreatIntelAnalyst compatibility artifacts, and STIX/Neo4j/orchestrator workspace tools.",
+    "Repository documentation may contain residual references to the retired compatibility surface; those are implementation follow-up artifacts rather than intent blockers."
   ]
 }
