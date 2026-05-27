@@ -367,3 +367,5 @@ cd agent_app/opencode_app
 2. 先运行一次 `scripts/run_minimal_closed_loop.py` 的 mock 模式，看完整闭环输出。
 3. 再启动 `agent_app/docker-compose.yml`，切到真实 OPENCODE 模式。
 4. 最后再接入真实 AI4X Platform，验证真实知识查询链路。
+
+opencode serve --print-log --log-level DEBUG
