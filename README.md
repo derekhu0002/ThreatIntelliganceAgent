@@ -6,59 +6,55 @@
 
 系统包含四个核心部分：
 
-1. **事件入口**：`services/python_listener/`
-   - 接收一个 OPENCTI PUSH 事件 JSON
-   - 做事件规范化和 STIX 元素提取
-   - 组装远端分析请求并调用 OPENCODE SERVER
-
-2. **多 Agent 分析工作区**：`agent_app/opencode_app/`
+1. **多 Agent 分析工作区**：`agent_app/opencode_app/`
    - 运行在 OPENCODE SERVER 容器里
    - 默认主 Agent 是 `ThreatIntelPrimary`
    - 规范角色包括：`ThreatIntelPrimary`、`ThreatIntelAnalyst`、`ThreatIntelSecOps`
-   - 由主 Agent 编排分析、证据提取和处置建议生成
+  - 由主 Agent 编排分析、证据提取和处置建议生成
 
-3. **证据与工具层**
+2. **证据与工具层**
    - `agent_app/opencode_app/tools/stix_cli/`：本地 STIX 2.1 语义查询工具
-   - `services/ai4x_client.py` + `agent_app/opencode_app/tools/ai4x_cli.py`：对接 AI4X Platform API Center 的真实查询客户端
+  - `agent_app/opencode_app/services/ai4x_client.py` + `agent_app/opencode_app/tools/ai4x_cli.py`：对接 AI4X Platform API Center 的真实查询客户端
 
-4. **结果装配与验证层**：`services/result_assembler/` 与 `services/neo4j_validation.py`
-   - 校验结构化 JSON 输出
-   - 在闭环验收脚本里把结果写入 Neo4j 验证投影
+3. **配置与契约层**
+  - `agent_app/opencode_app/.opencode/`：MCP 注册、Agent 定义、Skill 定义、插件源文件
+  - `design/KG/SystemArchitecture.json`：意图架构基线
+  - `OVERALL_ARCHITECTURE.md` 与本地 `ARCHITECTURE.md`：实现架构合同
+
+4. **测试与发布层**
+  - `tests/`：显式验收与工作区合同测试
+  - `packages/opencode-plugin/`：可发布的 OPENCODE 插件包
 
 一句话概括：
 
-> 这是一个“OPENCTI 事件 -> Python listener -> 远端 OPENCODE 多 Agent 分析 -> 结构化情报结果 -> Neo4j 验证写回”的最小闭环威胁情报系统。
+> 这是一个“AI4X 远端 MCP 边界 + OPENCODE 多 Agent 工作区 + 可发布插件包 + 显式验收测试”的威胁情报工作区仓库。
 
 ## 2. 系统运行时长什么样
 
-### 2.1 最小闭环链路
+### 2.1 当前运行链路
 
-1. 外部系统或测试脚本提供一个 OPENCTI PUSH 事件
-2. `services.python_listener` 读取并规范化事件
-3. listener 生成 remote request，并把主 Agent 名称一起发送到 OPENCODE SERVER
-4. OPENCODE 工作区中的 Agent 执行分析
-5. Agent 通过 STIX CLI 或 AI4X 查询证据
-6. 远端返回结构化 JSON 结果
-7. listener 落盘结果文件
-8. 闭环脚本再把结果写入 Neo4j 做验证性投影
+1. OPENCODE 载入 `agent_app/opencode_app/.opencode` 中的 MCP 注册、Agent 和 Skill 定义
+2. 工作区中的 Agent 通过 `ai4x_query` 访问远端 AI4X MCP 边界
+3. Agent 按 `catalog -> schema -> optional detail -> query` 的顺序完成证据获取
+4. 测试通过工作区合同和远端 MCP 会话验证这一链路是否保持稳定
 
-### 2.2 两种运行模式
+### 2.2 两种主要使用模式
 
-#### 模式 A：本地 mock 闭环
+#### 模式 A：真实 OPENCODE 工作区
 
-适合快速验证协议链路，不依赖真实 OPENCODE 分析服务。
-
-- 使用 `services/remote_opencode_server/mock_server.py`
-- 使用仓库内的 STIX 样例数据
-- 仍然会在闭环验收脚本中启用 Neo4j 验证投影
-
-#### 模式 B：真实后端闭环
-
-适合集成验证。
+适合集成验证和真实工作区加载。
 
 - 使用 `agent_app/docker-compose.yml` 启动真实 OPENCODE SERVER
 - OPENCODE 容器挂载 `agent_app/opencode_app/` 作为工作区
 - 可进一步访问真实 AI4X Platform API Center
+
+#### 模式 B：插件打包与分发
+
+适合把当前工作区能力作为插件提供给外部 OPENCODE 环境。
+
+- 使用 `packages/opencode-plugin/` 打包 npm 插件
+- 从 `agent_app/opencode_app/.opencode` 同步 Agent、Skill 和插件资源
+- 通过 `@ai4x/opencode-plugin` 安装和分发
 
 ## 3. 仓库结构速览
 
@@ -69,21 +65,14 @@ agent_app/
   opencode_app/                    # Agent 工作区
     .opencode/                     # agents / skills / opencode config
     data/stix_samples/             # 本地 STIX 样例数据
+    services/                      # 工作区本地 AI4X 客户端
     tools/                         # agent 侧工具，包括 ai4x_cli 和 stix_cli
 
-services/
-  ai4x_client.py                   # AI4X Platform API Center 客户端
-  mock_opencti_adapter/            # OPENCTI 事件规范化
-  neo4j_validation.py              # Neo4j 验证投影与写回
-  python_listener/                 # listener CLI、主流程、remote client
-  remote_opencode_server/          # 本地 mock remote server
-  result_assembler/                # 结构化结果 schema 与校验
+design/
+  KG/SystemArchitecture.json       # 意图架构基线
 
-data/mock_events/                  # 输入事件样例
-scripts/run_minimal_closed_loop.py # 最小闭环验收入口
 tests/                             # pytest 用例
-validation/README.md               # 验收与 STIX CLI 快速说明
-artifacts/runtime/                 # 运行时输出目录
+packages/opencode-plugin/          # 可发布的 OPENCODE 插件包
 ```
 
 ## 4. 依赖与环境准备
@@ -120,9 +109,8 @@ python3 -m pip install -r requirements.txt
 
 如果你要运行以下任一能力，需要本机安装 Docker 与 Docker Compose：
 
-- `scripts/run_minimal_closed_loop.py`
 - `agent_app/docker-compose.yml` 中的真实 OPENCODE SERVER
-- Neo4j 验证容器
+- OPENCODE 工作区集成验证
 
 ### 4.4 可选环境变量
 
@@ -142,7 +130,7 @@ python3 -m pip install -r requirements.txt
 
 仓库根目录现在支持把 AI4X 相关配置固定在 `.env` 中，供三类入口共享：
 
-- 根目录 Python 代码，例如 `services/ai4x_client.py`
+- 工作区本地 Python 代码，例如 `agent_app/opencode_app/services/ai4x_client.py`
 - OPENCODE 隔离运行时，例如 `agent_app/opencode_app/tools/ai4x_cli.py`
 - Docker Compose 中的 OPENCODE 容器，`agent_app/docker-compose.yml`
 
@@ -198,62 +186,9 @@ THREAT_INTEL_AI4X_AUTH_MODE=none
 
 ## 5. 如何使用这个系统
 
-下面按“最容易上手”到“真实集成”给出三条路径。
+下面按“最容易上手”到“可分发集成”给出两条路径。
 
-### 5.1 路径一：直接运行 listener
-
-这是理解系统输入输出边界的最短路径。
-
-Windows PowerShell：
-
-```powershell
-.\.venv\Scripts\python.exe -m services.python_listener --event data/mock_events/mock_opencti_push_event.json --output artifacts/runtime/opencti-push-001-analysis.json --remote-server-url http://127.0.0.1:8124
-```
-
-说明：
-
-- 输入是一个 OPENCTI PUSH 事件 JSON
-- 输出是结构化分析结果 JSON
-- 默认远端地址是 `http://127.0.0.1:8124`
-- 默认主 Agent 来自 `agent_app/opencode_app/.opencode/opencode.json`
-- 当前默认值是 `ThreatIntelPrimary`
-
-如需覆盖主 Agent：
-
-```powershell
-.\.venv\Scripts\python.exe -m services.python_listener --event data/mock_events/mock_opencti_push_event.json --main-agent ThreatIntelAnalyst --remote-server-url http://127.0.0.1:8124
-```
-
-### 5.2 路径二：跑最小闭环验收
-
-这是最推荐的外部演示入口，因为它会把“事件输入、远端调用、结果校验、Neo4j 写回验证”串成一条完整链路。
-
-```powershell
-.\.venv\Scripts\python.exe scripts/run_minimal_closed_loop.py
-```
-
-默认行为：
-
-- 自动通过 Docker 启动 Neo4j 验证容器
-- 默认把远端地址指向 `http://127.0.0.1:8124`
-- 输出分析结果到 `artifacts/runtime/opencti-push-001-analysis.json`
-- 输出验收摘要到 `artifacts/runtime/opencti-push-001-acceptance-summary.json`
-
-如果你还没有真实 OPENCODE SERVER，可切到本地 mock 模式：
-
-```powershell
-$env:THREAT_INTEL_USE_MOCK_REMOTE_SERVER="1"
-.\.venv\Scripts\python.exe scripts/run_minimal_closed_loop.py
-```
-
-如果你有真实后端，但地址不是默认端口：
-
-```powershell
-$env:THREAT_INTEL_REMOTE_SERVER_URL="http://127.0.0.1:9555"
-.\.venv\Scripts\python.exe scripts/run_minimal_closed_loop.py
-```
-
-### 5.3 路径三：启动真实 OPENCODE SERVER 工作区
+### 5.1 路径一：启动真实 OPENCODE SERVER 工作区
 
 在仓库中，真实 OPENCODE 工作区位于 `agent_app/opencode_app/`，容器编排文件位于 `agent_app/docker-compose.yml`。
 
@@ -277,7 +212,7 @@ docker compose -f agent_app/docker-compose.yml up -d opencode neo4j
 docker compose -f agent_app/docker-compose.yml up -d opencode
 ```
 
-### 5.4 OPENCODE 插件包
+### 5.2 路径二：OPENCODE 插件包
 
 当前 `.opencode` 工作区已经整理为可发布的 npm 插件包，位置为：
 
@@ -354,33 +289,16 @@ npm run release:dry-run -- patch
 
 发布脚本会更新 `package.json` 和 `package-lock.json`，运行插件验证，从 `.opencode` 同步临时 `assets`，执行 `npm pack --dry-run`，最后执行 `npm publish --access public`。发布脚本结束后会清理临时 `assets`；`release:dry-run` 还会恢复版本文件。
 
-## 6. 输出内容是什么
+## 6. 当前稳定输出面
 
-listener 或闭环脚本成功后，会产出结构化 JSON。主要字段包括：
+当前仓库稳定维护的是工作区配置、插件打包结果和显式验收测试，而不是仓库根目录下的运行时输出目录。
 
-- `schema_version`
-- `run_id`
-- `generated_at`
-- `event`
-- `key_information_summary`
-- `analysis_conclusion`
-- `evidence_query_basis`
-- `recommended_actions`
-- `collaboration_trace`
+主要稳定输出包括：
 
-常见输出文件：
-
-```text
-artifacts/runtime/opencti-push-001-analysis.json
-artifacts/runtime/opencti-push-001-acceptance-summary.json
-artifacts/runtime/opencti-push-001-remote-request.json
-```
-
-其中：
-
-- `*-analysis.json` 是最终结构化分析结果
-- `*-acceptance-summary.json` 是闭环验收摘要
-- `*-remote-request.json` 是 listener 发送给远端 Agent 的请求上下文快照
+- `agent_app/opencode_app/.opencode/opencode.json`
+- `agent_app/opencode_app/.opencode/workspace.contract.json`
+- `packages/opencode-plugin` 打包产物
+- `tests/test_opencode_workspace_config.py` 与 `tests/test_ai4x_platform_integration.py` 的显式验收结果
 
 ## 7. STIX CLI 与 AI4X 能力
 
@@ -420,29 +338,26 @@ cd agent_app/opencode_app
 
 如果你只想验证最小闭环相关能力，优先看这些测试：
 
-- `tests/test_python_listener.py`
-- `tests/test_minimal_closed_loop_script.py`
 - `tests/test_opencode_workspace_config.py`
 - `tests/test_ai4x_platform_integration.py`
 
 ## 9. 当前边界与注意事项
 
-1. 这个仓库已经打通了 listener 到 OPENCODE `session/message` 协议的代码路径，但不等于当前机器上的真实服务一定可用。
+1. 这个仓库当前聚焦于 OPENCODE 工作区、AI4X MCP 边界和插件打包，不等于当前机器上的真实服务一定可用。
 2. 真实模式下最常见失败点不是 Python listener，而是外部依赖未准备好，例如：
    - OPENCODE 容器未启动
    - provider 或 API key 配置错误
    - AI4X Platform 不可达
-   - Docker / Neo4j 没有正常拉起
-3. `scripts/run_minimal_closed_loop.py` 即使在 mock remote server 模式下，也会启用 Neo4j 验证容器。
-4. 仓库里的本地 mock server 主要用于协议验证和测试替身，不代表生产可用的分析后端。
+  - Docker 运行环境没有正常拉起
+3. 插件打包与工作区合同测试不覆盖外部 AI4X 服务的可用性，真实集成仍需单独验证。
 
 ## 10. 给外部读者的建议上手顺序
 
 如果你第一次接触这个项目，建议按这个顺序：
 
 1. 先读本 README 的第 1、2、5 节，理解系统边界和三条使用路径。
-2. 先运行一次 `scripts/run_minimal_closed_loop.py` 的 mock 模式，看完整闭环输出。
-3. 再启动 `agent_app/docker-compose.yml`，切到真实 OPENCODE 模式。
+2. 先启动 `agent_app/docker-compose.yml`，确认真实 OPENCODE 工作区能正常加载。
+3. 再运行 `tests/test_opencode_workspace_config.py` 和 `tests/test_ai4x_platform_integration.py`。
 4. 最后再接入真实 AI4X Platform，验证真实知识查询链路。
 
 opencode serve --print-log --log-level DEBUG

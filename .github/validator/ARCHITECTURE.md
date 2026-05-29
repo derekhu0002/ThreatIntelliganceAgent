@@ -44,4 +44,4 @@ element_path: .github/validator
   frozen_by_stage: implementationdesign
 
 ### Notes
-- The repository-level shims remain at ../../scripts/validateStageHandoff.js, ../../scripts/validateSystemArchitecture.js, and ../../scripts/runArchitectureTests.js so package.json can expose stable invocation paths without moving the bundled assets.
+- The repository-level npm manifest invokes `script/validateStageHandoff.js`, `script/validateSystemArchitecture.js`, and `script/runArchitectureTests.js` directly under `.github/validator`.

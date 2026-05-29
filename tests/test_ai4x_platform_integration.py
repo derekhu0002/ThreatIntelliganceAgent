@@ -10,33 +10,19 @@ from urllib import request, error
 import pytest
 
 from agent_app.opencode_app.services import ai4x_client as isolated_runtime_ai4x_client
+from agent_app.opencode_app.services.ai4x_client import fetch_source_schema_detail, probe_ai4x_environment
 from agent_app.opencode_app.tools.ai4x_cli import resolve_ai4x_base_url as resolve_tool_ai4x_base_url
-from services import ai4x_client as root_ai4x_client
-from services.ai4x_client import (
-    fetch_source_schema_detail,
-    probe_ai4x_environment,
-    resolve_ai4x_base_url,
-)
-from services.python_listener.listener import ThreatIntelListener
-from services.python_listener.remote_client import (
-    DEFAULT_OPENCODE_BASE_URL,
-    RemoteDispatchError,
-    RemoteOpencodeClient,
-    normalize_workspace_mcp_url,
-)
-from services.remote_opencode_server import start_mock_remote_server
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 WORKSPACE_ROOT = REPO_ROOT / "agent_app/opencode_app/.opencode"
 WORKSPACE_CONTRACT_PATH = WORKSPACE_ROOT / "workspace.contract.json"
 OPENCODE_CONFIG_PATH = WORKSPACE_ROOT / "opencode.json"
-STIX_BUNDLE_PATH = REPO_ROOT / "agent_app/opencode_app/data/stix_samples/threat_intel_bundle.json"
-AI4X_BASE_URL = resolve_ai4x_base_url()
-OPENCODE_BASE_URL = DEFAULT_OPENCODE_BASE_URL
+AI4X_BASE_URL = isolated_runtime_ai4x_client.resolve_ai4x_base_url()
+OPENCODE_BASE_URL = "http://127.0.0.1:4096"
 
 
-@pytest.mark.parametrize("resolver", [resolve_ai4x_base_url, resolve_tool_ai4x_base_url])
+@pytest.mark.parametrize("resolver", [isolated_runtime_ai4x_client.resolve_ai4x_base_url, resolve_tool_ai4x_base_url])
 def test_ai4x_loopback_base_url_is_rewritten_to_container_reachable_host(
     monkeypatch: pytest.MonkeyPatch,
     resolver,
@@ -46,7 +32,7 @@ def test_ai4x_loopback_base_url_is_rewritten_to_container_reachable_host(
     assert resolver("http://localhost:8000/") == "http://host.docker.internal:8000"
 
 
-@pytest.mark.parametrize("resolver", [resolve_ai4x_base_url, resolve_tool_ai4x_base_url])
+@pytest.mark.parametrize("resolver", [isolated_runtime_ai4x_client.resolve_ai4x_base_url, resolve_tool_ai4x_base_url])
 def test_ai4x_non_loopback_base_url_is_preserved(
     monkeypatch: pytest.MonkeyPatch,
     resolver,
@@ -55,7 +41,7 @@ def test_ai4x_non_loopback_base_url_is_preserved(
     assert resolver("http://api-center.internal:8000") == "http://api-center.internal:8000"
 
 
-@pytest.mark.parametrize("resolver", [resolve_ai4x_base_url, resolve_tool_ai4x_base_url])
+@pytest.mark.parametrize("resolver", [isolated_runtime_ai4x_client.resolve_ai4x_base_url, resolve_tool_ai4x_base_url])
 def test_ai4x_loopback_defaults_are_normalized_to_ipv4(
     monkeypatch: pytest.MonkeyPatch,
     resolver,
@@ -69,7 +55,6 @@ def test_ai4x_loopback_defaults_are_normalized_to_ipv4(
 @pytest.mark.parametrize(
     ("module", "resolver"),
     [
-        (root_ai4x_client, resolve_ai4x_base_url),
         (isolated_runtime_ai4x_client, isolated_runtime_ai4x_client.resolve_ai4x_base_url),
     ],
 )
@@ -93,7 +78,7 @@ def test_ai4x_base_url_can_fall_back_to_repo_env_file(
         module._load_repo_env_values.cache_clear()
 
 
-@pytest.mark.parametrize("module", [root_ai4x_client, isolated_runtime_ai4x_client])
+@pytest.mark.parametrize("module", [isolated_runtime_ai4x_client])
 def test_ai4x_https_uses_custom_ca_file_from_repo_env(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -124,7 +109,7 @@ def test_ai4x_https_uses_custom_ca_file_from_repo_env(
         module._load_repo_env_values.cache_clear()
 
 
-@pytest.mark.parametrize("module", [root_ai4x_client, isolated_runtime_ai4x_client])
+@pytest.mark.parametrize("module", [isolated_runtime_ai4x_client])
 def test_ai4x_https_resolves_relative_ca_file_from_repo_env_location(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -157,7 +142,7 @@ def test_ai4x_https_resolves_relative_ca_file_from_repo_env_location(
         module._load_repo_env_values.cache_clear()
 
 
-@pytest.mark.parametrize("module", [root_ai4x_client, isolated_runtime_ai4x_client])
+@pytest.mark.parametrize("module", [isolated_runtime_ai4x_client])
 def test_ai4x_https_can_skip_ssl_verify_when_explicitly_enabled(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -178,7 +163,7 @@ def test_ai4x_https_can_skip_ssl_verify_when_explicitly_enabled(
         module._load_repo_env_values.cache_clear()
 
 
-@pytest.mark.parametrize("module", [root_ai4x_client, isolated_runtime_ai4x_client])
+@pytest.mark.parametrize("module", [isolated_runtime_ai4x_client])
 def test_ai4x_https_ca_file_must_exist(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -217,6 +202,10 @@ def _require_real_ai4x_environment() -> dict[str, object]:
     return probe
 
 
+def _normalize_workspace_mcp_url(raw_url: str) -> str:
+    return str(raw_url).strip().rstrip("/")
+
+
 def _load_registered_ai4x_mcp_server() -> dict[str, str | list[str]]:
     workspace_config = json.loads(OPENCODE_CONFIG_PATH.read_text(encoding="utf-8"))
     workspace_contract = json.loads(WORKSPACE_CONTRACT_PATH.read_text(encoding="utf-8"))
@@ -231,14 +220,14 @@ def _load_registered_ai4x_mcp_server() -> dict[str, str | list[str]]:
     registration_type = str(registered_server.get("type") or "").strip()
     raw_url = str(registered_server.get("url") or "").strip()
     raw_healthz = str(frozen_server.get("healthz") or "").strip()
-    url = normalize_workspace_mcp_url(raw_url)
-    healthz = normalize_workspace_mcp_url(raw_healthz)
+    url = _normalize_workspace_mcp_url(raw_url)
+    healthz = _normalize_workspace_mcp_url(raw_healthz)
     tools = frozen_server.get("tool_names")
     if registration_type != "remote" or not url or not healthz:
         pytest.fail(f"AI4X MCP registration must declare remote type and non-empty url in {OPENCODE_CONFIG_PATH}, plus non-empty healthz in {WORKSPACE_CONTRACT_PATH}")
     if not isinstance(tools, list) or [str(item) for item in tools] != ["ai4x_query"]:
         pytest.fail(f"AI4X MCP contract in {WORKSPACE_CONTRACT_PATH} must expose exactly one canonical tool ai4x_query")
-    if normalize_workspace_mcp_url(str(frozen_server.get("url") or "").strip()) != url:
+    if _normalize_workspace_mcp_url(str(frozen_server.get("url") or "").strip()) != url:
         pytest.fail("Workspace contract MCP url diverges from opencode.json registration")
 
     return {
@@ -366,14 +355,9 @@ def _call_ai4x_query_via_mcp(url: str, arguments: dict[str, object], *, request_
 
 def _require_real_opencode_server() -> dict[str, object]:
     print(f"Probing real OPENCODE server...{OPENCODE_BASE_URL}")
-    client = RemoteOpencodeClient(OPENCODE_BASE_URL, timeout_seconds=15.0)
     try:
-        session_response = client._post_json(
-            f"{OPENCODE_BASE_URL}/session",
-            {},
-            action="probe real opencode server",
-        )
-    except RemoteDispatchError as exc:
+        session_response = _post_real_opencode_json("/session", {}, timeout=15.0)
+    except Exception as exc:
         failure_reason = f"Real OPENCODE server is not ready at {OPENCODE_BASE_URL}: {exc}"
         print(failure_reason)
         pytest.fail(failure_reason)
@@ -764,42 +748,8 @@ def test_ai4x_platform_opencti_schema_detail_supports_progressive_disclosure() -
 
 def test_ai4x_platform_data_consumption_flow_uses_real_ai4x_service(tmp_path: Path) -> None:
     # @ArchitectureID: 1738
-    registration = _require_registered_ai4x_mcp_environment()
-    output_path = tmp_path / "listener-ai4x-result.json"
-    agent_definition = REPO_ROOT / "agent_app/opencode_app/.opencode/agents/ThreatIntelAnalyst_test.md"
-    assert agent_definition.is_file()
-
-    with start_mock_remote_server(
-        stix_data_path=STIX_BUNDLE_PATH,
-        ai4x_base_url=AI4X_BASE_URL,
-        require_real_ai4x=True,
-    ) as server:
-        listener = ThreatIntelListener(
-            remote_server_url=server.base_url,
-            main_agent="ThreatIntelAnalyst_test",
-            remote_client=RemoteOpencodeClient(server.base_url, timeout_seconds=120.0),
-        )
-        result = listener.process_event(
-            REPO_ROOT / "data/mock_events/mock_opencti_push_event.json",
-            output_path,
-        )
-
-    dispatched_payload = server.captured_requests[1]["payload"]
-    ai4x_evidence = result["evidence_query_basis"]["ai4x"]
-
-    assert dispatched_payload["agent"] == "ThreatIntelAnalyst_test"
-    assert ai4x_evidence.get("transport") == "remote_http_mcp", (
-        "ThreatIntelListener must record remote_http_mcp once the MCP boundary becomes canonical. "
-        f"Observed evidence payload: {ai4x_evidence}"
-    )
-    assert ai4x_evidence.get("mcp_server", {}).get("url") == registration["url"]
-    assert ai4x_evidence.get("mcp_server", {}).get("tool") == "ai4x_query"
-    assert result["analysis_conclusion"]["summary"]
-    assert output_path.is_file()
-
-
-def test_ai4x_platform_data_consumption_flow_uses_real_opencode_server_and_real_ai4x_service(tmp_path: Path) -> None:
     _require_real_ai4x_environment()
+    registration = _require_registered_ai4x_mcp_environment()
     _require_real_opencode_server()
     selected_agent = _resolve_real_opencode_agent("ThreatIntelAnalyst_test", "ThreatIntelAnalyst")
     agent_definition = REPO_ROOT / "agent_app/opencode_app/.opencode/agents/ThreatIntelAnalyst_test.md"
@@ -830,17 +780,14 @@ def test_ai4x_platform_data_consumption_flow_uses_real_opencode_server_and_real_
     messages, completed_calls, errored_calls = _collect_real_opencode_ai4x_activity(session_id, timeout_seconds=120.0)
     print(f"real_opencode_ai4x_session_id={session_id}")
     print(f"real_opencode_ai4x_message_count={len(messages)}")
+    assert not tmp_path.joinpath("unused").exists()
 
     completed_commands = {
         str(call.get("state", {}).get("input", {}).get("command", "")).strip()
         for call in completed_calls
         if isinstance(call.get("state"), dict) and isinstance(call.get("state", {}).get("input"), dict)
     }
-    if not {"catalog", "schema", "query"}.issubset(completed_commands):
-        assert errored_calls, "Expected ai4x_query activity to either complete or surface an explicit tool error."
-        error_messages = [str(call.get("state", {}).get("error", "")) for call in errored_calls]
-        assert all("ModuleNotFoundError: No module named 'services'" in message for message in error_messages)
-        return
+    assert {"catalog", "schema", "query"}.issubset(completed_commands), errored_calls
 
     catalog_call = next(
         call for call in completed_calls

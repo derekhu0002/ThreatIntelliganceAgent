@@ -7,21 +7,17 @@ It freezes stable layers, explicit testcase ownership, critical non-explicit gua
 
 ## Stable Layers
 
-1. `services`
-- Owns Python-side execution services, listener dispatch, schema catalog resolution, and result assembly.
-
-2. `agent_app/opencode_app`
+1. `agent_app/opencode_app`
 - Owns OPENCODE workspace control-plane contracts, isolated runtime dependencies, and workspace-local runtime guards.
 
-3. `tests`
+2. `tests`
 - Owns explicit acceptance entrypoints and repository-level architecture guardrails.
 
 ## Stable Contract Files
 
 1. `OVERALL_ARCHITECTURE.md`
-2. `services/ARCHITECTURE.md`
-3. `agent_app/opencode_app/ARCHITECTURE.md`
-4. `tests/ARCHITECTURE.md`
+2. `agent_app/opencode_app/ARCHITECTURE.md`
+3. `tests/ARCHITECTURE.md`
 
 ## Canonical Interfaces
 
@@ -32,14 +28,11 @@ It freezes stable layers, explicit testcase ownership, critical non-explicit gua
 
 2. Workspace runtime support boundary
 - Support-only local runtime dependencies live under `agent_app/opencode_app/tools`, `agent_app/opencode_app/services`, and `agent_app/opencode_app/data`.
-- Workspace-local `.opencode/tools/ai4x_query_local.js` remains a support-only compatibility surface, not the canonical acceptance boundary.
+- No repository-root runtime mirror is part of the stable boundary.
 
 3. Host OPENCODE execution boundary
 - Canonical host-side OPENCODE base URL is `http://127.0.0.1:4096`.
 - `http://127.0.0.1:8124` is compatibility-only and must not remain the default execution target in contracts, scripts, or runtime defaults.
-
-4. Service execution boundary
-- `services/python_listener`, `services/result_assembler`, and `services/stix_contracts` provide execution-time behavior consumed by explicit entrypoints.
 
 ## Explicit Acceptance Entrypoints
 
@@ -68,7 +61,7 @@ It freezes stable layers, explicit testcase ownership, critical non-explicit gua
 1. `agent_app/opencode_app/tests/test_runtime_architecture_contract.py`
 - Categories: architecture boundary guard, dependency direction guard, explicit entrypoint correctness guard.
 - Control point: inspect workspace runtime files and explicit AI4X acceptance source text.
-- Observation point: remote MCP contract remains canonical and explicit acceptance tests do not route through local wrappers.
+- Observation point: remote MCP contract remains canonical and explicit acceptance tests stay bound to the surviving workspace runtime boundary.
 
 2. `tests/test_architecture_contract_baselines.py`
 - Categories: explicit entrypoint correctness guard, key implementation traceability guard.
@@ -78,16 +71,14 @@ It freezes stable layers, explicit testcase ownership, critical non-explicit gua
 ## Supporting Non-Explicit Tests (Evolvable)
 
 1. Supporting workspace compatibility tests remain in `tests/test_opencode_workspace_config.py` outside the single explicit testcase entrypoint.
-2. Agent-level scenario tests that still inspect `ai4x_query_local.js` are compatibility/support guards and may evolve in Coding/Repair unless promoted by a contract update.
-3. Supporting tests may expand coverage, but they must not rename or weaken explicit acceptance entrypoints or frozen critical guard assertions.
+2. Supporting tests may expand coverage, but they must not rename or weaken explicit acceptance entrypoints or frozen critical guard assertions.
 
 ## Dependency Direction
 
 1. `tests` may read stable contracts and runtime artifacts.
-2. `agent_app/opencode_app` may depend on `services` and workspace-local support modules.
-3. `services` must not depend on `tests`.
-4. Compatibility surfaces under `.opencode/tools` must not become mandatory control points for the explicit AI4X acceptance baseline.
-5. Host-side OPENCODE runtime selection flows toward `services.python_listener.remote_client.DEFAULT_OPENCODE_BASE_URL`; contracts and support tests must align on `http://127.0.0.1:4096` unless a caller overrides it explicitly.
+2. `agent_app/opencode_app` may depend on its local `services`, `tools`, and `data` runtime support modules.
+3. Compatibility surfaces outside `agent_app/opencode_app` must not become mandatory control points for the explicit AI4X acceptance baseline.
+4. Host-side OPENCODE runtime selection must align on `http://127.0.0.1:4096` unless a caller overrides it explicitly.
 
 ## Intent Mapping
 
@@ -96,8 +87,8 @@ It freezes stable layers, explicit testcase ownership, critical non-explicit gua
 - The five explicit pytest node ids above directly implement the testcase baselines mounted under `ELM-INTENT-AI4X-EXPLICIT-ACCEPTANCE` and `ELM-INTENT-WORKSPACE-DEPENDENCY-BASELINE`.
 
 2. Indirect implementation chains
-- `services/stix_contracts` -> `services/result_assembler` -> `services/python_listener` -> explicit pytest entrypoints indirectly carry `ELM-INTENT-AI4X-EXPLICIT-ACCEPTANCE`.
-- `agent_app/opencode_app/tools` and `agent_app/opencode_app/services` support `ELM-INTENT-WORKSPACE-DEPENDENCY-BASELINE` as local runtime dependencies without replacing the canonical MCP boundary.
+- `agent_app/opencode_app/services/ai4x_client.py` -> explicit pytest entrypoints indirectly carry the schema/detail/query behaviors required by `ELM-INTENT-AI4X-EXPLICIT-ACCEPTANCE`.
+- `agent_app/opencode_app/tools`, `agent_app/opencode_app/services`, and `agent_app/opencode_app/data` support `ELM-INTENT-WORKSPACE-DEPENDENCY-BASELINE` as local runtime dependencies without replacing the canonical MCP boundary.
 
 ## Validation Commands
 

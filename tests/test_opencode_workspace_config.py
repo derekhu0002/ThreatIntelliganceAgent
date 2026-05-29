@@ -13,7 +13,6 @@ WORKSPACE_ROOT = REPO_ROOT / "agent_app/opencode_app/.opencode"
 WORKSPACE_CONTRACT_PATH = WORKSPACE_ROOT / "workspace.contract.json"
 OPENCODE_CONFIG_PATH = WORKSPACE_ROOT / "opencode.json"
 AGENTS_DIR = WORKSPACE_ROOT / "agents"
-TOOLS_DIR = WORKSPACE_ROOT / "tools"
 REQ_ID = "REQ-OPENCODE-MULTIAGENT-THREAT-INTEL-001"
 AGENT_DEFS_ID = "ELM-TECH-ARTIFACT-AGENT-DEFS"
 WORKSPACE_ID = "ELM-TECH-ARTIFACT-OPENCODE-WORKSPACE"
@@ -198,7 +197,6 @@ def test_workspace_docs_capture_canonical_collaboration_contract(skill_path: Pat
 def test_ai4x_acceptance_agent_descriptor_exists_and_is_toolchain_scoped() -> None:
     # @ArchitectureID: ELM-TECH-ARTIFACT-AGENT-DEFS
     agent_text = (AGENTS_DIR / "ThreatIntelAnalyst_test.md").read_text(encoding="utf-8")
-    ai4x_tool_text = (TOOLS_DIR / "ai4x_query_local.js").read_text(encoding="utf-8")
 
     assert "ThreatIntelAnalyst_test" in agent_text
     assert "test-focused analyst profile used by integration tests" in agent_text.casefold()
@@ -206,7 +204,7 @@ def test_ai4x_acceptance_agent_descriptor_exists_and_is_toolchain_scoped() -> No
     assert "Use only ai4x_ai4x_query to run read-only validation flows against AI4X sources." in agent_text
     assert "Execute in order: catalog, schema, optional detail, then query." in agent_text
     assert '"*": deny' in agent_text
-    assert "ThreatIntelSecOps must use analyst-provided AI4X data rather than calling ai4x_query_local directly." in ai4x_tool_text
+    assert not (WORKSPACE_ROOT / "tools").exists()
 
 
 def test_collaboration_skill_exposes_traceable_delegation_contract() -> None:

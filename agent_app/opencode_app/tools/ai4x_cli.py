@@ -11,7 +11,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from services.ai4x_client import (  # noqa: E402
+from agent_app.opencode_app.services.ai4x_client import (  # noqa: E402
     execute_universal_query,
     fetch_schema_catalog,
     fetch_source_schema,
