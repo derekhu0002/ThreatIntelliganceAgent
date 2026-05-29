@@ -3,7 +3,6 @@
 artifacts/runtime/
 __pycache__/
 *.pyc
-/.opencode
 node_modules
 .venv
 .pytest_cache

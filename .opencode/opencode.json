@@ -1,0 +1,38 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "DeepSeek_custom_provider/deepseek-chat",
+  "mcp": {
+    "ai4x": {
+      "type": "remote",
+      "url": "http://localhost:8000/mcp"
+    }
+  },
+  "provider": {
+    "DeepSeek_custom_provider": {
+      "models": {
+        "deepseek-chat": {
+          "name": "deepseek-chat",
+          "limit": {
+            "context": 128000,
+            "output": 4096
+          }
+        }
+      },
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "DeepSeek custom provider",
+      "options": {
+        "baseURL": "https://api.deepseek.com/v1",
+        "apiKey": "XXX"
+      }
+    }
+  },
+  "instructions": [
+    ".opencode/GLOBAL_INSTRUCTIONS.md"
+  ],
+  "permission": {
+    "mcp_*": "ask",
+    "skill": {
+      "*": "allow"
+    }
+  }
+}
