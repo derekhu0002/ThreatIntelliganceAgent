@@ -5,6 +5,7 @@
     "validate:system-architecture": "node .github/validator/script/validateSystemArchitecture.js",
     "validate:handoff": "node .github/validator/script/validateStageHandoff.js",
     "validate:handoff:intent": "node .github/validator/script/validateStageHandoff.js intent-to-implementation",
-    "validate:handoff:implementation": "node .github/validator/script/validateStageHandoff.js implementation-to-coding"
+    "validate:handoff:implementation": "node .github/validator/script/validateStageHandoff.js implementation-to-coding",
+    "test:argo": "node .github/validator/script/runArchitectureTests.js"
   }
 }
