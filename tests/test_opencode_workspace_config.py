@@ -194,16 +194,9 @@ def test_workspace_docs_capture_canonical_collaboration_contract(skill_path: Pat
     assert required_text in skill_path.read_text(encoding="utf-8")
 
 
-def test_ai4x_acceptance_agent_descriptor_exists_and_is_toolchain_scoped() -> None:
+def test_workspace_does_not_ship_dedicated_acceptance_agent_descriptor() -> None:
     # @ArchitectureID: ELM-TECH-ARTIFACT-AGENT-DEFS
-    agent_text = (AGENTS_DIR / "ThreatIntelAnalyst_test.md").read_text(encoding="utf-8")
-
-    assert "ThreatIntelAnalyst_test" in agent_text
-    assert "test-focused analyst profile used by integration tests" in agent_text.casefold()
-    assert "ai4x_query: true" in agent_text
-    assert "Use only ai4x_ai4x_query to run read-only validation flows against AI4X sources." in agent_text
-    assert "Execute in order: catalog, schema, optional detail, then query." in agent_text
-    assert '"*": deny' in agent_text
+    assert not any(path.stem.endswith("_test") for path in AGENTS_DIR.glob("*.md"))
     assert not (WORKSPACE_ROOT / "tools").exists()
 
 

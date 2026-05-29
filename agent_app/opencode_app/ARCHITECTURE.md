@@ -59,3 +59,4 @@ It distinguishes the canonical remote MCP contract from workspace-local compatib
 2. Canonical default agent remains `安全运营助手`.
 3. `fallback_http_api_allowed=true` remains permitted only as support for the remote MCP boundary, not as a replacement control path.
 4. No repository-root runtime mirror is part of this stable element; runtime dependencies must stay inside `agent_app/opencode_app`.
+5. Explicit acceptance must reuse existing workspace specialist agents rather than a dedicated acceptance-only agent descriptor.

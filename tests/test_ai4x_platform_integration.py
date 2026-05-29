@@ -512,7 +512,7 @@ def _extract_completed_ai4x_query_calls(session_id: str, *, timeout_seconds: flo
         sleep(1.0)
 
     pytest.fail(
-        f"ThreatIntelAnalyst_test did not complete ai4x_query catalog/schema/query calls within {timeout_seconds:.1f}s. "
+        f"Selected specialist agent did not complete ai4x_query catalog/schema/query calls within {timeout_seconds:.1f}s. "
         f"Last message count: {len(last_messages)}"
     )
 
@@ -751,9 +751,11 @@ def test_ai4x_platform_data_consumption_flow_uses_real_ai4x_service(tmp_path: Pa
     _require_real_ai4x_environment()
     registration = _require_registered_ai4x_mcp_environment()
     _require_real_opencode_server()
-    selected_agent = _resolve_real_opencode_agent("ThreatIntelAnalyst_test", "ThreatIntelAnalyst")
-    agent_definition = REPO_ROOT / "agent_app/opencode_app/.opencode/agents/ThreatIntelAnalyst_test.md"
-    assert agent_definition.is_file()
+    selected_agent = _resolve_real_opencode_agent(
+        "ThreatIntelAttributionAnalyst",
+        "IOCTriageAgent",
+        "ThreatHunterAgent",
+    )
     print(f"real_opencode_server_url={OPENCODE_BASE_URL}")
     session_response = _post_real_opencode_json("/session", {"title": "AI4X direct tool validation"}, timeout=15.0)
     session_id = str(session_response.get("id") or "").strip()

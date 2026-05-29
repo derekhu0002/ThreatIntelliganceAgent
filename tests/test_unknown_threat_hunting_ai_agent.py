@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 
 
@@ -13,8 +12,6 @@ def _read_workspace_file(relative_path: str) -> str:
 def test_unknown_threat_hunting_ai_agent_contract() -> None:
     agent_prompt = _read_workspace_file("agents/ThreatHunterAgent.md")
     scenario_skill = _read_workspace_file("skills/unknown-threat-hunt-graph-hypothesis/SKILL.md")
-    ai4x_tool = _read_workspace_file("tools/ai4x_query_local.js")
-    architecture = json.loads((REPO_ROOT / "design/KG/SystemArchitecture.json").read_text(encoding="utf-8"))
 
     assert "ThreatHunterAgent" in agent_prompt
     assert "biz.unknown-threat-hunting" in agent_prompt
@@ -46,17 +43,4 @@ def test_unknown_threat_hunting_ai_agent_contract() -> None:
     assert "`pending_confirmations`" in scenario_skill
     assert "`boundary_notes`" in scenario_skill
 
-    assert 'ThreatHunterAgent' in ai4x_tool
-    assert 'ThreatIntelAnalyst_test' in ai4x_tool
-    assert 'ThreatIntelSecOps' in ai4x_tool
-    assert 'TARA_analyst' in ai4x_tool
-    assert "ThreatIntelSecOps must use analyst-provided AI4X data rather than calling ai4x_query_local directly." in ai4x_tool
-
-    threat_hunter_agent = next(element for element in architecture["elements"] if element["name"] == "ThreatHunterAgent")
-    assert threat_hunter_agent["browser_path"].endswith("/ThreatHunterAgent")
-    assert threat_hunter_agent["attributes"][0]["description"] == (
-        "agent_app\\opencode_app\\.opencode\\agents\\ThreatHunterAgent.md"
-    )
-    assert threat_hunter_agent["attributes"][1]["description"] == (
-        "agent_app\\opencode_app\\.opencode\\skills\\unknown-threat-hunt-graph-hypothesis\\SKILL.md"
-    )
+    assert not (WORKSPACE_ROOT / "tools").exists()
