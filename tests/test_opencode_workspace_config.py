@@ -107,7 +107,7 @@ def test_opencode_workspace_config_declares_canonical_roles_and_aliases() -> Non
     config = json.loads(OPENCODE_CONFIG_PATH.read_text(encoding="utf-8"))
     workspace_contract = json.loads(WORKSPACE_CONTRACT_PATH.read_text(encoding="utf-8"))
 
-    assert config["default_agent"] == "sec-copilot"
+    assert config["default_agent"] == "安全运营助手"
     assert workspace_contract["workspace"]["root"] == "agent_app/opencode_app/.opencode"
     assert workspace_contract["workspace"]["control_plane_root"] == ".opencode"
     assert config["mcp"]["ai4x"]["type"] == "remote"

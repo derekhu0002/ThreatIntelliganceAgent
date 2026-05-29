@@ -55,6 +55,6 @@ It distinguishes the canonical remote MCP contract from workspace-local compatib
 ## Frozen Guardrails
 
 1. Canonical MCP tool name remains `ai4x_query`.
-2. Canonical default agent remains `sec-copilot`.
+2. Canonical default agent remains `安全运营助手`.
 3. `fallback_http_api_allowed=true` remains permitted only as support for the remote MCP boundary, not as a replacement control path.
 4. Compatibility assets under `.opencode/tools` are not frozen as intent artifacts unless promoted by a future contract change.
