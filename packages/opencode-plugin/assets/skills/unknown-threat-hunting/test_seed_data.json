@@ -1,0 +1,173 @@
+{
+  "skill_name": "unknown-threat-hunting",
+  "scenario": "基于关联图谱的未知威胁猎杀",
+  "load_target_source": "opencti",
+  "success_case_goal": "让用户从一个已知报告或组织入口出发，命中共享基础设施与辅助证据，扩展发现一个满足门槛的未知候选组织，以及一个证据不足的排除项。",
+  "empty_case_description": "不准备名为 GhostGroup 的 intrusion-set 或 threat-actor，因此以该名称查询时应返回结构化空结果，并提示用户补充报告标题、IOC 或其他实体名。",
+  "verification_hint": {
+    "query_seed": "APT29 Shared Infrastructure Follow-up Report",
+    "expected_fact_focus": [
+      "APT29 Shared Infrastructure Follow-up Report",
+      "APT29",
+      "shared-domain.example",
+      "WellMess",
+      "Spearphishing Attachment",
+      "NorthernCascade",
+      "BlueHarbor"
+    ],
+    "expected_inference_focus": [
+      "NorthernCascade 可能与 APT29 存在同源或协同行为候选关系",
+      "BlueHarbor 仅共享单一对象，证据不足，应进入 Exclusions",
+      "不能把 NorthernCascade 输出为确定归因结果"
+    ]
+  },
+  "seed_bundle": {
+    "type": "bundle",
+    "id": "bundle--unknown-threat-hunting-opencti",
+    "objects": [
+      {
+        "type": "report",
+        "spec_version": "2.1",
+        "id": "report--apt29-shared-infrastructure-follow-up",
+        "name": "APT29 Shared Infrastructure Follow-up Report",
+        "description": "Follow-up report documenting infrastructure reuse and related delivery patterns around APT29 activity.",
+        "published": "2026-03-01T00:00:00Z"
+      },
+      {
+        "type": "intrusion-set",
+        "spec_version": "2.1",
+        "id": "intrusion-set--apt29",
+        "name": "APT29"
+      },
+      {
+        "type": "intrusion-set",
+        "spec_version": "2.1",
+        "id": "intrusion-set--northerncascade",
+        "name": "NorthernCascade"
+      },
+      {
+        "type": "intrusion-set",
+        "spec_version": "2.1",
+        "id": "intrusion-set--blueharbor",
+        "name": "BlueHarbor"
+      },
+      {
+        "type": "infrastructure",
+        "spec_version": "2.1",
+        "id": "infrastructure--shared-domain",
+        "name": "shared-domain.example",
+        "description": "Shared infrastructure reused across multiple phishing-driven operations."
+      },
+      {
+        "type": "malware",
+        "spec_version": "2.1",
+        "id": "malware--wellmess",
+        "name": "WellMess",
+        "is_family": true,
+        "description": "Malware family observed in the follow-up investigation."
+      },
+      {
+        "type": "attack-pattern",
+        "spec_version": "2.1",
+        "id": "attack-pattern--spearphishing-attachment",
+        "name": "Spearphishing Attachment",
+        "description": "Adversary sends a malicious attachment to gain initial access."
+      },
+      {
+        "type": "identity",
+        "spec_version": "2.1",
+        "id": "identity--harbor-labs",
+        "name": "Harbor Labs",
+        "identity_class": "organization"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--report-related-apt29",
+        "relationship_type": "related-to",
+        "source_ref": "report--apt29-shared-infrastructure-follow-up",
+        "target_ref": "intrusion-set--apt29"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--report-related-shared-domain",
+        "relationship_type": "related-to",
+        "source_ref": "report--apt29-shared-infrastructure-follow-up",
+        "target_ref": "infrastructure--shared-domain"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--report-related-attack-pattern",
+        "relationship_type": "related-to",
+        "source_ref": "report--apt29-shared-infrastructure-follow-up",
+        "target_ref": "attack-pattern--spearphishing-attachment"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--report-related-wellmess",
+        "relationship_type": "related-to",
+        "source_ref": "report--apt29-shared-infrastructure-follow-up",
+        "target_ref": "malware--wellmess"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--apt29-related-shared-domain",
+        "relationship_type": "related-to",
+        "source_ref": "intrusion-set--apt29",
+        "target_ref": "infrastructure--shared-domain"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--apt29-uses-wellmess",
+        "relationship_type": "uses",
+        "source_ref": "intrusion-set--apt29",
+        "target_ref": "malware--wellmess"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--apt29-uses-spearphishing",
+        "relationship_type": "uses",
+        "source_ref": "intrusion-set--apt29",
+        "target_ref": "attack-pattern--spearphishing-attachment"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--northerncascade-related-shared-domain",
+        "relationship_type": "related-to",
+        "source_ref": "intrusion-set--northerncascade",
+        "target_ref": "infrastructure--shared-domain"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--northerncascade-uses-spearphishing",
+        "relationship_type": "uses",
+        "source_ref": "intrusion-set--northerncascade",
+        "target_ref": "attack-pattern--spearphishing-attachment"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--northerncascade-attributed-harbor-labs",
+        "relationship_type": "attributed-to",
+        "source_ref": "intrusion-set--northerncascade",
+        "target_ref": "identity--harbor-labs"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--blueharbor-related-shared-domain",
+        "relationship_type": "related-to",
+        "source_ref": "intrusion-set--blueharbor",
+        "target_ref": "infrastructure--shared-domain"
+      }
+    ]
+  }
+}

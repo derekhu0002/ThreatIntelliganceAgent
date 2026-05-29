@@ -1,0 +1,197 @@
+{
+  "skill_name": "alert-priority-ranking",
+  "scenario": "结合 OpenCTI 置信度与有效期的告警优先级排序",
+  "load_target_source": "opencti",
+  "success_case_goal": "让多条 IOC 中，一条命中高置信且当前仍有效的 indicator，另一条命中低置信或已过期 indicator，并都能补充组织和报告上下文，形成可解释排序。",
+  "empty_case_description": "输入 IOC 列表若全部为 never-seen-a.example、never-seen-b.example 且图中不存在对应 indicator 或 observable，则应返回结构化空结果并列出全部未命中项。",
+  "verification_hint": {
+    "query_seed": [
+      "active-c2.example",
+      "expired-drop.example",
+      "unknown-ioc.example"
+    ],
+    "expected_fact_focus": [
+      "Active C2 Indicator",
+      "Expired Drop Indicator",
+      "APT29",
+      "NorthernCascade",
+      "Current Campaign Infrastructure Report",
+      "Legacy Delivery Infrastructure Report"
+    ],
+    "expected_inference_focus": [
+      "active-c2.example 应排在 expired-drop.example 之前",
+      "unknown-ioc.example 应进入 Exclusions 或空结果未命中列表",
+      "字段缺失条目不能被编造成高优先级"
+    ]
+  },
+  "input_examples": {
+    "ioc_array": [
+      "active-c2.example",
+      "expired-drop.example",
+      "unknown-ioc.example"
+    ],
+    "alert_objects": [
+      {
+        "id": "alert-001",
+        "ioc": "active-c2.example",
+        "type": "domain-name"
+      },
+      {
+        "id": "alert-002",
+        "ioc": "expired-drop.example",
+        "type": "domain-name"
+      },
+      {
+        "id": "alert-003",
+        "ioc": "unknown-ioc.example",
+        "type": "domain-name"
+      }
+    ]
+  },
+  "seed_bundle": {
+    "type": "bundle",
+    "id": "bundle--alert-priority-ranking-opencti",
+    "objects": [
+      {
+        "type": "domain-name",
+        "spec_version": "2.1",
+        "id": "domain-name--active-c2-example",
+        "value": "active-c2.example"
+      },
+      {
+        "type": "domain-name",
+        "spec_version": "2.1",
+        "id": "domain-name--expired-drop-example",
+        "value": "expired-drop.example"
+      },
+      {
+        "type": "indicator",
+        "spec_version": "2.1",
+        "id": "indicator--active-c2-example",
+        "name": "Active C2 Indicator",
+        "pattern": "[domain-name:value = 'active-c2.example']",
+        "pattern_type": "stix",
+        "confidence": 85,
+        "valid_from": "2026-01-01T00:00:00Z",
+        "valid_until": "2026-12-31T23:59:59Z"
+      },
+      {
+        "type": "indicator",
+        "spec_version": "2.1",
+        "id": "indicator--expired-drop-example",
+        "name": "Expired Drop Indicator",
+        "pattern": "[domain-name:value = 'expired-drop.example']",
+        "pattern_type": "stix",
+        "confidence": 35,
+        "valid_from": "2024-01-01T00:00:00Z",
+        "valid_until": "2025-01-01T00:00:00Z"
+      },
+      {
+        "type": "report",
+        "spec_version": "2.1",
+        "id": "report--current-campaign-infrastructure",
+        "name": "Current Campaign Infrastructure Report",
+        "description": "Current report documenting active infrastructure and associated intrusion set.",
+        "published": "2026-02-15T00:00:00Z"
+      },
+      {
+        "type": "report",
+        "spec_version": "2.1",
+        "id": "report--legacy-delivery-infrastructure",
+        "name": "Legacy Delivery Infrastructure Report",
+        "description": "Legacy report documenting expired drop infrastructure.",
+        "published": "2024-06-01T00:00:00Z"
+      },
+      {
+        "type": "intrusion-set",
+        "spec_version": "2.1",
+        "id": "intrusion-set--apt29",
+        "name": "APT29"
+      },
+      {
+        "type": "intrusion-set",
+        "spec_version": "2.1",
+        "id": "intrusion-set--northerncascade",
+        "name": "NorthernCascade"
+      },
+      {
+        "type": "infrastructure",
+        "spec_version": "2.1",
+        "id": "infrastructure--current-c2-cluster",
+        "name": "current-c2-cluster",
+        "description": "Infrastructure cluster associated with current active C2 domain."
+      },
+      {
+        "type": "infrastructure",
+        "spec_version": "2.1",
+        "id": "infrastructure--legacy-drop-cluster",
+        "name": "legacy-drop-cluster",
+        "description": "Infrastructure cluster associated with expired drop domain."
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--active-indicator-based-on-domain",
+        "relationship_type": "based-on",
+        "source_ref": "indicator--active-c2-example",
+        "target_ref": "domain-name--active-c2-example"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--expired-indicator-based-on-domain",
+        "relationship_type": "based-on",
+        "source_ref": "indicator--expired-drop-example",
+        "target_ref": "domain-name--expired-drop-example"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--current-report-related-active-indicator",
+        "relationship_type": "related-to",
+        "source_ref": "report--current-campaign-infrastructure",
+        "target_ref": "indicator--active-c2-example"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--legacy-report-related-expired-indicator",
+        "relationship_type": "related-to",
+        "source_ref": "report--legacy-delivery-infrastructure",
+        "target_ref": "indicator--expired-drop-example"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--apt29-related-current-report",
+        "relationship_type": "related-to",
+        "source_ref": "intrusion-set--apt29",
+        "target_ref": "report--current-campaign-infrastructure"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--northerncascade-related-legacy-report",
+        "relationship_type": "related-to",
+        "source_ref": "intrusion-set--northerncascade",
+        "target_ref": "report--legacy-delivery-infrastructure"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--active-indicator-related-current-infra",
+        "relationship_type": "related-to",
+        "source_ref": "indicator--active-c2-example",
+        "target_ref": "infrastructure--current-c2-cluster"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--expired-indicator-related-legacy-infra",
+        "relationship_type": "related-to",
+        "source_ref": "indicator--expired-drop-example",
+        "target_ref": "infrastructure--legacy-drop-cluster"
+      }
+    ]
+  }
+}

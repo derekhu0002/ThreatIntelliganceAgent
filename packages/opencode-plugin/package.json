@@ -1,0 +1,34 @@
+{
+  "name": "@ai4x/opencode-plugin",
+  "version": "0.1.0",
+  "description": "AI4X threat intelligence agents and skills for opencode.",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "assets/**",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node scripts/verify-plugin.js",
+    "release": "node scripts/publish-release.js",
+    "release:dry-run": "node scripts/publish-release.js --dry-run"
+  },
+  "keywords": [
+    "opencode",
+    "opencode-plugin",
+    "ai4x",
+    "threat-intelligence",
+    "security"
+  ],
+  "license": "UNLICENSED",
+  "dependencies": {
+    "yaml": "^2.8.1"
+  },
+  "peerDependencies": {
+    "@opencode-ai/plugin": ">=1.4.0"
+  }
+}

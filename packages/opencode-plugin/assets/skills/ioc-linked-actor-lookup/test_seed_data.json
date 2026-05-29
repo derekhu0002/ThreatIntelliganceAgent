@@ -1,0 +1,164 @@
+{
+  "skill_name": "ioc-linked-actor-lookup",
+  "scenario": "基于IOC信息查询关联的攻击者组织",
+  "load_target_source": "opencti",
+  "success_case_goal": "让一个恶意域名类型 IOC 同时命中 indicator、observable、malware、report、infrastructure 和至少一个直接命中的 intrusion-set，并扩展出一个满足门槛的候选组织与一个排除项。",
+  "empty_case_description": "不准备名为 never-seen-c2.example 的 domain-name 或对应 indicator，因此查询该 IOC 时应返回结构化空结果，并提示用户补充其他 IOC 或时间范围。",
+  "verification_hint": {
+    "query_seed": "shared-c2.example",
+    "expected_fact_focus": [
+      "shared-c2.example",
+      "Suspicious shared-c2.example Indicator",
+      "StealthDropper",
+      "Shared C2 Infrastructure Report",
+      "shared-c2-hosting",
+      "APT29"
+    ],
+    "expected_inference_focus": [
+      "NorthernCascade 可以作为候选组织输出",
+      "BlueHarbor 证据不足，应进入 Exclusions",
+      "不能把候选组织写成确定归因"
+    ]
+  },
+  "seed_bundle": {
+    "type": "bundle",
+    "id": "bundle--ioc-linked-actor-lookup-opencti",
+    "objects": [
+      {
+        "type": "domain-name",
+        "spec_version": "2.1",
+        "id": "domain-name--shared-c2-example",
+        "value": "shared-c2.example"
+      },
+      {
+        "type": "indicator",
+        "spec_version": "2.1",
+        "id": "indicator--shared-c2-example",
+        "name": "Suspicious shared-c2.example Indicator",
+        "pattern": "[domain-name:value = 'shared-c2.example']",
+        "pattern_type": "stix"
+      },
+      {
+        "type": "malware",
+        "spec_version": "2.1",
+        "id": "malware--stealthdropper",
+        "name": "StealthDropper",
+        "is_family": true,
+        "description": "Malware family associated with the shared domain."
+      },
+      {
+        "type": "report",
+        "spec_version": "2.1",
+        "id": "report--shared-c2-infrastructure-report",
+        "name": "Shared C2 Infrastructure Report",
+        "description": "Report documenting a shared C2 domain used in multiple phishing-linked operations.",
+        "published": "2026-02-12T00:00:00Z"
+      },
+      {
+        "type": "infrastructure",
+        "spec_version": "2.1",
+        "id": "infrastructure--shared-c2-hosting",
+        "name": "shared-c2-hosting",
+        "description": "Infrastructure cluster hosting the shared domain."
+      },
+      {
+        "type": "intrusion-set",
+        "spec_version": "2.1",
+        "id": "intrusion-set--apt29",
+        "name": "APT29"
+      },
+      {
+        "type": "intrusion-set",
+        "spec_version": "2.1",
+        "id": "intrusion-set--northerncascade",
+        "name": "NorthernCascade"
+      },
+      {
+        "type": "intrusion-set",
+        "spec_version": "2.1",
+        "id": "intrusion-set--blueharbor",
+        "name": "BlueHarbor"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--indicator-based-on-domain",
+        "relationship_type": "based-on",
+        "source_ref": "indicator--shared-c2-example",
+        "target_ref": "domain-name--shared-c2-example"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--indicator-indicates-malware",
+        "relationship_type": "indicates",
+        "source_ref": "indicator--shared-c2-example",
+        "target_ref": "malware--stealthdropper"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--report-related-indicator",
+        "relationship_type": "related-to",
+        "source_ref": "report--shared-c2-infrastructure-report",
+        "target_ref": "indicator--shared-c2-example"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--report-related-infrastructure",
+        "relationship_type": "related-to",
+        "source_ref": "report--shared-c2-infrastructure-report",
+        "target_ref": "infrastructure--shared-c2-hosting"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--apt29-uses-malware",
+        "relationship_type": "uses",
+        "source_ref": "intrusion-set--apt29",
+        "target_ref": "malware--stealthdropper"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--apt29-related-report",
+        "relationship_type": "related-to",
+        "source_ref": "intrusion-set--apt29",
+        "target_ref": "report--shared-c2-infrastructure-report"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--apt29-related-infrastructure",
+        "relationship_type": "related-to",
+        "source_ref": "intrusion-set--apt29",
+        "target_ref": "infrastructure--shared-c2-hosting"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--northerncascade-uses-malware",
+        "relationship_type": "uses",
+        "source_ref": "intrusion-set--northerncascade",
+        "target_ref": "malware--stealthdropper"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--northerncascade-related-infrastructure",
+        "relationship_type": "related-to",
+        "source_ref": "intrusion-set--northerncascade",
+        "target_ref": "infrastructure--shared-c2-hosting"
+      },
+      {
+        "type": "relationship",
+        "spec_version": "2.1",
+        "id": "relationship--blueharbor-related-report",
+        "relationship_type": "related-to",
+        "source_ref": "intrusion-set--blueharbor",
+        "target_ref": "report--shared-c2-infrastructure-report"
+      }
+    ]
+  }
+}

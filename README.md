@@ -277,6 +277,81 @@ docker compose -f agent_app/docker-compose.yml up -d opencode neo4j
 docker compose -f agent_app/docker-compose.yml up -d opencode
 ```
 
+### 5.4 OPENCODE 插件包
+
+当前 `.opencode` 工作区已经整理为可发布的 npm 插件包，位置为：
+
+```text
+packages/opencode-plugin
+```
+
+插件包名：`@ai4x/opencode-plugin`。
+
+插件默认注入：
+
+- `default_agent: "安全运营助手"`
+- `mcp.ai4x: http://localhost:8000/mcp`
+- `assets/agents` 中的 Agent 定义
+- `assets/skills` 中的 Skill 定义
+- `assets/plugins` 中的插件源文件
+- `assets/GLOBAL_INSTRUCTIONS.md`
+
+用户安装后在自己的 `opencode.json` 中启用：
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": [
+    "@ai4x/opencode-plugin"
+  ]
+}
+```
+
+如需覆盖 AI4X MCP 地址：
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": [
+    ["@ai4x/opencode-plugin", {
+      "ai4xMcpUrl": "http://your-ai4x-host:8000/mcp"
+    }]
+  ]
+}
+```
+
+修改 opencode 配置后需要重启 opencode，运行中的会话不会热加载插件或配置变更。
+
+插件本地验证：
+
+```powershell
+cd packages/opencode-plugin
+npm test
+```
+
+一键发布新版本：
+
+```powershell
+cd packages/opencode-plugin
+npm run release -- patch
+```
+
+发布脚本支持 `patch`、`minor`、`major` 或显式版本号，例如：
+
+```powershell
+npm run release -- 0.2.0
+npm run release -- patch --otp 123456
+npm run release -- 0.2.0 --tag beta
+```
+
+发布前预演：
+
+```powershell
+npm run release:dry-run -- patch
+```
+
+发布脚本会更新 `package.json` 和 `package-lock.json`，运行插件验证，执行 `npm pack --dry-run`，最后执行 `npm publish --access public`。`release:dry-run` 会在预演结束后恢复版本文件。
+
 ## 6. 输出内容是什么
 
 listener 或闭环脚本成功后，会产出结构化 JSON。主要字段包括：
