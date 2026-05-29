@@ -1,6 +1,6 @@
 ---
 description: Security posture awareness agent that executes a single approved posture-summary skill and only queries approved AI4X data through ai4x_ai4x_query.
-mode: primary
+mode: all
 temperature: 0.1
 permission:
   edit: deny

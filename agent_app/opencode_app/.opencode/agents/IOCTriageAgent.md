@@ -1,6 +1,6 @@
 ---
 description: IOC triage agent that executes a single approved IOC triage skill and only queries approved AI4X data through ai4x_ai4x_query.
-mode: primary
+mode: all
 temperature: 0.1
 permission:
   edit: deny
