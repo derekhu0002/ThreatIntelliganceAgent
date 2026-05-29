@@ -25,12 +25,14 @@ Restart opencode after changing config. opencode loads plugins and config only d
 
 The plugin injects:
 
-- Agent definitions from `assets/agents`.
-- Skill definitions from `assets/skills`.
-- Plugin source files from `assets/plugins` for packaging and reuse.
+- Agent definitions packaged from `agent_app/opencode_app/.opencode/agents`.
+- Skill definitions packaged from `agent_app/opencode_app/.opencode/skills`.
+- Plugin source files packaged from `agent_app/opencode_app/.opencode/plugins`.
 - `default_agent: "安全运营助手"`.
 - `mcp.ai4x` as a remote MCP server at `http://localhost:8000/mcp`.
-- `GLOBAL_INSTRUCTIONS.md` from the package assets.
+- `GLOBAL_INSTRUCTIONS.md` packaged from `agent_app/opencode_app/.opencode`.
+
+The package does not keep `assets` as source. `prepack` generates temporary assets from `agent_app/opencode_app/.opencode`, and `postpack` removes them after packaging.
 
 The plugin does not configure a model provider or API key. Keep model/provider credentials in the user's own opencode config or environment.
 
@@ -85,4 +87,4 @@ npm run release -- 0.2.0 --tag beta
 npm run release -- patch --otp 123456
 ```
 
-The release script updates `package.json` and `package-lock.json`, runs `npm test`, runs `npm pack --dry-run`, then runs `npm publish --access public`.
+The release script updates `package.json` and `package-lock.json`, runs verification, syncs temporary assets from `.opencode`, runs `npm pack --dry-run`, then runs `npm publish --access public`. It removes generated assets when complete. Dry runs restore the version files.

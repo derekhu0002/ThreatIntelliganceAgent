@@ -1,16 +1,24 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import YAML from "yaml";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ASSETS_DIR = path.join(__dirname, "assets");
-const AGENTS_DIR = path.join(ASSETS_DIR, "agents");
-const SKILLS_DIR = path.join(ASSETS_DIR, "skills");
-const INSTRUCTIONS_PATH = path.join(ASSETS_DIR, "GLOBAL_INSTRUCTIONS.md");
+const PACKAGE_ASSETS_DIR = path.join(__dirname, "assets");
+const SOURCE_OPENCODE_DIR = path.resolve(__dirname, "..", "..", "agent_app", "opencode_app", ".opencode");
 const DEFAULT_AGENT = "安全运营助手";
 const DEFAULT_AI4X_MCP_URL = "http://localhost:8000/mcp";
+
+function resolveAssetsDir() {
+  if (existsSync(path.join(PACKAGE_ASSETS_DIR, "agents"))) {
+    return PACKAGE_ASSETS_DIR;
+  }
+  if (existsSync(path.join(SOURCE_OPENCODE_DIR, "agents"))) {
+    return SOURCE_OPENCODE_DIR;
+  }
+  throw new Error("Cannot find opencode plugin assets. Run npm pack or keep agent_app/opencode_app/.opencode available during local development.");
+}
 
 function normalizeOptions(options = {}) {
   return {
@@ -36,15 +44,15 @@ function parseAgentFile(filePath) {
   };
 }
 
-function loadAgents() {
+function loadAgents(agentsDir) {
   const agents = {};
-  for (const entry of readdirSync(AGENTS_DIR, { withFileTypes: true })) {
+  for (const entry of readdirSync(agentsDir, { withFileTypes: true })) {
     if (!entry.isFile() || !entry.name.endsWith(".md")) {
       continue;
     }
 
     const agentName = path.basename(entry.name, ".md");
-    agents[agentName] = parseAgentFile(path.join(AGENTS_DIR, entry.name));
+    agents[agentName] = parseAgentFile(path.join(agentsDir, entry.name));
   }
 
   return agents;
@@ -58,13 +66,17 @@ function pushUnique(items, value) {
 
 export default async function ai4xOpenCodePlugin(_input, rawOptions = {}) {
   const options = normalizeOptions(rawOptions);
-  const agents = loadAgents();
+  const assetsDir = resolveAssetsDir();
+  const agentsDir = path.join(assetsDir, "agents");
+  const skillsDir = path.join(assetsDir, "skills");
+  const instructionsPath = path.join(assetsDir, "GLOBAL_INSTRUCTIONS.md");
+  const agents = loadAgents(agentsDir);
 
   return {
     config: (cfg) => {
       cfg.skills = cfg.skills || {};
       cfg.skills.paths = cfg.skills.paths || [];
-      pushUnique(cfg.skills.paths, SKILLS_DIR);
+      pushUnique(cfg.skills.paths, skillsDir);
 
       cfg.agent = {
         ...agents,
@@ -77,7 +89,7 @@ export default async function ai4xOpenCodePlugin(_input, rawOptions = {}) {
 
       if (options.injectInstructions) {
         cfg.instructions = cfg.instructions || [];
-        pushUnique(cfg.instructions, INSTRUCTIONS_PATH);
+        pushUnique(cfg.instructions, instructionsPath);
       }
 
       if (options.injectMcp) {

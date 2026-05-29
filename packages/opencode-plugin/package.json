@@ -1,6 +1,6 @@
 {
   "name": "@ai4x/opencode-plugin",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "AI4X threat intelligence agents and skills for opencode.",
   "type": "module",
   "main": "index.js",
@@ -14,6 +14,10 @@
   ],
   "scripts": {
     "test": "node scripts/verify-plugin.js",
+    "sync-assets": "node scripts/sync-assets.js",
+    "clean-assets": "node scripts/clean-assets.js",
+    "prepack": "npm run sync-assets",
+    "postpack": "npm run clean-assets",
     "release": "node scripts/publish-release.js",
     "release:dry-run": "node scripts/publish-release.js --dry-run"
   },

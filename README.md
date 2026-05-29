@@ -291,10 +291,12 @@ packages/opencode-plugin
 
 - `default_agent: "安全运营助手"`
 - `mcp.ai4x: http://localhost:8000/mcp`
-- `assets/agents` 中的 Agent 定义
-- `assets/skills` 中的 Skill 定义
-- `assets/plugins` 中的插件源文件
-- `assets/GLOBAL_INSTRUCTIONS.md`
+- 从 `agent_app/opencode_app/.opencode/agents` 同步打包的 Agent 定义
+- 从 `agent_app/opencode_app/.opencode/skills` 同步打包的 Skill 定义
+- 从 `agent_app/opencode_app/.opencode/plugins` 同步打包的插件源文件
+- 从 `agent_app/opencode_app/.opencode/GLOBAL_INSTRUCTIONS.md` 同步打包的全局说明
+
+为避免重复维护，`packages/opencode-plugin/assets` 不作为源码保存。`npm pack`、`npm publish` 和发布脚本会在打包前从 `agent_app/opencode_app/.opencode` 生成临时 `assets`，打包后自动删除。
 
 用户安装后在自己的 `opencode.json` 中启用：
 
@@ -350,7 +352,7 @@ npm run release -- 0.2.0 --tag beta
 npm run release:dry-run -- patch
 ```
 
-发布脚本会更新 `package.json` 和 `package-lock.json`，运行插件验证，执行 `npm pack --dry-run`，最后执行 `npm publish --access public`。`release:dry-run` 会在预演结束后恢复版本文件。
+发布脚本会更新 `package.json` 和 `package-lock.json`，运行插件验证，从 `.opencode` 同步临时 `assets`，执行 `npm pack --dry-run`，最后执行 `npm publish --access public`。发布脚本结束后会清理临时 `assets`；`release:dry-run` 还会恢复版本文件。
 
 ## 6. 输出内容是什么
 

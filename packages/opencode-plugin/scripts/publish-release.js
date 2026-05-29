@@ -163,6 +163,7 @@ function main() {
     updateVersions(version);
 
     run(process.execPath, ["scripts/verify-plugin.js"]);
+    run(process.execPath, ["scripts/sync-assets.js"]);
     run("npm", ["pack", "--dry-run"]);
 
     const publishArgs = ["publish", "--access", options.access, "--tag", options.tag];
@@ -175,6 +176,7 @@ function main() {
 
     run("npm", publishArgs);
   } finally {
+    run(process.execPath, ["scripts/clean-assets.js"]);
     if (options.dryRun) {
       writeFileSync(packageJsonPath, originalPackageJson, "utf8");
       if (originalPackageLock !== null) {

@@ -7,12 +7,15 @@ import plugin from "../index.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const packageRoot = path.resolve(__dirname, "..");
-const assetsRoot = path.join(packageRoot, "assets");
+const repoRoot = path.resolve(packageRoot, "..", "..");
+const sourceRoot = path.join(repoRoot, "agent_app", "opencode_app", ".opencode");
+const packagedAssetsRoot = path.join(packageRoot, "assets");
+const expectedAssetsRoot = existsSync(path.join(packagedAssetsRoot, "agents")) ? packagedAssetsRoot : sourceRoot;
 
-assert.equal(existsSync(path.join(assetsRoot, "agents", "安全运营助手.md")), true);
-assert.equal(existsSync(path.join(assetsRoot, "skills", "ioc-triage-indicator-priority", "SKILL.md")), true);
-assert.equal(existsSync(path.join(assetsRoot, "plugins", "introduce-before-talk.ts")), true);
-assert.equal(existsSync(path.join(assetsRoot, "GLOBAL_INSTRUCTIONS.md")), true);
+assert.equal(existsSync(path.join(expectedAssetsRoot, "agents", "安全运营助手.md")), true);
+assert.equal(existsSync(path.join(expectedAssetsRoot, "skills", "ioc-triage-indicator-priority", "SKILL.md")), true);
+assert.equal(existsSync(path.join(expectedAssetsRoot, "plugins", "introduce-before-talk.ts")), true);
+assert.equal(existsSync(path.join(expectedAssetsRoot, "GLOBAL_INSTRUCTIONS.md")), true);
 
 const hooks = await plugin({}, {});
 assert.equal(typeof hooks.config, "function");
@@ -24,10 +27,10 @@ assert.equal(cfg.default_agent, "安全运营助手");
 assert.equal(cfg.mcp.ai4x.type, "remote");
 assert.equal(cfg.mcp.ai4x.url, "http://localhost:8000/mcp");
 assert.equal(cfg.skills.paths.length, 1);
-assert.equal(cfg.skills.paths[0], path.join(assetsRoot, "skills"));
+assert.equal(cfg.skills.paths[0], path.join(expectedAssetsRoot, "skills"));
 assert.equal(typeof cfg.agent["安全运营助手"].prompt, "string");
 assert.equal(cfg.agent["安全运营助手"].mode, "primary");
-assert.equal(cfg.instructions[0], path.join(assetsRoot, "GLOBAL_INSTRUCTIONS.md"));
+assert.equal(cfg.instructions[0], path.join(expectedAssetsRoot, "GLOBAL_INSTRUCTIONS.md"));
 
 const customHooks = await plugin({}, {
   ai4xMcpUrl: "http://example.test/mcp",
