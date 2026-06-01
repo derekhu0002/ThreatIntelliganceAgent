@@ -1,18 +1,17 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "default_agent": "安全运营助手",
+  "plugin": [
+    ".opencode/plugins/introduce-before-talk.ts"
+  ],
+  "instructions": [
+    "agent_app/opencode_app/.opencode/GLOBAL_INSTRUCTIONS.md"
+  ],
   "mcp": {
     "ai4x": {
       "type": "remote",
       "url": "http://localhost:8000/mcp"
     }
   },
-  "instructions": [
-    ".opencode/GLOBAL_INSTRUCTIONS.md"
-  ],
-  "plugin": [
-    ".opencode/plugins/introduce-before-talk.ts"
-  ],
   "permission": {
     "mcp_*": "ask",
     "skill": {
