@@ -8,3 +8,5 @@ node_modules
 .pytest_cache
 .obsidian/
 # agent_app/opencode_app/.opencode/opencode.json
+/.github
+/.opencode
